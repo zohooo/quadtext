@@ -75,8 +75,7 @@ local ID_GOTOLINE         = NewID()
 local ID_SORT             = NewID()
 -- Tool menu
 local ID_COMPILE          = NewID()
-local ID_RUN              = NewID()
-local ID_USECONSOLE       = NewID()
+local ID_PREVIEW          = NewID()
 local ID_SHOWHIDEWINDOW   = NewID()
 local ID_CLEAROUTPUT      = NewID()
 -- Help menu
@@ -757,7 +756,7 @@ function OpenFile(event)
     local fileDialog = wx.wxFileDialog(frame, "Open file",
                                        "",
                                        "",
-                                       "Lua files (*.lua)|*.lua|Text files (*.txt)|*.txt|All files (*)|*",
+                                       "TeX files (*.tex)|*.tex|Lua files (*.lua)|*.lua|All files (*)|*",
                                        wx.wxFD_OPEN + wx.wxFD_FILE_MUST_EXIST)
     if fileDialog:ShowModal() == wx.wxID_OK then
         if not LoadFile(fileDialog:GetPath(), nil, true) then
@@ -1697,16 +1696,13 @@ frame:Connect(ID_SORT, wx.wxEVT_UPDATE_UI, OnUpdateUIEditMenu)
 -- Create the Tool menu and attach the callback functions
 
 toolMenu = wx.wxMenu{
-        { ID_COMPILE,          "&Compile\tF7",           "Test compile the wxLua program" },
-        { ID_RUN,              "&Run\tF6",               "Execute the current file" },
-        { ID_USECONSOLE,       "Console",               "Use console when running",  wx.wxITEM_CHECK },
+        { ID_COMPILE,          "&Compile\tF5",          "Compile current file" },
+        { ID_PREVIEW,          "&Preview\tF6",          "Preview output file" },
         { },
         { ID_SHOWHIDEWINDOW,   "View &Output Window\tF8", "View or Hide the output window" },
-        { ID_CLEAROUTPUT,      "C&lear Output Window",    "Clear the output window before compiling or debugging", wx.wxITEM_CHECK },
+        { ID_CLEAROUTPUT,      "C&lear Output Window",    "Clear the output window before compiling", wx.wxITEM_CHECK },
         }
 menuBar:Append(toolMenu, "&Tool")
-
-menuBar:Check(ID_USECONSOLE, true)
 
 function SetAllEditorsReadOnly(enable)
     for id, document in pairs(openDocuments) do
@@ -1736,38 +1732,6 @@ function DisplayOutput(message, dont_add_marker)
     errorLog:GotoPos(errorLog:GetLength())
 end
 
-function CompileProgram(editor)
-    local editorText = editor:GetText()
-
-    -- Ignore the shebang at the beginning, if it's there.
-    if string.sub(editorText, 1, 2) == "#!" then
-        editorText = "--"..editorText
-    end
-
-    local id         = editor:GetId()
-    local filePath   = MakeFileName(editor, openDocuments[id].filePath)
-    local ret, errMsg, line_num = wxlua.CompileLuaScript(editorText, filePath)
-    if menuBar:IsChecked(ID_CLEAROUTPUT) then
-        ClearOutput()
-    end
-
-    if line_num > -1 then
-        DisplayOutput("Compilation error on line number :"..tostring(line_num).."\n"..errMsg.."\n\n")
-        editor:GotoLine(line_num-1)
-    else
-        DisplayOutput("Compilation successful!\n\n")
-    end
-
-    return line_num == -1 -- return true if it compiled ok
-end
-
-frame:Connect(ID_COMPILE, wx.wxEVT_COMMAND_MENU_SELECTED,
-        function (event)
-            local editor = GetEditor()
-            CompileProgram(editor)
-        end)
-frame:Connect(ID_COMPILE, wx.wxEVT_UPDATE_UI, OnUpdateUIEditMenu)
-
 function SaveIfModified(editor)
     local id = editor:GetId()
     if openDocuments[id].isModified then
@@ -1792,36 +1756,20 @@ function SaveIfModified(editor)
     return true -- saved
 end
 
-frame:Connect(ID_RUN, wx.wxEVT_COMMAND_MENU_SELECTED,
+frame:Connect(ID_COMPILE, wx.wxEVT_COMMAND_MENU_SELECTED,
         function (event)
-            -- FIXME - I don't understand why you would would want to run *all* the notebook pages?
---[[
-            local fileList = {}
-            SaveAll()
-            for id, document in pairs(openDocuments) do
-                local filePath = document.filePath
-                if filePath == nil then
-                    return
-                end
-                table.insert(fileList, ' "'..filePath..'"')
-            end
-            local cmd = '"'..programName..'" '..table.concat(fileList)
-]]
             local editor = GetEditor();
-            -- test compile it before we run it, if successful then ask to save
-            if not CompileProgram(editor) then
-                return
-            end
             if not SaveIfModified(editor) then
                 return
             end
 
             local id = editor:GetId();
-            local console = iff(menuBar:IsChecked(ID_USECONSOLE), " -c ", "")
-            local cmd = '"'..programName..'" '..console..'"'..openDocuments[id].filePath..'"'
+            programName = "xelatex"
+            local cmd = 'cmd /k start "" '..programName..' "'..openDocuments[id].filePath..'" & exit'
 
             DisplayOutput("Running program: "..cmd.."\n")
             local pid = wx.wxExecute(cmd, wx.wxEXEC_ASYNC)
+            print(pid)
 
             if pid == -1 then
                 DisplayOutput("Unknown ERROR Running program!\n", true)
@@ -1829,7 +1777,32 @@ frame:Connect(ID_RUN, wx.wxEVT_COMMAND_MENU_SELECTED,
                 DisplayOutput("Process id is: "..tostring(pid).."\n", true)
             end
         end)
-frame:Connect(ID_RUN, wx.wxEVT_UPDATE_UI,
+frame:Connect(ID_COMPILE, wx.wxEVT_UPDATE_UI,
+        function (event)
+            local editor = GetEditor()
+            event:Enable(editor ~= nil)
+        end)
+
+frame:Connect(ID_PREVIEW, wx.wxEVT_COMMAND_MENU_SELECTED,
+        function (event)
+            local editor = GetEditor();
+
+            local id = editor:GetId();
+            programName = "SumatraPDF"
+            local pdfName = string.sub(openDocuments[id].filePath, 0, -5) .. ".pdf"
+            local cmd = programName .. ' ' .. pdfName
+
+            DisplayOutput("Running program: "..cmd.."\n")
+            local pid = wx.wxExecute(cmd, wx.wxEXEC_ASYNC)
+            print(pid)
+
+            if pid == -1 then
+                DisplayOutput("Unknown ERROR Running program!\n", true)
+            else
+                DisplayOutput("Process id is: "..tostring(pid).."\n", true)
+            end
+        end)
+frame:Connect(ID_PREVIEW, wx.wxEVT_UPDATE_UI,
         function (event)
             local editor = GetEditor()
             event:Enable(editor ~= nil)
