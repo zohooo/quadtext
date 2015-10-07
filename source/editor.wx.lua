@@ -81,16 +81,8 @@ local ID_SHOWHIDEWINDOW   = NewID()
 local ID_CLEAROUTPUT      = NewID()
 -- Help menu
 local ID_ABOUT            = wx.wxID_ABOUT
--- Watch window menu items
-local ID_WATCH_LISTCTRL   = NewID()
-local ID_ADDWATCH         = NewID()
-local ID_EDITWATCH        = NewID()
-local ID_REMOVEWATCH      = NewID()
-local ID_EVALUATEWATCH    = NewID()
 
 -- Markers for editor marker margin
-local BREAKPOINT_MARKER         = 1
-local BREAKPOINT_MARKER_VALUE   = 2 -- = 2^BREAKPOINT_MARKER
 local CURRENT_LINE_MARKER       = 2
 local CURRENT_LINE_MARKER_VALUE = 4 -- = 2^CURRENT_LINE_MARKER
 
@@ -109,8 +101,6 @@ frame            = nil    -- wxFrame the main top level window
 splitter         = nil    -- wxSplitterWindow for the notebook and errorLog
 notebook         = nil    -- wxNotebook of editors
 errorLog         = nil    -- wxStyledTextCtrl log window for messages
-watchWindow      = nil    -- the watchWindow, nil when not created
-watchListCtrl    = nil    -- the child listctrl in the watchWindow
 
 in_evt_focus     = false  -- true when in editor focus event to avoid recursion
 openDocuments    = {}     -- open notebook editor documents[winId] = {
@@ -486,7 +476,6 @@ function CreateEditor(name)
     editor:SetMarginType(1, wxstc.wxSTC_MARGIN_SYMBOL)
     editor:SetMarginSensitive(1, true)
 
-    editor:MarkerDefine(BREAKPOINT_MARKER,   wxstc.wxSTC_MARK_ROUNDRECT, wx.wxWHITE, wx.wxRED)
     editor:MarkerDefine(CURRENT_LINE_MARKER, wxstc.wxSTC_MARK_ARROW,     wx.wxBLACK, wx.wxGREEN)
 
     editor:SetMarginWidth(2, 16) -- fold margin
@@ -751,7 +740,6 @@ function LoadFile(filePath, editor, file_must_exist)
     editor:Clear()
     editor:ClearAll()
     SetupKeywords(editor, IsLuaFile(filePath))
-    editor:MarkerDeleteAll(BREAKPOINT_MARKER)
     editor:MarkerDeleteAll(CURRENT_LINE_MARKER)
     editor:AppendText(file_text)
     editor:EmptyUndoBuffer()
@@ -1190,7 +1178,6 @@ frame:Connect( ID_EXIT, wx.wxEVT_COMMAND_MENU_SELECTED,
         function (event)
             if not SaveOnExit(true) then return end
             frame:Close() -- will handle wxEVT_CLOSE_WINDOW
-            CloseWatchWindow()
         end)
 
 -- ---------------------------------------------------------------------------
