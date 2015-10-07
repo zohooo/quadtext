@@ -73,25 +73,12 @@ local ID_FINDPREV         = NewID()
 local ID_REPLACE          = NewID()
 local ID_GOTOLINE         = NewID()
 local ID_SORT             = NewID()
--- Debug menu
-local ID_TOGGLEBREAKPOINT = NewID()
+-- Tool menu
 local ID_COMPILE          = NewID()
 local ID_RUN              = NewID()
-local ID_ATTACH_DEBUG     = NewID()
-local ID_START_DEBUG      = NewID()
 local ID_USECONSOLE       = NewID()
-
-local ID_STOP_DEBUG       = NewID()
-local ID_STEP             = NewID()
-local ID_STEP_OVER        = NewID()
-local ID_STEP_OUT         = NewID()
-local ID_CONTINUE         = NewID()
-local ID_BREAK            = NewID()
-local ID_VIEWCALLSTACK    = NewID()
-local ID_VIEWWATCHWINDOW  = NewID()
 local ID_SHOWHIDEWINDOW   = NewID()
 local ID_CLEAROUTPUT      = NewID()
-local ID_DEBUGGER_PORT    = NewID()
 -- Help menu
 local ID_ABOUT            = wx.wxID_ABOUT
 -- Watch window menu items
@@ -116,13 +103,6 @@ local char_Sp  = string.byte(" ")
 -- Global variables
 programName      = nil    -- the name of the wxLua program to be used when starting debugger
 editorApp        = wx.wxGetApp()
-
-debuggerServer     = nil    -- wxLuaDebuggerServer object when debugging, else nil
-debuggerServer_    = nil    -- temp wxLuaDebuggerServer object for deletion
-debuggee_running   = false  -- true when the debuggee is running
-debugger_destroy   = 0      -- > 0 if the debugger is to be destroyed in wxEVT_IDLE
-debuggee_pid       = 0      -- pid of the debuggee process
-debuggerPortNumber = 1551   -- the port # to use for debugging
 
 -- wxWindow variables
 frame            = nil    -- wxFrame the main top level window
@@ -535,9 +515,7 @@ function CreateEditor(name)
             function (event)
                 local line = editor:LineFromPosition(event:GetPosition())
                 local margin = event:GetMargin()
-                if margin == 1 then
-                    ToggleDebugMarker(editor, line)
-                elseif margin == 2 then
+                if margin == 2 then
                     if wx.wxGetKeyState(wx.WXK_SHIFT) and wx.wxGetKeyState(wx.WXK_CONTROL) then
                         FoldSome()
                     else
@@ -701,128 +679,6 @@ function CreateAutoCompList(key_) -- much faster than iterating the wx. table
     end
 
     return key_list
-end
-
--- ---------------------------------------------------------------------------
--- Create the watch window
-
-function ProcessWatches()
-    if watchListCtrl and debuggerServer then
-        for idx = 0, watchListCtrl:GetItemCount() - 1 do
-            local expression = watchListCtrl:GetItemText(idx)
-            debuggerServer:EvaluateExpr(idx, expression)
-        end
-    end
-end
-
-function CloseWatchWindow()
-    if watchWindow then
-        watchListCtrl = nil
-        watchWindow:Destroy()
-        watchWindow = nil
-    end
-end
-
-function CreateWatchWindow()
-    local width = 180
-    watchWindow = wx.wxFrame(frame, wx.wxID_ANY, "wxLua Watch Window",
-                             wx.wxDefaultPosition, wx.wxSize(width, 160))
-
-    local watchMenu = wx.wxMenu{
-            { ID_ADDWATCH,      "&Add Watch"        },
-            { ID_EDITWATCH,     "&Edit Watch\tF2"   },
-            { ID_REMOVEWATCH,   "&Remove Watch"     },
-            { ID_EVALUATEWATCH, "Evaluate &Watches" }}
-
-    local watchMenuBar = wx.wxMenuBar()
-    watchMenuBar:Append(watchMenu, "&Watches")
-    watchWindow:SetMenuBar(watchMenuBar)
-
-    watchListCtrl = wx.wxListCtrl(watchWindow, ID_WATCH_LISTCTRL,
-                                  wx.wxDefaultPosition, wx.wxDefaultSize,
-                                  wx.wxLC_REPORT + wx.wxLC_EDIT_LABELS)
-
-    local info = wx.wxListItem()
-    info:SetMask(wx.wxLIST_MASK_TEXT + wx.wxLIST_MASK_WIDTH)
-    info:SetText("Expression")
-    info:SetWidth(width / 2)
-    watchListCtrl:InsertColumn(0, info)
-
-    info:SetText("Value")
-    info:SetWidth(width / 2)
-    watchListCtrl:InsertColumn(1, info)
-
-    watchWindow:CentreOnParent()
-    ConfigRestoreFramePosition(watchWindow, "WatchWindow")
-    watchWindow:Show(true)
-
-    local function FindSelectedWatchItem()
-        local count = watchListCtrl:GetSelectedItemCount()
-        if count > 0 then
-            for idx = 0, watchListCtrl:GetItemCount() - 1 do
-                if watchListCtrl:GetItemState(idx, wx.wxLIST_STATE_FOCUSED) ~= 0 then
-                    return idx
-                end
-            end
-        end
-        return -1
-    end
-
-    watchWindow:Connect( wx.wxEVT_CLOSE_WINDOW,
-            function (event)
-                ConfigSaveFramePosition(watchWindow, "WatchWindow")
-                watchWindow = nil
-                watchListCtrl = nil
-                event:Skip()
-            end)
-
-    watchWindow:Connect(ID_ADDWATCH, wx.wxEVT_COMMAND_MENU_SELECTED,
-            function (event)
-                local row = watchListCtrl:InsertItem(watchListCtrl:GetItemCount(), "Expr")
-                watchListCtrl:SetItem(row, 0, "Expr")
-                watchListCtrl:SetItem(row, 1, "Value")
-                watchListCtrl:EditLabel(row)
-            end)
-
-    watchWindow:Connect(ID_EDITWATCH, wx.wxEVT_COMMAND_MENU_SELECTED,
-            function (event)
-                local row = FindSelectedWatchItem()
-                if row >= 0 then
-                    watchListCtrl:EditLabel(row)
-                end
-            end)
-    watchWindow:Connect(ID_EDITWATCH, wx.wxEVT_UPDATE_UI,
-            function (event)
-                event:Enable(watchListCtrl:GetSelectedItemCount() > 0)
-            end)
-
-    watchWindow:Connect(ID_REMOVEWATCH, wx.wxEVT_COMMAND_MENU_SELECTED,
-            function (event)
-                local row = FindSelectedWatchItem()
-                if row >= 0 then
-                    watchListCtrl:DeleteItem(row)
-                end
-            end)
-    watchWindow:Connect(ID_REMOVEWATCH, wx.wxEVT_UPDATE_UI,
-            function (event)
-                event:Enable(watchListCtrl:GetSelectedItemCount() > 0)
-            end)
-
-    watchWindow:Connect(ID_EVALUATEWATCH, wx.wxEVT_COMMAND_MENU_SELECTED,
-            function (event)
-                ProcessWatches()
-            end)
-    watchWindow:Connect(ID_EVALUATEWATCH, wx.wxEVT_UPDATE_UI,
-            function (event)
-                event:Enable(watchListCtrl:GetItemCount() > 0)
-            end)
-
-    watchListCtrl:Connect(wx.wxEVT_COMMAND_LIST_END_LABEL_EDIT,
-            function (event)
-                watchListCtrl:SetItem(event:GetIndex(), 0, event:GetText())
-                ProcessWatches()
-                event:Skip()
-            end)
 end
 
 -- ---------------------------------------------------------------------------
@@ -1315,7 +1171,7 @@ frame:Connect(ID_CLOSE, wx.wxEVT_COMMAND_MENU_SELECTED,
 
 frame:Connect(ID_CLOSE, wx.wxEVT_UPDATE_UI,
         function (event)
-            event:Enable((GetEditor() ~= nil) and (debuggerServer == nil))
+            event:Enable(GetEditor() ~= nil)
         end)
 
 function SaveOnExit(allow_cancel)
@@ -1851,32 +1707,17 @@ frame:Connect(ID_SORT, wx.wxEVT_COMMAND_MENU_SELECTED,
 frame:Connect(ID_SORT, wx.wxEVT_UPDATE_UI, OnUpdateUIEditMenu)
 
 -- ---------------------------------------------------------------------------
--- Create the Debug menu and attach the callback functions
+-- Create the Tool menu and attach the callback functions
 
-debugMenu = wx.wxMenu{
-        { ID_TOGGLEBREAKPOINT, "Toggle &Breakpoint\tF9", "Toggle Breakpoint" },
-        { },
+toolMenu = wx.wxMenu{
         { ID_COMPILE,          "&Compile\tF7",           "Test compile the wxLua program" },
         { ID_RUN,              "&Run\tF6",               "Execute the current file" },
-        { ID_ATTACH_DEBUG,     "&Attach\tShift-F6",      "Allow a client to start a debugging session" },
-        { ID_START_DEBUG,      "&Start Debugging\tShift-F5", "Start a debugging session" },
         { ID_USECONSOLE,       "Console",               "Use console when running",  wx.wxITEM_CHECK },
-        { },
-        { ID_STOP_DEBUG,       "S&top Debugging\tShift-F12", "Stop and end the debugging session" },
-        { ID_STEP,             "St&ep\tF11",             "Step into the next line" },
-        { ID_STEP_OVER,        "Step &Over\tShift-F11",  "Step over the next line" },
-        { ID_STEP_OUT,         "Step O&ut\tF8",          "Step out of the current function" },
-        { ID_CONTINUE,         "Co&ntinue\tF5",          "Run the program at full speed" },
-        { ID_BREAK,            "&Break\tF12",            "Stop execution of the program at the next executed line of code" },
-        { },
-        { ID_VIEWCALLSTACK,    "V&iew Call Stack",       "View the LUA call stack" },
-        { ID_VIEWWATCHWINDOW,  "View &Watches",          "View the Watch window" },
         { },
         { ID_SHOWHIDEWINDOW,   "View &Output Window\tF8", "View or Hide the output window" },
         { ID_CLEAROUTPUT,      "C&lear Output Window",    "Clear the output window before compiling or debugging", wx.wxITEM_CHECK },
-        --{ }, { ID_DEBUGGER_PORT,    "Set debugger socket port...", "Chose what port to use for debugger sockets." }
         }
-menuBar:Append(debugMenu, "&Debug")
+menuBar:Append(toolMenu, "&Tool")
 
 menuBar:Check(ID_USECONSOLE, true)
 
@@ -1887,38 +1728,11 @@ function SetAllEditorsReadOnly(enable)
     end
 end
 
-function MakeDebugFileName(editor, filePath)
+function MakeFileName(editor, filePath)
     if not filePath then
         filePath = "file"..tostring(editor)
     end
     return filePath
-end
-
-function ToggleDebugMarker(editor, line)
-    local markers = editor:MarkerGet(line)
-    if markers >= CURRENT_LINE_MARKER_VALUE then
-        markers = markers - CURRENT_LINE_MARKER_VALUE
-    end
-    local id       = editor:GetId()
-    local filePath = MakeDebugFileName(editor, openDocuments[id].filePath)
-    if markers >= BREAKPOINT_MARKER_VALUE then
-        editor:MarkerDelete(line, BREAKPOINT_MARKER)
-        if debuggerServer then
-            debuggerServer:RemoveBreakPoint(filePath, line)
-        end
-    else
-        editor:MarkerAdd(line, BREAKPOINT_MARKER)
-        if debuggerServer then
-            debuggerServer:AddBreakPoint(filePath, line)
-        end
-    end
-end
-
-function ClearAllCurrentLineMarkers()
-    for id, document in pairs(openDocuments) do
-        local editor = document.editor
-        editor:MarkerDeleteAll(CURRENT_LINE_MARKER)
-    end
 end
 
 function DisplayOutput(message, dont_add_marker)
@@ -1935,14 +1749,6 @@ function DisplayOutput(message, dont_add_marker)
     errorLog:GotoPos(errorLog:GetLength())
 end
 
-frame:Connect(ID_TOGGLEBREAKPOINT, wx.wxEVT_COMMAND_MENU_SELECTED,
-        function (event)
-            local editor = GetEditor()
-            local line = editor:LineFromPosition(editor:GetCurrentPos())
-            ToggleDebugMarker(editor, line)
-        end)
-frame:Connect(ID_TOGGLEBREAKPOINT, wx.wxEVT_UPDATE_UI, OnUpdateUIEditMenu)
-
 function CompileProgram(editor)
     local editorText = editor:GetText()
 
@@ -1952,7 +1758,7 @@ function CompileProgram(editor)
     end
 
     local id         = editor:GetId()
-    local filePath   = MakeDebugFileName(editor, openDocuments[id].filePath)
+    local filePath   = MakeFileName(editor, openDocuments[id].filePath)
     local ret, errMsg, line_num = wxlua.CompileLuaScript(editorText, filePath)
     if menuBar:IsChecked(ID_CLEAROUTPUT) then
         ClearOutput()
@@ -2039,396 +1845,7 @@ frame:Connect(ID_RUN, wx.wxEVT_COMMAND_MENU_SELECTED,
 frame:Connect(ID_RUN, wx.wxEVT_UPDATE_UI,
         function (event)
             local editor = GetEditor()
-            event:Enable((debuggerServer == nil) and (editor ~= nil))
-        end)
-
-frame:Connect(ID_ATTACH_DEBUG, wx.wxEVT_COMMAND_MENU_SELECTED,
-        function (event)
-            local ok = false
-            debuggerServer = wxlua.wxLuaDebuggerServer(debuggerPortNumber)
-            if debuggerServer then
-                ok = debuggerServer:StartServer()
-            end
-            if ok then
-                DisplayOutput("Waiting for client connect. Start client with wxLua -d"..wx.wxGetHostName()..":"..debuggerPortNumber.."\n")
-            else
-                DisplayOutput("Unable to create debugger server.\n")
-            end
-            NextDebuggerPort()
-        end)
-frame:Connect(ID_ATTACH_DEBUG, wx.wxEVT_UPDATE_UI,
-        function (event)
-            local editor = GetEditor()
-            event:Enable((debuggerServer == nil) and (editor ~= nil))
-        end)
-
-function NextDebuggerPort()
-    -- limit the number if ports we use, for people who need to open
-    -- their firewall
-    debuggerPortNumber = debuggerPortNumber + 1
-    if (debuggerPortNumber > 1559) then
-        debuggerPortNumber = 1551
-    end
-end
-
-function CreateDebuggerServer()
-    if (debuggerServer) then
-        -- we just delete it here, but this shouldn't happen
-        debugger_destroy = 0
-        local ds = debuggerServer
-        debuggerServer = nil
-        ds:Reset()
-        ds:StopServer()
-        ds:delete()
-    end
-
-    debuggee_running = false
-    debuggerServer = wxlua.wxLuaDebuggerServer(debuggerPortNumber)
-
-    debuggerServer:Connect(wxlua.wxEVT_WXLUA_DEBUGGER_DEBUGGEE_CONNECTED,
-        function (event)
-            local ok = false
-            -- FIXME why would you want to run all the notebook pages?
-            --for id, document in pairs(openDocuments) do
-                local editor     = GetEditor() -- MUST use document.editor userdata!
-                local document   = openDocuments[editor:GetId()]
-                local editor     = document.editor
-                local editorText = editor:GetText()
-                local filePath   = MakeDebugFileName(editor, document.filePath)
-                ok = debuggerServer:Run(filePath, editorText)
-
-                local nextLine = editor:MarkerNext(0, BREAKPOINT_MARKER_VALUE)
-                while ok and (nextLine ~= -1) do
-                    ok = debuggerServer:AddBreakPoint(filePath, nextLine)
-                    nextLine = editor:MarkerNext(nextLine + 1, BREAKPOINT_MARKER_VALUE)
-                end
-            --end
-
-            if ok then
-                ok = debuggerServer:Step()
-            end
-            debuggee_running = ok
-
-            UpdateUIMenuItems()
-
-            if ok then
-                DisplayOutput("Client connected ok.\n")
-            else
-                DisplayOutput("Error connecting to client.\n")
-            end
-        end)
-
-    debuggerServer:Connect(wxlua.wxEVT_WXLUA_DEBUGGER_DEBUGGEE_DISCONNECTED,
-        function (event)
-            DisplayOutput("Debug server disconnected.\n")
-            DisplayOutput(event:GetMessage().."\n\n")
-            DestroyDebuggerServer()
-        end)
-
-    local function DebuggerIgnoreFile(fileName)
-        local ignoreFlag = false
-        for idx, ignoreFile in pairs(ignoredFilesList) do
-            if string.upper(ignoreFile) == string.upper(fileName) then
-                ignoreFlag = true
-            end
-        end
-        return ignoreFlag
-    end
-
-    debuggerServer:Connect(wxlua.wxEVT_WXLUA_DEBUGGER_BREAK,
-        function (event)
-            if exitingProgram then return end
-            local line = event:GetLineNumber()
-            local eventFileName = event:GetFileName()
-
-            if string.sub(eventFileName, 1, 1) == '@' then -- FIXME what is this?
-                eventFileName = string.sub(eventFileName, 2, -1)
-                if wx.wxIsAbsolutePath(eventFileName) == false then
-                    eventFileName = wx.wxGetCwd().."/"..eventFileName
-                end
-            end
-            if wx.__WXMSW__ then
-                eventFileName = wx.wxUnix2DosFilename(eventFileName)
-            end
-            local fileFound = false
-            DisplayOutput("At Breakpoint line: "..tostring(line).." file: "..eventFileName.."\n")
-            for id, document in pairs(openDocuments) do
-                local editor   = document.editor
-                local filePath = MakeDebugFileName(editor, document.filePath)
-                -- for running in cygwin, use same type of separators
-                filePath = string.gsub(filePath, "\\", "/")
-                local eventFileName_ = string.gsub(eventFileName, "\\", "/")
-                if string.upper(filePath) == string.upper(eventFileName_) then
-                    local selection = document.index
-                    notebook:SetSelection(selection)
-                    SetEditorSelection(selection)
-                    editor:MarkerAdd(line, CURRENT_LINE_MARKER)
-                    editor:EnsureVisibleEnforcePolicy(line)
-                    fileFound = true
-                    break
-                end
-            end
-            -- if don't ignore file and its not in the notebook, ask to load
-            if not DebuggerIgnoreFile(eventFileName) then
-                if not fileFound then
-                    local fileDialog = wx.wxFileDialog(frame,
-                                                       "Select file for debugging",
-                                                       "",
-                                                       eventFileName,
-                                                       "Lua files (*.lua)|*.lua|Text files (*.txt)|*.txt|All files (*)|*",
-                                                       wx.wxFD_OPEN + wx.wxFD_FILE_MUST_EXIST)
-                    if fileDialog:ShowModal() == wx.wxID_OK then
-                        local editor = LoadFile(fileDialog:GetPath(), nil, true)
-                        if editor then
-                            editor:MarkerAdd(line, CURRENT_LINE_MARKER)
-                            editor:EnsureVisibleEnforcePolicy(line)
-                            editor:SetReadOnly(true)
-                            fileFound = true
-                        end
-                    end
-                    fileDialog:Destroy()
-                end
-                if not fileFound then -- they canceled opening the file
-                    table.insert(ignoredFilesList, eventFileName)
-                end
-            end
-
-            if fileFound then
-                debuggee_running = false
-                ProcessWatches()
-            elseif debuggerServer then
-                debuggerServer:Continue()
-                debuggee_running = true
-            end
-        end)
-
-    debuggerServer:Connect(wxlua.wxEVT_WXLUA_DEBUGGER_PRINT,
-        function (event)
-            DisplayOutput(event:GetMessage().."\n")
-        end)
-
-    debuggerServer:Connect(wxlua.wxEVT_WXLUA_DEBUGGER_ERROR,
-        function (event)
-            DisplayOutput("wxLua ERROR: "..event:GetMessage().."\n\n")
-        end)
-
-    debuggerServer:Connect(wxlua.wxEVT_WXLUA_DEBUGGER_EXIT,
-        function (event)
-            ClearAllCurrentLineMarkers()
-
-            if debuggerServer then
-                DestroyDebuggerServer()
-            end
-            SetAllEditorsReadOnly(false)
-            ignoredFilesList = {}
-        end)
-
-    debuggerServer:Connect(wxlua.wxEVT_WXLUA_DEBUGGER_EVALUATE_EXPR,
-        function (event)
-            if watchListCtrl then
-                watchListCtrl:SetItem(event:GetReference(),
-                                      1,
-                                      event:GetMessage())
-            end
-        end)
-
-    local ok = debuggerServer:StartServer()
-    if not ok then
-        DestroyDebuggerServer()
-        DisplayOutput("Error starting the debug server.\n")
-        return nil
-    end
-
-    return debuggerServer
-end
-
-function DestroyDebuggerServer()
-    -- nil debuggerServer so it won't be used and set flag to destroy it in idle
-    if (debuggerServer) then
-        debuggerServer_ = debuggerServer
-        debuggerServer = nil
-        debugger_destroy = 1 -- set > 0 to initiate deletion in idle
-    end
-end
-
-frame:Connect(wx.wxEVT_IDLE,
-        function(event)
-
-            if (debugger_destroy > 0) then
-                debugger_destroy = debugger_destroy + 1
-            end
-
-            if (debugger_destroy == 5) then
-                -- stop the server and let it end gracefully
-                debuggee_running = false
-                debuggerServer_:StopServer()
-            end
-            if (debugger_destroy == 10) then
-                -- delete the server and let it die gracefully
-                debuggee_running = false
-                debuggerServer_:delete()
-            end
-            if (debugger_destroy > 15) then
-                -- finally, kill the debugee process if it still exists
-                debugger_destroy = 0;
-                local ds = debuggerServer_
-                debuggerServer_ = nil
-
-                if (debuggee_pid > 0) then
-                    if wx.wxProcess.Exists(debuggee_pid) then
-                        local ret = wx.wxProcess.Kill(debuggee_pid, wx.wxSIGKILL, wx.wxKILL_CHILDREN)
-                        if (ret ~= wx.wxKILL_OK) then
-                            DisplayOutput("Unable to kill debuggee process "..debuggee_pid..", code "..tostring(ret)..".\n")
-                        else
-                            DisplayOutput("Killed debuggee process "..debuggee_pid..".\n")
-                        end
-                    end
-                    debuggee_pid = 0
-                end
-            end
-            event:Skip()
-        end)
-
-frame:Connect(ID_START_DEBUG, wx.wxEVT_COMMAND_MENU_SELECTED,
-        function (event)
-            local editor = GetEditor()
-            -- test compile it before we run it
-            if not CompileProgram(editor) then
-                return
-            end
-
-            debuggee_pid = 0
-            debuggerServer = CreateDebuggerServer()
-            if debuggerServer then
-                debuggee_pid = debuggerServer:StartClient()
-            end
-
-            if debuggerServer and (debuggee_pid > 0) then
-                SetAllEditorsReadOnly(true)
-                DisplayOutput("Waiting for client connection, process "..tostring(debuggee_pid)..".\n")
-            else
-                DisplayOutput("Unable to start debuggee process.\n")
-                if debuggerServer then
-                    DestroyDebuggerServer()
-                end
-            end
-
-            NextDebuggerPort()
-        end)
-frame:Connect(ID_START_DEBUG, wx.wxEVT_UPDATE_UI,
-        function (event)
-            local editor = GetEditor()
-            event:Enable((debuggerServer == nil) and (editor ~= nil))
-        end)
-
-frame:Connect(ID_STOP_DEBUG, wx.wxEVT_COMMAND_MENU_SELECTED,
-        function (event)
-            ClearAllCurrentLineMarkers()
-
-            if debuggerServer then
-                debuggerServer:Reset();
-                --DestroyDebuggerServer()
-            end
-            SetAllEditorsReadOnly(false)
-            ignoredFilesList = {}
-            debuggee_running = false
-            DisplayOutput("\nDebuggee client stopped.\n\n")
-        end)
-frame:Connect(ID_STOP_DEBUG, wx.wxEVT_UPDATE_UI,
-        function (event)
-            local editor = GetEditor()
-            event:Enable((debuggerServer ~= nil) and (editor ~= nil))
-        end)
-
-frame:Connect(ID_STEP, wx.wxEVT_COMMAND_MENU_SELECTED,
-        function (event)
-            ClearAllCurrentLineMarkers()
-
-            if debuggerServer then
-                debuggerServer:Step()
-                debuggee_running = true
-            end
-        end)
-frame:Connect(ID_STEP, wx.wxEVT_UPDATE_UI,
-        function (event)
-            local editor = GetEditor()
-            event:Enable((debuggerServer ~= nil) and (not debuggee_running) and (editor ~= nil))
-        end)
-
-frame:Connect(ID_STEP_OVER, wx.wxEVT_COMMAND_MENU_SELECTED,
-        function (event)
-            ClearAllCurrentLineMarkers()
-
-            if debuggerServer then
-                debuggerServer:StepOver()
-                debuggee_running = true
-            end
-        end)
-frame:Connect(ID_STEP_OVER, wx.wxEVT_UPDATE_UI,
-        function (event)
-            local editor = GetEditor()
-            event:Enable((debuggerServer ~= nil) and (not debuggee_running) and (editor ~= nil))
-        end)
-
-frame:Connect(ID_STEP_OUT, wx.wxEVT_COMMAND_MENU_SELECTED,
-        function (event)
-            ClearAllCurrentLineMarkers()
-
-            if debuggerServer then
-                debuggerServer:StepOut()
-                debuggee_running = true
-            end
-        end)
-frame:Connect(ID_STEP_OUT, wx.wxEVT_UPDATE_UI,
-        function (event)
-            event:Enable((debuggerServer ~= nil) and (not debuggee_running))
-        end)
-
-frame:Connect(ID_CONTINUE, wx.wxEVT_COMMAND_MENU_SELECTED,
-        function (event)
-            ClearAllCurrentLineMarkers()
-
-            if debuggerServer then
-                debuggerServer:Continue()
-                debuggee_running = true
-            end
-        end)
-frame:Connect(ID_CONTINUE, wx.wxEVT_UPDATE_UI,
-        function (event)
-            event:Enable((debuggerServer ~= nil) and (not debuggee_running))
-        end)
-
-frame:Connect(ID_BREAK, wx.wxEVT_COMMAND_MENU_SELECTED,
-        function (event)
-            if debuggerServer then
-                debuggerServer:Break()
-            end
-        end)
-frame:Connect(ID_BREAK, wx.wxEVT_UPDATE_UI,
-        function (event)
-            event:Enable((debuggerServer ~= nil) and debuggee_running)
-        end)
-
-frame:Connect(ID_VIEWCALLSTACK, wx.wxEVT_COMMAND_MENU_SELECTED,
-        function (event)
-            if debuggerServer then
-                debuggerServer:DisplayStackDialog(frame)
-            end
-        end)
-frame:Connect(ID_VIEWCALLSTACK, wx.wxEVT_UPDATE_UI,
-        function (event)
-            event:Enable((debuggerServer ~= nil) and (not debuggee_running))
-        end)
-
-frame:Connect(ID_VIEWWATCHWINDOW, wx.wxEVT_COMMAND_MENU_SELECTED,
-        function (event)
-            if not watchWindow then
-                CreateWatchWindow()
-            end
-        end)
-frame:Connect(ID_VIEWWATCHWINDOW, wx.wxEVT_UPDATE_UI,
-        function (event)
-            event:Enable((debuggerServer ~= nil) and (not debuggee_running))
+            event:Enable(editor ~= nil)
         end)
 
 frame:Connect(ID_SHOWHIDEWINDOW, wx.wxEVT_COMMAND_MENU_SELECTED,
@@ -2446,14 +1863,6 @@ function ClearOutput(event)
     errorLog:ClearAll()
     errorLog:SetReadOnly(true)
 end
-
-frame:Connect(ID_DEBUGGER_PORT, wx.wxEVT_COMMAND_MENU_SELECTED,
-        function(event)
-        end)
-frame:Connect(ID_DEBUGGER_PORT, wx.wxEVT_UPDATE_UI,
-        function(event)
-            event:Enable(debuggerServer == nil)
-        end)
 
 -- ---------------------------------------------------------------------------
 -- Create the Help menu and attach the callback functions
@@ -2547,19 +1956,9 @@ function CloseWindow(event)
         return
     end
 
-    if debuggerServer then
-        local ds = debuggerServer
-        debuggerServer = nil
-        --ds:Reset()
-        ds:KillDebuggee()
-        ds:delete()
-    end
-    debuggee_running = false
-
     ConfigSaveFramePosition(frame, "MainFrame")
     config:delete() -- always delete the config
     event:Skip()
-    CloseWatchWindow()
 end
 frame:Connect(wx.wxEVT_CLOSE_WINDOW, CloseWindow)
 
