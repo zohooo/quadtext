@@ -750,11 +750,11 @@ function FindDocumentToReuse()
 end
 
 function LoadFile(fullpath, editor, file_must_exist)
-    local file_text = ""
-    local handle = io.open(fullpath, "rb")
-    if handle then
-        file_text = handle:read("*a")
-        handle:close()
+    local file_text, _ = ""
+    local handle = wx.wxFile(fullpath, wx.wxFile.read)
+    if handle:IsOpened() then
+        _, file_text = handle:Read(wx.wxFileSize(fullpath))
+        handle:Close()
     elseif file_must_exist then
         return nil
     end
@@ -812,11 +812,11 @@ function SaveFile(editor, fullpath)
         os.remove(backPath)
         os.rename(fullpath, backPath)
 
-        local handle = io.open(fullpath, "wb")
-        if handle then
+        local handle = wx.wxFile(fullpath, wx.wxFile.write)
+        if handle:IsOpened() then
             local st = editor:GetText()
-            handle:write(st)
-            handle:close()
+            handle:Write(st, #st)
+            handle:Close()
             editor:EmptyUndoBuffer()
             local id = editor:GetId()
             local fp = wx.wxFileName(fullpath)
