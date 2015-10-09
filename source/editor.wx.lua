@@ -1772,10 +1772,14 @@ frame:Connect(ID_COMPILE, wx.wxEVT_COMMAND_MENU_SELECTED,
 
             local id = editor:GetId();
             programName = "xelatex"
-            local cmd = 'cmd /k start "" '..programName..' "'..openDocuments[id].fullpath..'" & exit'
+            local texName = openDocuments[id].fullname
+            local cmd = 'cmd /k start "" '..programName..' "'..texName..'" & exit'
 
             DisplayOutput("Running program: "..cmd.."\n")
+            local cwd = wx.wxGetCwd()
+            wx.wxSetWorkingDirectory(openDocuments[id].directory)
             local pid = wx.wxExecute(cmd, wx.wxEXEC_ASYNC)
+            wx.wxSetWorkingDirectory(cwd)
             print(pid)
 
             if pid == -1 then
@@ -1796,11 +1800,14 @@ frame:Connect(ID_PREVIEW, wx.wxEVT_COMMAND_MENU_SELECTED,
 
             local id = editor:GetId();
             programName = "SumatraPDF"
-            local pdfName = string.sub(openDocuments[id].fullpath, 0, -5) .. ".pdf"
+            local pdfName = openDocuments[id].basename .. ".pdf"
             local cmd = programName .. ' ' .. pdfName
 
             DisplayOutput("Running program: "..cmd.."\n")
+            local cwd = wx.wxGetCwd()
+            wx.wxSetWorkingDirectory(openDocuments[id].directory)
             local pid = wx.wxExecute(cmd, wx.wxEXEC_ASYNC)
+            wx.wxSetWorkingDirectory(cwd)
             print(pid)
 
             if pid == -1 then
