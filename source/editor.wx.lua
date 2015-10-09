@@ -107,6 +107,9 @@ openDocuments    = {}     -- open notebook editor documents[winId] = {
                           --   index      = wxNotebook page index,
                           --   fullpath   = full filepath, nil if not saved,
                           --   fullname   = full filename with extension
+                          --   directory  = filepath without filename
+                          --   basename   = filename without extension
+                          --   suffix     = filename extension
                           --   modTime    = wxDateTime of disk file or nil,
                           --   isModified = bool is the document modified? }
 ignoredFilesList = {}
@@ -743,8 +746,12 @@ function LoadFile(fullpath, editor, file_must_exist)
     editor:AppendText(file_text)
     editor:EmptyUndoBuffer()
     local id = editor:GetId()
+    local fp = wx.wxFileName(fullpath)
     openDocuments[id].fullpath = fullpath
-    openDocuments[id].fullname = wx.wxFileName(fullpath):GetFullName()
+    openDocuments[id].fullname = fp:GetFullName()
+    openDocuments[id].directory = fp:GetPath()
+    openDocuments[id].basename = fp:GetName()
+    openDocuments[id].suffix = fp:GetExt()
     openDocuments[id].modTime = GetFileModTime(fullpath)
     SetDocumentModified(id, false)
     editor:Colourise(0, -1)
