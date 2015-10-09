@@ -411,15 +411,15 @@ function CreateEditor(name)
 
     editor:StyleSetForeground(0,  wx.wxColour(128, 128, 128)) -- White space
     editor:StyleSetForeground(1,  wx.wxColour(0,   127, 0))   -- Block Comment
-    editor:StyleSetFont(1, fontItalic)
+    ----editor:StyleSetFont(1, fontItalic)
     --editor:StyleSetUnderline(1, false)
     editor:StyleSetForeground(2,  wx.wxColour(0,   127, 0))   -- Line Comment
-    editor:StyleSetFont(2, fontItalic)                        -- Doc. Comment
+    ----editor:StyleSetFont(2, fontItalic)                        -- Doc. Comment
     --editor:StyleSetUnderline(2, false)
     editor:StyleSetForeground(3,  wx.wxColour(127, 127, 127)) -- Number
     editor:StyleSetForeground(4,  wx.wxColour(0,   127, 127)) -- Keyword
-    editor:StyleSetForeground(5,  wx.wxColour(0,   0,   127)) -- Double quoted string
-    editor:StyleSetBold(5,  true)
+    ----editor:StyleSetForeground(5,  wx.wxColour(0,   0,   127)) -- Double quoted string
+    ----editor:StyleSetBold(5,  true)
     --editor:StyleSetUnderline(5, false)
     editor:StyleSetForeground(6,  wx.wxColour(127, 0,   127)) -- Single quoted string
     editor:StyleSetForeground(7,  wx.wxColour(127, 0,   127)) -- not used
@@ -600,8 +600,35 @@ function IsLuaFile(fullpath)
            (string.lower(string.sub(fullpath, -4)) == ".lua")
 end
 
-function SetupKeywords(editor, useLuaParser)
-    if useLuaParser then
+function SetupKeywords(editor, parser)
+    if parser == "tex" then
+        editor:SetLexer(wxstc.wxSTC_LEX_TEX)
+
+        editor:SetKeyWords(0,
+            [[alpha active appendix approx arabic arccos arcsin arctan
+            bar begin beta big bigcap bigcup bigskip boldmath bullet
+            catcode cdot cdots centering cfrac chapter chi circ cite color cos
+            Delta date ddot ddots delta dfrac displaystyle documentclass dotfill
+            egroup eject end enskip epsilon equal eta
+            fbox font footline forall frac frame frametitle
+            Gamma gamma gcd ge geq grave
+            hat hbox height hfill hline
+            iint in includegraphics indent infty input int iota item
+            jobname kappa kern kill
+            Lambda lambda large le left leq lim limits
+            magstep markboth markright mathrm mbox middle mu
+            nabla newif newpage nmid nu
+            Omega omega onslide outer overline overset
+            Phi Pi Psi paragraph part pause phi pi psi
+            quad qquad
+            rho right rlap rmfamily rule
+            section setcounter sigma sim sin subsection subsubsection sum
+            Theta tau text textbf textwidth theta times title titlepage to
+            Upsilon underline unskip upsilon usepackage
+            vadjust value varphi varpi varrho vfill
+            warning widehat width wlog write
+            Xi xdef xi year zeta]])
+    else if parser == "lua" then
         editor:SetLexer(wxstc.wxSTC_LEX_LUA)
 
         -- Note: these keywords are shamelessly ripped from scite 1.68
@@ -653,7 +680,7 @@ function SetupKeywords(editor, useLuaParser)
     else
         editor:SetLexer(wxstc.wxSTC_LEX_NULL)
         editor:SetKeyWords(0, "")
-    end
+    end end
 
     editor:Colourise(0, -1)
 end
@@ -703,7 +730,7 @@ menuBar:Append(fileMenu, "&File")
 
 function NewFile(event)
     local editor = CreateEditor("untitled.tex")
-    SetupKeywords(editor, true)
+    SetupKeywords(editor, "tex")
 end
 
 frame:Connect(ID_NEW, wx.wxEVT_COMMAND_MENU_SELECTED, NewFile)
@@ -741,7 +768,6 @@ function LoadFile(fullpath, editor, file_must_exist)
 
     editor:Clear()
     editor:ClearAll()
-    SetupKeywords(editor, IsLuaFile(fullpath))
     editor:MarkerDeleteAll(CURRENT_LINE_MARKER)
     editor:AppendText(file_text)
     editor:EmptyUndoBuffer()
@@ -754,6 +780,7 @@ function LoadFile(fullpath, editor, file_must_exist)
     openDocuments[id].suffix = fp:GetExt()
     openDocuments[id].modTime = GetFileModTime(fullpath)
     SetDocumentModified(id, false)
+    SetupKeywords(editor, fp:GetExt())
     editor:Colourise(0, -1)
 
     return editor
@@ -853,7 +880,7 @@ function SaveFileAs(editor)
         end
 
         if save_file and SaveFile(editor, fullpath) then
-            SetupKeywords(editor, IsLuaFile(fullpath))
+            SetupKeywords(editor, wx.wxFileName(fullpath):GetExt())
             saved = true
         end
     end
@@ -1971,11 +1998,11 @@ if arg then
         notebook:SetSelection(0)
     else
        local editor = CreateEditor("untitled.tex")
-       SetupKeywords(editor, true)
+       SetupKeywords(editor, "tex")
     end
 else
     local editor = CreateEditor("untitled.tex")
-    SetupKeywords(editor, true)
+    SetupKeywords(editor, "tex")
 end
 
 --frame:SetIcon(wxLuaEditorIcon) --FIXME add this back
