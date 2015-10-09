@@ -792,8 +792,12 @@ function SaveFile(editor, fullpath)
             handle:close()
             editor:EmptyUndoBuffer()
             local id = editor:GetId()
+            local fp = wx.wxFileName(fullpath)
             openDocuments[id].fullpath = fullpath
-            openDocuments[id].fullname = wx.wxFileName(fullpath):GetFullName()
+            openDocuments[id].fullname = fp:GetFullName()
+            openDocuments[id].directory = fp:GetPath()
+            openDocuments[id].basename = fp:GetName()
+            openDocuments[id].suffix = fp:GetExt()
             openDocuments[id].modTime  = GetFileModTime(fullpath)
             SetDocumentModified(id, false)
             return true
