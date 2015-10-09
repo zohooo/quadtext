@@ -381,7 +381,7 @@ end
 
 -- Set if the document is modified and update the notebook page text
 function SetDocumentModified(id, modified)
-    local pageText = openDocuments[id].fullname or "untitled.lua"
+    local pageText = openDocuments[id].fullname or "untitled.tex"
 
     if modified then
         pageText = "* "..pageText
@@ -702,7 +702,7 @@ fileMenu = wx.wxMenu({
 menuBar:Append(fileMenu, "&File")
 
 function NewFile(event)
-    local editor = CreateEditor("untitled.lua")
+    local editor = CreateEditor("untitled.tex")
     SetupKeywords(editor, true)
 end
 
@@ -736,7 +736,7 @@ function LoadFile(fullpath, editor, file_must_exist)
         editor = FindDocumentToReuse()
     end
     if not editor then
-        editor = CreateEditor(wx.wxFileName(fullpath):GetFullName() or "untitled.lua")
+        editor = CreateEditor(wx.wxFileName(fullpath):GetFullName() or "untitled.tex")
      end
 
     editor:Clear()
@@ -839,7 +839,7 @@ function SaveFileAs(editor)
     local fileDialog = wx.wxFileDialog(frame, "Save file as",
                                        fn:GetPath(),
                                        fn:GetFullName(),
-                                       "Lua files (*.lua)|*.lua|Text files (*.txt)|*.txt|All files (*)|*",
+                                       "TeX files (*.tex)|*.tex|Lua files (*.lua)|*.lua|All files (*)|*",
                                        wx.wxFD_SAVE + wx.wxFD_OVERWRITE_PROMPT)
 
     if fileDialog:ShowModal() == wx.wxID_OK then
@@ -1013,7 +1013,7 @@ function printInfo:ConnectPrintEvents(printOut)
             dc:SetTextForeground(wx.wxBLACK)
             dc:SetFont(font)
 
-            dc:DrawText(openDocuments[editor:GetId()].fullname or "untitled.lua", printRect.X, printRect.Y)
+            dc:DrawText(openDocuments[editor:GetId()].fullname or "untitled.tex", printRect.X, printRect.Y)
             dc:DrawText(printOut.startTime, printRect.Width/2 - dc:GetTextExtentSize(printOut.startTime).Width/2 + printRect.Left, printRect.Y)
             dc:DrawText(pageNo, printRect.Width - dc:GetTextExtentSize(pageNo).Width,  printRect.Y)
             dc:DrawLine(printRect.X,     printRect.Y + headerHeight + 1,
@@ -1970,11 +1970,11 @@ if arg then
     if notebook:GetPageCount() > 0 then
         notebook:SetSelection(0)
     else
-       local editor = CreateEditor("untitled.lua")
+       local editor = CreateEditor("untitled.tex")
        SetupKeywords(editor, true)
     end
 else
-    local editor = CreateEditor("untitled.lua")
+    local editor = CreateEditor("untitled.tex")
     SetupKeywords(editor, true)
 end
 
