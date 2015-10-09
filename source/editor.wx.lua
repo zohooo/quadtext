@@ -105,8 +105,8 @@ in_evt_focus     = false  -- true when in editor focus event to avoid recursion
 openDocuments    = {}     -- open notebook editor documents[winId] = {
                           --   editor     = wxStyledTextCtrl,
                           --   index      = wxNotebook page index,
-                          --   filePath   = full filepath, nil if not saved,
-                          --   fileName   = just the filename,
+                          --   fullpath   = full filepath, nil if not saved,
+                          --   fullname   = full filename with extension
                           --   modTime    = wxDateTime of disk file or nil,
                           --   isModified = bool is the document modified? }
 ignoredFilesList = {}
@@ -336,9 +336,9 @@ end
 -- ----------------------------------------------------------------------------
 -- Get file modification time, returns a wxDateTime (check IsValid) or nil if
 --   the file doesn't exist
-function GetFileModTime(filePath)
-    if filePath and (string.len(filePath) > 0) then
-        local fn = wx.wxFileName(filePath)
+function GetFileModTime(fullpath)
+    if fullpath and (string.len(fullpath) > 0) then
+        local fn = wx.wxFileName(fullpath)
         if fn:FileExists() then
             return fn:GetModificationTime()
         end
@@ -353,22 +353,22 @@ function IsFileAlteredOnDisk(editor)
 
     local id = editor:GetId()
     if openDocuments[id] then
-        local filePath   = openDocuments[id].filePath
-        local fileName   = openDocuments[id].fileName
+        local fullpath   = openDocuments[id].fullpath
+        local fullname   = openDocuments[id].fullname
         local oldModTime = openDocuments[id].modTime
 
-        if filePath and (string.len(filePath) > 0) and oldModTime and oldModTime:IsValid() then
-            local modTime = GetFileModTime(filePath)
+        if fullpath and (string.len(fullpath) > 0) and oldModTime and oldModTime:IsValid() then
+            local modTime = GetFileModTime(fullpath)
             if modTime == nil then
                 openDocuments[id].modTime = nil
-                wx.wxMessageBox(fileName.." is no longer on the disk.",
+                wx.wxMessageBox(fullname.." is no longer on the disk.",
                                 "wxLua Message",
                                 wx.wxOK + wx.wxCENTRE, frame)
             elseif modTime:IsValid() and oldModTime:IsEarlierThan(modTime) then
-                local ret = wx.wxMessageBox(fileName.." has been modified on disk.\nDo you want to reload it?",
+                local ret = wx.wxMessageBox(fullname.." has been modified on disk.\nDo you want to reload it?",
                                             "wxLua Message",
                                             wx.wxYES_NO + wx.wxCENTRE, frame)
-                if ret ~= wx.wxYES or LoadFile(filePath, editor, true) then
+                if ret ~= wx.wxYES or LoadFile(fullpath, editor, true) then
                     openDocuments[id].modTime = nil
                 end
             end
@@ -378,7 +378,7 @@ end
 
 -- Set if the document is modified and update the notebook page text
 function SetDocumentModified(id, modified)
-    local pageText = openDocuments[id].fileName or "untitled.lua"
+    local pageText = openDocuments[id].fullname or "untitled.lua"
 
     if modified then
         pageText = "* "..pageText
@@ -582,8 +582,8 @@ function CreateEditor(name)
         local document      = {}
         document.editor     = editor
         document.index      = notebook:GetSelection()
-        document.fileName   = nil
-        document.filePath   = nil
+        document.fullname   = nil
+        document.fullpath   = nil
         document.modTime    = nil
         document.isModified = false
         openDocuments[id]   = document
@@ -592,9 +592,9 @@ function CreateEditor(name)
     return editor
 end
 
-function IsLuaFile(filePath)
-    return filePath and (string.len(filePath) > 4) and
-           (string.lower(string.sub(filePath, -4)) == ".lua")
+function IsLuaFile(fullpath)
+    return fullpath and (string.len(fullpath) > 4) and
+           (string.lower(string.sub(fullpath, -4)) == ".lua")
 end
 
 function SetupKeywords(editor, useLuaParser)
@@ -710,7 +710,7 @@ function FindDocumentToReuse()
     local editor = nil
     for id, document in pairs(openDocuments) do
         if (document.editor:GetLength() == 0) and
-           (not document.isModified) and (not document.filePath) and
+           (not document.isModified) and (not document.fullpath) and
            not (document.editor:GetReadOnly() == true) then
             editor = document.editor
             break
@@ -719,9 +719,9 @@ function FindDocumentToReuse()
     return editor
 end
 
-function LoadFile(filePath, editor, file_must_exist)
+function LoadFile(fullpath, editor, file_must_exist)
     local file_text = ""
-    local handle = io.open(filePath, "rb")
+    local handle = io.open(fullpath, "rb")
     if handle then
         file_text = handle:read("*a")
         handle:close()
@@ -733,19 +733,19 @@ function LoadFile(filePath, editor, file_must_exist)
         editor = FindDocumentToReuse()
     end
     if not editor then
-        editor = CreateEditor(wx.wxFileName(filePath):GetFullName() or "untitled.lua")
+        editor = CreateEditor(wx.wxFileName(fullpath):GetFullName() or "untitled.lua")
      end
 
     editor:Clear()
     editor:ClearAll()
-    SetupKeywords(editor, IsLuaFile(filePath))
+    SetupKeywords(editor, IsLuaFile(fullpath))
     editor:MarkerDeleteAll(CURRENT_LINE_MARKER)
     editor:AppendText(file_text)
     editor:EmptyUndoBuffer()
     local id = editor:GetId()
-    openDocuments[id].filePath = filePath
-    openDocuments[id].fileName = wx.wxFileName(filePath):GetFullName()
-    openDocuments[id].modTime = GetFileModTime(filePath)
+    openDocuments[id].fullpath = fullpath
+    openDocuments[id].fullname = wx.wxFileName(fullpath):GetFullName()
+    openDocuments[id].modTime = GetFileModTime(fullpath)
     SetDocumentModified(id, false)
     editor:Colourise(0, -1)
 
@@ -769,29 +769,29 @@ function OpenFile(event)
 end
 frame:Connect(ID_OPEN, wx.wxEVT_COMMAND_MENU_SELECTED, OpenFile)
 
--- save the file to filePath or if filePath is nil then call SaveFileAs
-function SaveFile(editor, filePath)
-    if not filePath then
+-- save the file to fullpath or if fullpath is nil then call SaveFileAs
+function SaveFile(editor, fullpath)
+    if not fullpath then
         return SaveFileAs(editor)
     else
-        local backPath = filePath..".bak"
+        local backPath = fullpath..".bak"
         os.remove(backPath)
-        os.rename(filePath, backPath)
+        os.rename(fullpath, backPath)
 
-        local handle = io.open(filePath, "wb")
+        local handle = io.open(fullpath, "wb")
         if handle then
             local st = editor:GetText()
             handle:write(st)
             handle:close()
             editor:EmptyUndoBuffer()
             local id = editor:GetId()
-            openDocuments[id].filePath = filePath
-            openDocuments[id].fileName = wx.wxFileName(filePath):GetFullName()
-            openDocuments[id].modTime  = GetFileModTime(filePath)
+            openDocuments[id].fullpath = fullpath
+            openDocuments[id].fullname = wx.wxFileName(fullpath):GetFullName()
+            openDocuments[id].modTime  = GetFileModTime(fullpath)
             SetDocumentModified(id, false)
             return true
         else
-            wx.wxMessageBox("Unable to save file '"..filePath.."'.",
+            wx.wxMessageBox("Unable to save file '"..fullpath.."'.",
                             "wxLua Error Saving",
                             wx.wxOK + wx.wxCENTRE, frame)
         end
@@ -804,8 +804,8 @@ frame:Connect(ID_SAVE, wx.wxEVT_COMMAND_MENU_SELECTED,
         function (event)
             local editor   = GetEditor()
             local id       = editor:GetId()
-            local filePath = openDocuments[id].filePath
-            SaveFile(editor, filePath)
+            local fullpath = openDocuments[id].fullpath
+            SaveFile(editor, fullpath)
         end)
 
 frame:Connect(ID_SAVE, wx.wxEVT_UPDATE_UI,
@@ -822,7 +822,7 @@ frame:Connect(ID_SAVE, wx.wxEVT_UPDATE_UI,
 function SaveFileAs(editor)
     local id       = editor:GetId()
     local saved    = false
-    local fn       = wx.wxFileName(openDocuments[id].filePath or "")
+    local fn       = wx.wxFileName(openDocuments[id].fullpath or "")
     fn:Normalize() -- want absolute path for dialog
 
     local fileDialog = wx.wxFileDialog(frame, "Save file as",
@@ -832,17 +832,17 @@ function SaveFileAs(editor)
                                        wx.wxFD_SAVE + wx.wxFD_OVERWRITE_PROMPT)
 
     if fileDialog:ShowModal() == wx.wxID_OK then
-        local filePath = fileDialog:GetPath()
+        local fullpath = fileDialog:GetPath()
 
         local save_file = true
 
-        if wx.wxFileExists(filePath) then
-            save_file = (wx.wxYES == wx.wxMessageBox(string.format("Replace file:\n%s", filePath), "wxLua Overwrite File",
+        if wx.wxFileExists(fullpath) then
+            save_file = (wx.wxYES == wx.wxMessageBox(string.format("Replace file:\n%s", fullpath), "wxLua Overwrite File",
                                                      wx.wxYES_NO + wx.wxICON_QUESTION, frame))
         end
 
-        if save_file and SaveFile(editor, filePath) then
-            SetupKeywords(editor, IsLuaFile(filePath))
+        if save_file and SaveFile(editor, fullpath) then
+            SetupKeywords(editor, IsLuaFile(fullpath))
             saved = true
         end
     end
@@ -865,10 +865,10 @@ frame:Connect(ID_SAVEAS, wx.wxEVT_UPDATE_UI,
 function SaveAll()
     for id, document in pairs(openDocuments) do
         local editor   = document.editor
-        local filePath = document.filePath
+        local fullpath = document.fullpath
 
         if document.isModified then
-            SaveFile(editor, filePath) -- will call SaveFileAs if necessary
+            SaveFile(editor, fullpath) -- will call SaveFileAs if necessary
         end
     end
 end
@@ -1002,7 +1002,7 @@ function printInfo:ConnectPrintEvents(printOut)
             dc:SetTextForeground(wx.wxBLACK)
             dc:SetFont(font)
 
-            dc:DrawText(openDocuments[editor:GetId()].fileName or "untitled.lua", printRect.X, printRect.Y)
+            dc:DrawText(openDocuments[editor:GetId()].fullname or "untitled.lua", printRect.X, printRect.Y)
             dc:DrawText(printOut.startTime, printRect.Width/2 - dc:GetTextExtentSize(printOut.startTime).Width/2 + printRect.Left, printRect.Y)
             dc:DrawText(pageNo, printRect.Width - dc:GetTextExtentSize(pageNo).Width,  printRect.Y)
             dc:DrawLine(printRect.X,     printRect.Y + headerHeight + 1,
@@ -1123,12 +1123,12 @@ function SaveModifiedDialog(editor, allow_cancel)
     local result   = wx.wxID_NO
     local id       = editor:GetId()
     local document = openDocuments[id]
-    local filePath = document.filePath
-    local fileName = document.fileName
+    local fullpath = document.fullpath
+    local fullname = document.fullname
     if document.isModified then
         local message
-        if fileName then
-            message = "Save changes to '"..fileName.."' before exiting?"
+        if fullname then
+            message = "Save changes to '"..fullname.."' before exiting?"
         else
             message = "Save changes to 'untitled' before exiting?"
         end
@@ -1140,7 +1140,7 @@ function SaveModifiedDialog(editor, allow_cancel)
         result = dialog:ShowModal()
         dialog:Destroy()
         if result == wx.wxID_YES then
-            SaveFile(editor, filePath)
+            SaveFile(editor, fullpath)
         end
     end
 
@@ -1711,11 +1711,11 @@ function SetAllEditorsReadOnly(enable)
     end
 end
 
-function MakeFileName(editor, filePath)
-    if not filePath then
-        filePath = "file"..tostring(editor)
+function MakeFileName(editor, fullpath)
+    if not fullpath then
+        fullpath = "file"..tostring(editor)
     end
-    return filePath
+    return fullpath
 end
 
 function DisplayOutput(message, dont_add_marker)
@@ -1736,14 +1736,14 @@ function SaveIfModified(editor)
     local id = editor:GetId()
     if openDocuments[id].isModified then
         local saved = false
-        if not openDocuments[id].filePath then
+        if not openDocuments[id].fullpath then
             local ret = wx.wxMessageBox("You must save the program before running it.\nPress cancel to abort running.",
                                          "Save file?",  wx.wxOK + wx.wxCANCEL + wx.wxCENTRE, frame)
             if ret == wx.wxOK then
                 saved = SaveFileAs(editor)
             end
         else
-            saved = SaveFile(editor, openDocuments[id].filePath)
+            saved = SaveFile(editor, openDocuments[id].fullpath)
         end
 
         if saved then
@@ -1765,7 +1765,7 @@ frame:Connect(ID_COMPILE, wx.wxEVT_COMMAND_MENU_SELECTED,
 
             local id = editor:GetId();
             programName = "xelatex"
-            local cmd = 'cmd /k start "" '..programName..' "'..openDocuments[id].filePath..'" & exit'
+            local cmd = 'cmd /k start "" '..programName..' "'..openDocuments[id].fullpath..'" & exit'
 
             DisplayOutput("Running program: "..cmd.."\n")
             local pid = wx.wxExecute(cmd, wx.wxEXEC_ASYNC)
@@ -1789,7 +1789,7 @@ frame:Connect(ID_PREVIEW, wx.wxEVT_COMMAND_MENU_SELECTED,
 
             local id = editor:GetId();
             programName = "SumatraPDF"
-            local pdfName = string.sub(openDocuments[id].filePath, 0, -5) .. ".pdf"
+            local pdfName = string.sub(openDocuments[id].fullpath, 0, -5) .. ".pdf"
             local cmd = programName .. ' ' .. pdfName
 
             DisplayOutput("Running program: "..cmd.."\n")
@@ -1943,9 +1943,9 @@ if arg then
     end
 
     for index = 1, #arg do
-        fileName = arg[index]
-        if fileName ~= "--" then
-            LoadFile(fileName, nil, true)
+        fullname = arg[index]
+        if fullname ~= "--" then
+            LoadFile(fullname, nil, true)
         end
     end
 
