@@ -628,7 +628,7 @@ function SetupKeywords(editor, parser)
             vadjust value varphi varpi varrho vfill
             warning widehat width wlog write
             Xi xdef xi year zeta]])
-    else if parser == "lua" then
+    elseif parser == "lua" then
         editor:SetLexer(wxstc.wxSTC_LEX_LUA)
 
         -- Note: these keywords are shamelessly ripped from scite 1.68
@@ -680,7 +680,7 @@ function SetupKeywords(editor, parser)
     else
         editor:SetLexer(wxstc.wxSTC_LEX_NULL)
         editor:SetKeyWords(0, "")
-    end end
+    end
 
     editor:Colourise(0, -1)
 end
