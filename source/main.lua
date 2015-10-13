@@ -23,4 +23,4 @@ end
 
 source = mainpath .. sep .. maindir
 
-dofile(source .. sep .. "editor.lua")
+dofile(source .. sep .. "editor" .. sep .. "gui.lua")
