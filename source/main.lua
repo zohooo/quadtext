@@ -4,7 +4,8 @@ package.cpath = package.cpath..";./?.dll;./?.so;../lib/?.so;../lib/vc_dll/?.dll;
 
 require("wx")
 
-local sep = package.config:sub(1,1) -- path separator
+sep = package.config:sub(1,1) -- path separator
+
 local maindir, mainlua = "source", "main.lua"
 local tail = maindir..sep..mainlua
 
