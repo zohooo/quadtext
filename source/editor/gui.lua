@@ -1,11 +1,3 @@
--------------------------------------------------------------------------=---
--- Name:        Editor.wx.lua
--- Purpose:     wxLua IDE
--- Author:      J Winwood
--- Created:     March 2002
--- Copyright:   (c) 2002-5 Lomtick Software. All rights reserved.
--- Licence:     wxWidgets licence
--------------------------------------------------------------------------=---
 
 -- Load the wxLua module, does nothing if running from wxLua, wxLuaFreeze, or wxLuaEdit
 package.cpath = package.cpath..";./?.dll;./?.so;../lib/?.so;../lib/vc_dll/?.dll;../lib/bcc_dll/?.dll;../lib/mingw_dll/?.dll;"
@@ -104,12 +96,12 @@ end
 -- ----------------------------------------------------------------------------
 -- Create the wxFrame
 -- ----------------------------------------------------------------------------
-frame = wx.wxFrame(wx.NULL, wx.wxID_ANY, "wxLua")
+frame = wx.wxFrame(wx.NULL, wx.wxID_ANY, "QuadText")
 
 statusBar = frame:CreateStatusBar( 4 )
 local status_txt_width = statusBar:GetTextExtent("OVRW")
 frame:SetStatusWidths({-1, status_txt_width, status_txt_width, status_txt_width*5})
-frame:SetStatusText("Welcome to wxLua")
+frame:SetStatusText("Welcome to QuadText")
 
 toolBar = frame:CreateToolBar(wx.wxNO_BORDER + wx.wxTB_FLAT + wx.wxTB_DOCKABLE)
 -- note: Ususally the bmp size isn't necessary, but the HELP icon is not the right size in MSW

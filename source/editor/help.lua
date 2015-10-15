@@ -4,7 +4,7 @@
 local ID_ABOUT            = wx.wxID_ABOUT
 
 helpMenu = wx.wxMenu{
-        { ID_ABOUT,      "&About\tF1",       "About wxLua IDE" }}
+        { ID_ABOUT,      "&About\tF1",       "About QuadText" }}
 menuBar:Append(helpMenu, "&Help")
 
 function DisplayAbout(event)
@@ -13,44 +13,29 @@ function DisplayAbout(event)
         <body bgcolor = "#FFFFFF">
         <table cellspacing = 4 cellpadding = 4 width = "100%">
           <tr>
-            <td bgcolor = "#202020">
-            <center>
-                <font size = +2 color = "#FFFFFF"><br><b>]]..
-                    wxlua.wxLUA_VERSION_STRING..[[</b></font><br>
-                <font size = +1 color = "#FFFFFF">built with</font><br>
-                <font size = +2 color = "#FFFFFF"><b>]]..
-                    wx.wxVERSION_STRING..[[</b></font>
-            </center>
+            <td>
+              <b><font size=+1 color="#00007E">QuadText Editor</font></b><br>
+              Copyright &copy; 2015 QuadText Project<br>
+              Licensed under GNU General Public License, Version 3.
+             </td>
+          </tr>
+          <tr>
+            <td>
+              <b>Based on wxLua Editor</b><br>
+              Copyright &copy; 2002-2005 Lomtick Software<br>
+              J. Winwood, John Labenski<br>
+              Licensed under wxWindows Library License, Version 3.
             </td>
           </tr>
           <tr>
-            <td bgcolor = "#DCDCDC">
-            <b>Copyright (C) 2002-2005 Lomtick Software</b>
-            <p>
-            <font size=-1>
-              <table cellpadding = 0 cellspacing = 0 width = "100%">
-                <tr>
-                  <td width = "65%">
-                    J. Winwood (luascript@thersgb.net)<br>
-                    John Labenski<p>
-                  </td>
-                  <td valign = top>
-                    <img src = "memory:wxLua">
-                  </td>
-                </tr>
-              </table>
-            <font size = 1>
-                Licenced under wxWindows Library Licence, Version 3.
-            </font>
-            </font>
-            </td>
+            <td><b>Build with ]]..wx.wxVERSION_STRING..[[ and ]]..wxlua.wxLUA_VERSION_STRING..[[</b></td>
           </tr>
         </table>
         </body>
         </html>
     ]]
 
-    local dlg = wx.wxDialog(frame, wx.wxID_ANY, "About wxLua IDE")
+    local dlg = wx.wxDialog(frame, wx.wxID_ANY, "About QuadText")
 
     local html = wx.wxLuaHtmlWindow(dlg, wx.wxID_ANY,
                                     wx.wxDefaultPosition, wx.wxSize(360, 150),
