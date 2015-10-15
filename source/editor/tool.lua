@@ -15,6 +15,8 @@ toolMenu = wx.wxMenu{
         }
 menuBar:Append(toolMenu, "&Tool")
 
+toolMenu:Check(ID_CLEAROUTPUT, true)
+
 function SetAllEditorsReadOnly(enable)
     for id, document in pairs(openDocuments) do
         local editor = document.editor
@@ -104,8 +106,10 @@ function ExecCommand(cmd, dir)
             proc = nil
         end)
 
-    ClearOutput()
-    consoleLength = 0
+    if menuBar:IsChecked(ID_CLEAROUTPUT) then
+        ClearOutput()
+        consoleLength = 0
+    end
     DisplayOutput("Running program: "..cmd.."\n")
     local cwd = wx.wxGetCwd()
     wx.wxSetWorkingDirectory(dir)
@@ -180,7 +184,7 @@ frame:Connect(ID_SHOWHIDEWINDOW, wx.wxEVT_COMMAND_MENU_SELECTED,
             end
         end)
 
-function ClearOutput(event)
+function ClearOutput()
     console:SetReadOnly(false)
     console:ClearAll()
     console:SetReadOnly(true)
