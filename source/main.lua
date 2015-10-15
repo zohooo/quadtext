@@ -22,6 +22,13 @@ else
     return
 end
 
+app = {
+    version = "0.0.1",
+    setting = {
+        command = {},
+    }
+}
+
 source = mainpath .. sep .. maindir
 
 dofile(source .. sep .. "editor" .. sep .. "gui.lua")

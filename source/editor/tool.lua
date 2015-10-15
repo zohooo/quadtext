@@ -17,6 +17,8 @@ menuBar:Append(toolMenu, "&Tool")
 
 toolMenu:Check(ID_CLEAROUTPUT, true)
 
+dofile(source .. sep .. "setting" .. sep .. "command.lua")
+
 function SetAllEditorsReadOnly(enable)
     for id, document in pairs(openDocuments) do
         local editor = document.editor
@@ -96,6 +98,11 @@ local execTimer = wx.wxTimer(frame)
 
 frame:Connect(wx.wxEVT_TIMER, ReadStream)
 
+function ExpandCommand(cmd, doc)
+    cmd = cmd:gsub("#fullname", doc.fullname):gsub("#basename", doc.basename)
+    return cmd
+end
+
 function ExecCommand(cmd, dir)
     proc = wx.wxProcess()
     proc:Redirect()
@@ -145,11 +152,11 @@ frame:Connect(ID_COMPILE, wx.wxEVT_COMMAND_MENU_SELECTED,
             end
 
             local id = editor:GetId();
-            programName = "xelatex"
-            local texName = openDocuments[id].fullname
-            local cmd = programName .. ' "' .. texName .. '"'
-
-            ExecCommand(cmd, openDocuments[id].directory)
+            local cmd = app.setting.command.compile
+            if cmd then
+                cmd = ExpandCommand(cmd, openDocuments[id])
+                ExecCommand(cmd, openDocuments[id].directory)
+            end
         end)
 frame:Connect(ID_COMPILE, wx.wxEVT_UPDATE_UI,
         function (event)
@@ -160,13 +167,12 @@ frame:Connect(ID_COMPILE, wx.wxEVT_UPDATE_UI,
 frame:Connect(ID_PREVIEW, wx.wxEVT_COMMAND_MENU_SELECTED,
         function (event)
             local editor = GetEditor();
-
             local id = editor:GetId();
-            programName = "SumatraPDF"
-            local pdfName = openDocuments[id].basename .. ".pdf"
-            local cmd = programName .. ' ' .. pdfName
-
-            ExecCommand(cmd, openDocuments[id].directory)
+            local cmd = app.setting.command.preview
+            if cmd then
+                cmd = ExpandCommand(cmd, openDocuments[id])
+                ExecCommand(cmd, openDocuments[id].directory)
+            end
         end)
 frame:Connect(ID_PREVIEW, wx.wxEVT_UPDATE_UI,
         function (event)
