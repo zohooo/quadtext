@@ -32,15 +32,15 @@ end
 function DisplayOutput(message, dont_add_marker)
     if splitter:IsSplit() == false then
         local w, h = frame:GetClientSizeWH()
-        splitter:SplitHorizontally(notebook, errorLog, (2 * h) / 3)
+        splitter:SplitHorizontally(notebook, console, (2 * h) / 3)
     end
     if not dont_add_marker then
-        errorLog:MarkerAdd(errorLog:GetLineCount()-1, CURRENT_LINE_MARKER)
+        console:MarkerAdd(console:GetLineCount()-1, CURRENT_LINE_MARKER)
     end
-    errorLog:SetReadOnly(false)
-    errorLog:AppendText(message)
-    errorLog:SetReadOnly(true)
-    errorLog:GotoPos(errorLog:GetLength())
+    console:SetReadOnly(false)
+    console:AppendText(message)
+    console:SetReadOnly(true)
+    console:GotoPos(console:GetLength())
 end
 
 function SaveIfModified(editor)
@@ -132,12 +132,12 @@ frame:Connect(ID_SHOWHIDEWINDOW, wx.wxEVT_COMMAND_MENU_SELECTED,
                 splitter:Unsplit()
             else
                 local w, h = frame:GetClientSizeWH()
-                splitter:SplitHorizontally(notebook, errorLog, (2 * h) / 3)
+                splitter:SplitHorizontally(notebook, console, (2 * h) / 3)
             end
         end)
 
 function ClearOutput(event)
-    errorLog:SetReadOnly(false)
-    errorLog:ClearAll()
-    errorLog:SetReadOnly(true)
+    console:SetReadOnly(false)
+    console:ClearAll()
+    console:SetReadOnly(true)
 end

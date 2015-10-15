@@ -51,9 +51,9 @@ editorApp        = wx.wxGetApp()
 
 -- wxWindow variables
 frame            = nil    -- wxFrame the main top level window
-splitter         = nil    -- wxSplitterWindow for the notebook and errorLog
+splitter         = nil    -- wxSplitterWindow for the notebook and console
 notebook         = nil    -- wxNotebook of editors
-errorLog         = nil    -- wxStyledTextCtrl log window for messages
+console          = nil    -- wxStyledTextCtrl log window for messages
 
 in_evt_focus     = false  -- true when in editor focus event to avoid recursion
 openDocuments    = {}     -- open notebook editor documents[winId] = {
@@ -135,17 +135,17 @@ notebook:Connect(wx.wxEVT_COMMAND_NOTEBOOK_PAGE_CHANGED,
             event:Skip() -- skip to let page change
         end)
 
-errorLog = wxstc.wxStyledTextCtrl(splitter, wx.wxID_ANY)
-errorLog:Show(false)
-errorLog:SetFont(font)
-errorLog:StyleSetFont(wxstc.wxSTC_STYLE_DEFAULT, font)
-errorLog:StyleClearAll()
-errorLog:SetMarginWidth(1, 16) -- marker margin
-errorLog:SetMarginType(1, wxstc.wxSTC_MARGIN_SYMBOL);
-errorLog:MarkerDefine(CURRENT_LINE_MARKER, wxstc.wxSTC_MARK_ARROWS, wx.wxBLACK, wx.wxWHITE)
-errorLog:SetReadOnly(true)
+console = wxstc.wxStyledTextCtrl(splitter, wx.wxID_ANY)
+console:Show(false)
+console:SetFont(font)
+console:StyleSetFont(wxstc.wxSTC_STYLE_DEFAULT, font)
+console:StyleClearAll()
+console:SetMarginWidth(1, 16) -- marker margin
+console:SetMarginType(1, wxstc.wxSTC_MARGIN_SYMBOL);
+console:MarkerDefine(CURRENT_LINE_MARKER, wxstc.wxSTC_MARK_ARROWS, wx.wxBLACK, wx.wxWHITE)
+console:SetReadOnly(true)
 
-splitter:Initialize(notebook) -- split later to show errorLog
+splitter:Initialize(notebook) -- split later to show console
 
 -- ----------------------------------------------------------------------------
 -- wxConfig load/save preferences functions
