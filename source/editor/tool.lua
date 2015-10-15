@@ -29,6 +29,8 @@ function MakeFileName(editor, fullpath)
     return fullpath
 end
 
+local consoleLength = 0
+
 function DisplayOutput(message, dont_add_marker)
     if splitter:IsSplit() == false then
         local w, h = frame:GetClientSizeWH()
@@ -40,7 +42,9 @@ function DisplayOutput(message, dont_add_marker)
     console:SetReadOnly(false)
     console:AppendText(message)
     console:SetReadOnly(true)
-    console:GotoPos(console:GetLength())
+    local n = console:GetLength()
+    console:GotoPos(n)
+    consoleLength = n
 end
 
 function SaveIfModified(editor)
@@ -67,6 +71,68 @@ function SaveIfModified(editor)
     return true -- saved
 end
 
+local proc, streamOut, streamErr, streamIn
+
+function ReadStream()
+    local function doRead(stream)
+        if stream and stream:CanRead() then
+            local str = stream:Read(4096)
+            DisplayOutput(str)
+        else
+            console:SetReadOnly(false)
+        end
+    end
+    doRead(streamIn)
+    doRead(streamErr)
+end
+
+function WriteStream(s)
+    if streamOut then streamOut:Write(s, #s) end
+end
+
+local execTimer = wx.wxTimer(frame)
+
+frame:Connect(wx.wxEVT_TIMER, ReadStream)
+
+function ExecCommand(cmd, dir)
+    proc = wx.wxProcess()
+    proc:Redirect()
+    proc:Connect(wx.wxEVT_END_PROCESS,
+        function(event)
+            execTimer:Stop();
+            ReadStream()
+            proc = nil
+        end)
+
+    ClearOutput()
+    consoleLength = 0
+    DisplayOutput("Running program: "..cmd.."\n")
+    local cwd = wx.wxGetCwd()
+    wx.wxSetWorkingDirectory(dir)
+    local pid = wx.wxExecute(cmd, wx.wxEXEC_ASYNC, proc)
+    wx.wxSetWorkingDirectory(cwd)
+
+    if pid == -1 then
+        DisplayOutput("Unknown ERROR Running program!\n", true)
+    else
+        streamIn = proc and proc:GetInputStream()
+        streamErr = proc and proc:GetErrorStream()
+        streamOut = proc and proc:GetOutputStream()
+        execTimer:Start(500);
+    end
+end
+
+console:Connect(wx.wxEVT_KEY_DOWN,
+    function (event)
+        local key = event:GetKeyCode()
+        if key == wx.WXK_RETURN or key == wx.WXK_NUMPAD_ENTER then
+            local n = console:GetLength()
+            local s = console:GetTextRange(consoleLength, n)
+            WriteStream(s .. "\n")
+        end
+        event:Skip()
+    end)
+
 frame:Connect(ID_COMPILE, wx.wxEVT_COMMAND_MENU_SELECTED,
         function (event)
             local editor = GetEditor();
@@ -77,20 +143,9 @@ frame:Connect(ID_COMPILE, wx.wxEVT_COMMAND_MENU_SELECTED,
             local id = editor:GetId();
             programName = "xelatex"
             local texName = openDocuments[id].fullname
-            local cmd = 'cmd /k start "" '..programName..' "'..texName..'" & exit'
+            local cmd = programName .. ' "' .. texName .. '"'
 
-            DisplayOutput("Running program: "..cmd.."\n")
-            local cwd = wx.wxGetCwd()
-            wx.wxSetWorkingDirectory(openDocuments[id].directory)
-            local pid = wx.wxExecute(cmd, wx.wxEXEC_ASYNC)
-            wx.wxSetWorkingDirectory(cwd)
-            print(pid)
-
-            if pid == -1 then
-                DisplayOutput("Unknown ERROR Running program!\n", true)
-            else
-                DisplayOutput("Process id is: "..tostring(pid).."\n", true)
-            end
+            ExecCommand(cmd, openDocuments[id].directory)
         end)
 frame:Connect(ID_COMPILE, wx.wxEVT_UPDATE_UI,
         function (event)
@@ -107,18 +162,7 @@ frame:Connect(ID_PREVIEW, wx.wxEVT_COMMAND_MENU_SELECTED,
             local pdfName = openDocuments[id].basename .. ".pdf"
             local cmd = programName .. ' ' .. pdfName
 
-            DisplayOutput("Running program: "..cmd.."\n")
-            local cwd = wx.wxGetCwd()
-            wx.wxSetWorkingDirectory(openDocuments[id].directory)
-            local pid = wx.wxExecute(cmd, wx.wxEXEC_ASYNC)
-            wx.wxSetWorkingDirectory(cwd)
-            print(pid)
-
-            if pid == -1 then
-                DisplayOutput("Unknown ERROR Running program!\n", true)
-            else
-                DisplayOutput("Process id is: "..tostring(pid).."\n", true)
-            end
+            ExecCommand(cmd, openDocuments[id].directory)
         end)
 frame:Connect(ID_PREVIEW, wx.wxEVT_UPDATE_UI,
         function (event)
