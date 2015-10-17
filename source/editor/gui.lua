@@ -160,7 +160,7 @@ function ConfigRestoreFramePosition(window, windowName)
     local _, w = config:Read("w", 0)
     local _, h = config:Read("h", 0)
 
-    if (s ~= -1) and (s ~= 2) then
+    if (s ~= -1) and (s ~= 1) and (s ~= 2) then
         local clientX, clientY, clientWidth, clientHeight
         clientX, clientY, clientWidth, clientHeight = wx.wxClientDisplayRect()
 
