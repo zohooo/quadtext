@@ -88,7 +88,7 @@ end
 -- ----------------------------------------------------------------------------
 -- Initialize the wxConfig for loading/saving the preferences
 
-config = wx.wxFileConfig("wxLuaIDE", "WXLUA")
+config = wx.wxFileConfig("QuadText")
 if config then
     config:SetRecordDefaults()
 end
