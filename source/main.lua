@@ -26,9 +26,54 @@ app = {
     version = "0.0.1",
     setting = {
         command = {},
-    }
+    },
+    plugin = {},
 }
 
+local function LoadLuaFile(path)
+    local f, err = loadfile(path)
+    if not f then
+        print(("Failed to load file: \n%s"):format(err))
+    else
+        local ok, result = pcall(function() return f() end)
+        if not ok then
+            print("Failed to call file: " .. path)
+        else
+            local name = result.name or ""
+            if name ~= "" then
+                app.plugin[name] = result
+            end
+        end
+    end
+end
+
+local function LoadPlugins(path)
+    local dir = wx.wxDir()
+    dir:Open(path)
+    if dir:IsOpened() then
+        local found, file = dir:GetFirst("*.lua", wx.wxDIR_FILES)
+        while found do
+            LoadLuaFile(path .. sep .. file)
+            found, file = dir:GetNext()
+        end
+    else
+        print("Error in Loading Plugins!")
+    end
+end
+
+function RunPlugins(event)
+    for _, p in pairs(app.plugin) do
+        if type(p[event]) == 'function' then
+            local ok, result = pcall(p[event])
+            if not ok then
+                print(("Failed to handle %s event: \n%s"):format(event, result))
+            end
+        end
+    end
+end
+
 source = mainpath .. sep .. maindir
+
+LoadPlugins(source .. sep .. "plugin")
 
 dofile(source .. sep .. "editor" .. sep .. "gui.lua")

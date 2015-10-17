@@ -647,6 +647,8 @@ function CloseWindow(event)
         return
     end
 
+    RunPlugins("onClose")
+
     ConfigSaveFramePosition(frame, "MainFrame")
     config:delete() -- always delete the config
     event:Skip()
@@ -691,6 +693,8 @@ else
     local editor = CreateEditor("untitled.tex")
     SetupKeywords(editor, "tex")
 end
+
+RunPlugins("onLoad")
 
 --frame:SetIcon(wxLuaEditorIcon) --FIXME add this back
 frame:Show(true)
