@@ -636,6 +636,7 @@ dofile(source .. sep .. "editor" .. sep .. "file.lua")
 dofile(source .. sep .. "editor" .. sep .. "edit.lua")
 dofile(source .. sep .. "editor" .. sep .. "search.lua")
 dofile(source .. sep .. "editor" .. sep .. "tool.lua")
+dofile(source .. sep .. "editor" .. sep .. "option.lua")
 dofile(source .. sep .. "editor" .. sep .. "help.lua")
 
 -- ---------------------------------------------------------------------------
