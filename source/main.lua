@@ -39,6 +39,7 @@ if arg then
         n = n - 1
         if arg[n] and not arg[n-1] then app.programName = arg[n] end
     end
+    app.scriptName = arg[0]
 
     app.openFiles = {}
     local option = {}

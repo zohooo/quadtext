@@ -684,7 +684,9 @@ local function LoadSingletonFile()
     if name and name ~= "" then
         local _, line = config:Read("line", "")
         local editor = LoadFile(name, nil, true)
-        frame:Iconize(false);
+        frame:Show(false)
+        frame:Iconize(true)  -- hack to make it work
+        frame:Iconize(false)
         frame:Raise()
         frame:SetFocus()
         if editor and line ~= "" then editor:GotoLine(tonumber(line) - 1) end

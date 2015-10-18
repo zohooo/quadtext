@@ -99,7 +99,14 @@ local execTimer = wx.wxTimer(frame)
 frame:Connect(wx.wxEVT_TIMER, ReadStream)
 
 function ExpandCommand(cmd, doc)
-    cmd = cmd:gsub("#fullname", doc.fullname):gsub("#basename", doc.basename)
+    cmd = cmd:gsub("#%a+", {
+        ["#program"]   = app.programName .. ' ' .. app.scriptName,
+        ["#fullpath"]  = doc.fullpath,
+        ["#directory"] = doc.directory,
+        ["#fullname"]  = doc.fullname,
+        ["#basename"]  = doc.basename,
+        ["#suffix"]    = doc.suffix,
+    })
     return cmd
 end
 

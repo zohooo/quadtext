@@ -1,5 +1,5 @@
 
 app.setting.command = {
-    compile = [[xelatex "#fullname"]],
-    preview = [[SumatraPDF "#basename.pdf"]],
+    compile = [[xelatex -synctex=1 "#fullname"]],
+    preview = [[SumatraPDF -inverse-search "#program -line=%l \"%f\"" "#basename.pdf"]],
 }
