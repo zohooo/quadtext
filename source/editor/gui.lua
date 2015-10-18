@@ -670,6 +670,33 @@ if notebook:GetPageCount() == 0 then
     SetupKeywords(editor, "tex")
 end
 
+-- ---------------------------------------------------------------------------
+-- Check if there is some file from another instance to open
+
+local ID_SINGLETON = NewID()
+local singletonTimer = wx.wxTimer(frame, ID_SINGLETON)
+
+local function LoadSingletonFile()
+    local config = GetConfig()
+    if not config then return end
+    config:SetPath("/SingleInstance")
+    local _, name = config:Read("name","")
+    if name and name ~= "" then
+        local _, line = config:Read("line", "")
+        local editor = LoadFile(name, nil, true)
+        frame:Iconize(false);
+        frame:Raise()
+        frame:SetFocus()
+        if editor and line ~= "" then editor:GotoLine(tonumber(line) - 1) end
+    end
+    config:DeleteGroup("/SingleInstance")
+    config:delete()
+end
+
+frame:Connect(ID_SINGLETON, wx.wxEVT_TIMER, LoadSingletonFile)
+
+singletonTimer:Start(250);
+
 --frame:SetIcon(wxLuaEditorIcon) --FIXME add this back
 frame:Show(true)
 

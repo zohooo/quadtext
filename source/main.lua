@@ -76,6 +76,28 @@ function GetConfig()
     return config
 end
 
+-- ----------------------------------------------------------------------------
+-- Single instance
+
+local singleton = wx.wxSingleInstanceChecker()
+
+if singleton:Create("QuadText") and singleton:IsAnotherRunning() then
+    config = GetConfig()
+    config:DeleteGroup("/SingleInstance")
+    config:SetPath("/SingleInstance")
+    local openfile = app.openFiles[1]
+    if openfile then
+        for k, v in pairs(openfile) do
+            config:Write(k, tostring(v))
+        end
+        config:Flush()
+    end
+    return
+end
+
+-- ----------------------------------------------------------------------------
+-- Plugins
+
 local function LoadLuaFile(path)
     local f, err = loadfile(path)
     if not f then
