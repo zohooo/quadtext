@@ -63,6 +63,19 @@ if arg then
     end
 end
 
+-- ----------------------------------------------------------------------------
+-- Initialize the wxConfig for loading/saving the preferences
+
+function GetConfig()
+    local config = wx.wxFileConfig("QuadText")
+    if config then
+        config:SetRecordDefaults()
+    else
+        print("Failed to load config file!")
+    end
+    return config
+end
+
 local function LoadLuaFile(path)
     local f, err = loadfile(path)
     if not f then

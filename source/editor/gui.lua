@@ -82,14 +82,6 @@ else
 end
 
 -- ----------------------------------------------------------------------------
--- Initialize the wxConfig for loading/saving the preferences
-
-config = wx.wxFileConfig("QuadText")
-if config then
-    config:SetRecordDefaults()
-end
-
--- ----------------------------------------------------------------------------
 -- Create the wxFrame
 -- ----------------------------------------------------------------------------
 frame = wx.wxFrame(wx.NULL, wx.wxID_ANY, "QuadText")
@@ -147,7 +139,9 @@ splitter:Initialize(notebook) -- split later to show console
 -- wxConfig load/save preferences functions
 
 function ConfigRestoreFramePosition(window, windowName)
-    local path = config:GetPath()
+    local config = GetConfig()
+    if not config then return end
+
     config:SetPath("/"..windowName)
 
     local _, s = config:Read("s", -1)
@@ -171,11 +165,13 @@ function ConfigRestoreFramePosition(window, windowName)
         window:Maximize(true)
     end
 
-    config:SetPath(path)
+    config:delete() -- always delete the config
 end
 
 function ConfigSaveFramePosition(window, windowName)
-    local path = config:GetPath()
+    local config = GetConfig()
+    if not config then return end
+
     config:SetPath("/"..windowName)
 
     local s    = 0
@@ -197,7 +193,7 @@ function ConfigSaveFramePosition(window, windowName)
         config:Write("h", h)
     end
 
-    config:SetPath(path)
+    config:delete() -- always delete the config
 end
 
 -- ----------------------------------------------------------------------------
@@ -646,7 +642,6 @@ function CloseWindow(event)
     RunPlugins("onClose")
 
     ConfigSaveFramePosition(frame, "MainFrame")
-    config:delete() -- always delete the config
     event:Skip()
 end
 frame:Connect(wx.wxEVT_CLOSE_WINDOW, CloseWindow)
