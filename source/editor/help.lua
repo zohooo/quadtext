@@ -14,7 +14,7 @@ function DisplayAbout(event)
         <table cellspacing = 4 cellpadding = 4 width = "100%">
           <tr>
             <td>
-              <b><font size=+1 color="#00007E">QuadText Editor</font></b><br>
+              <b><font size=+1 color="#00007E">QuadText Editor ]]..app.version..[[</font></b><br>
               Copyright &copy; 2015 QuadText Project<br>
               Licensed under GNU General Public License, Version 3.
              </td>

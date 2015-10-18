@@ -23,7 +23,7 @@ else
 end
 
 app = {
-    version = "0.0.1",
+    version = "0.0.4",
     setting = {
         editor = {},
         command = {},
