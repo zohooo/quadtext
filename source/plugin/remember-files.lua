@@ -9,7 +9,7 @@ P.onLoad = function()
     while status do
         local _, value = config:Read(key, "")
         if value ~= "" then
-            LoadFile(value, editor, true)
+            LoadFile(value, nil, true)
         end
         status, key, idx = config:GetNextEntry(idx)
     end
