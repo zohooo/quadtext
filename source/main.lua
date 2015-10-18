@@ -57,9 +57,12 @@ if arg then
             if v == "" then v = true end
             if k ~= "" then option[k] = v end
         else
-            option.name = a
-            table.insert(app.openFiles, option)
-            option = {}
+            local f = wx.wxFileName(a)
+            if f:Normalize() then
+                option.name = f:GetFullPath()
+                table.insert(app.openFiles, option)
+                option = {}
+            end
         end
     end
 end

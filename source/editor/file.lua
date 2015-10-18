@@ -62,7 +62,23 @@ function FindDocumentToReuse()
     return editor
 end
 
+function FindDocumentOpened(path)
+    for _, doc in pairs(openDocuments) do
+        if doc.fullpath == path then return doc end
+    end
+    return nil
+end
+
 function LoadFile(fullpath, editor, file_must_exist)
+    -- If this file has been opened
+    if not editor then
+        local doc = FindDocumentOpened(fullpath)
+        if doc then
+            notebook:SetSelection(doc.index)
+            return doc.editor
+        end
+    end
+
     local file_text, _ = ""
     local handle = wx.wxFile(fullpath, wx.wxFile.read)
     if handle:IsOpened() then
@@ -77,7 +93,7 @@ function LoadFile(fullpath, editor, file_must_exist)
     end
     if not editor then
         editor = CreateEditor(wx.wxFileName(fullpath):GetFullName() or "untitled.tex")
-     end
+    end
 
     editor:Clear()
     editor:ClearAll()
