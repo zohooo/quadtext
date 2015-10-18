@@ -45,10 +45,6 @@ local char_LF  = string.byte("\n")
 local char_Tab = string.byte("\t")
 local char_Sp  = string.byte(" ")
 
--- Global variables
-programName      = nil    -- the name of the wxLua program to be used when starting debugger
-editorApp        = wx.wxGetApp()
-
 -- wxWindow variables
 frame            = nil    -- wxFrame the main top level window
 splitter         = nil    -- wxSplitterWindow for the notebook and console
@@ -662,39 +658,22 @@ frame:SetMenuBar(menuBar)
 toolBar:Realize()
 ConfigRestoreFramePosition(frame, "MainFrame")
 
+RunPlugins("onLoad")
+
 -- ---------------------------------------------------------------------------
--- Load the args that this script is run with
+-- Load files specified in command line arguments
 
---for k, v in pairs(arg) do print(k, v) end
-
-if arg then
-    -- arguments pushed into wxLua are
-    --   [C++ app and it's args][lua prog at 0][args for lua start at 1]
-    local n = 1
-    while arg[n-1] do
-        n = n - 1
-        if arg[n] and not arg[n-1] then programName = arg[n] end
+for _, option in ipairs(app.openFiles) do
+    local editor = LoadFile(option.name, nil, true)
+    if editor and option.line then
+        editor:GotoLine(tonumber(option.line) - 1)
     end
+end
 
-    for index = 1, #arg do
-        fullname = arg[index]
-        if fullname ~= "--" then
-            LoadFile(fullname, nil, true)
-        end
-    end
-
-    if notebook:GetPageCount() > 0 then
-        notebook:SetSelection(0)
-    else
-       local editor = CreateEditor("untitled.tex")
-       SetupKeywords(editor, "tex")
-    end
-else
+if notebook:GetPageCount() == 0 then
     local editor = CreateEditor("untitled.tex")
     SetupKeywords(editor, "tex")
 end
-
-RunPlugins("onLoad")
 
 --frame:SetIcon(wxLuaEditorIcon) --FIXME add this back
 frame:Show(true)

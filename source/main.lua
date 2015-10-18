@@ -30,6 +30,39 @@ app = {
     plugin = {},
 }
 
+-- ---------------------------------------------------------------------------
+-- Load the args that this script is run with
+
+if arg then
+    local n = 1
+    while arg[n-1] do
+        n = n - 1
+        if arg[n] and not arg[n-1] then app.programName = arg[n] end
+    end
+
+    app.openFiles = {}
+    local option = {}
+    for idx = 1, #arg do
+        local a = arg[idx]
+        if a:sub(1,1) == "-" then
+            local i = a:find("=")
+            local k, v
+            if i then
+                k = a:sub(2, i-1)
+                v = a:sub(i+1)
+            else
+                k = a:sub(2)
+            end
+            if v == "" then v = true end
+            if k ~= "" then option[k] = v end
+        else
+            option.name = a
+            table.insert(app.openFiles, option)
+            option = {}
+        end
+    end
+end
+
 local function LoadLuaFile(path)
     local f, err = loadfile(path)
     if not f then
