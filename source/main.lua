@@ -25,6 +25,7 @@ end
 app = {
     version = "0.0.1",
     setting = {
+        editor = {},
         command = {},
     },
     plugin = {},
@@ -148,4 +149,5 @@ source = mainpath .. sep .. maindir
 
 LoadPlugins(source .. sep .. "plugin")
 
+dofile(source .. sep .. "setting" .. sep .. "setting-editor.lua")
 dofile(source .. sep .. "editor" .. sep .. "gui.lua")

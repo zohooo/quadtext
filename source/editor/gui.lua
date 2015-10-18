@@ -73,12 +73,20 @@ fontItalic       = nil
 -- ----------------------------------------------------------------------------
 
 -- Pick some reasonable fixed width fonts to use for the editor
+
+local function PickEditorFont(faceName)
+    local size = tonumber(app.setting.editor.fontsize)
+    if size < 10 then size = 10 end
+    font = wx.wxFont(size, wx.wxFONTFAMILY_MODERN, wx.wxFONTSTYLE_NORMAL,
+                     wx.wxFONTWEIGHT_NORMAL, false, faceName)
+    fontItalic = wx.wxFont(size, wx.wxFONTFAMILY_MODERN, wx.wxFONTSTYLE_ITALIC,
+                           wx.wxFONTWEIGHT_NORMAL, false, faceName)
+end
+
 if wx.__WXMSW__ then
-    font       = wx.wxFont(10, wx.wxFONTFAMILY_MODERN, wx.wxFONTSTYLE_NORMAL, wx.wxFONTWEIGHT_NORMAL, false, "Andale Mono")
-    fontItalic = wx.wxFont(10, wx.wxFONTFAMILY_MODERN, wx.wxFONTSTYLE_ITALIC, wx.wxFONTWEIGHT_NORMAL, false, "Andale Mono")
+    PickEditorFont("Andale Mono")
 else
-    font       = wx.wxFont(10, wx.wxFONTFAMILY_MODERN, wx.wxFONTSTYLE_NORMAL, wx.wxFONTWEIGHT_NORMAL, false, "")
-    fontItalic = wx.wxFont(10, wx.wxFONTFAMILY_MODERN, wx.wxFONTSTYLE_ITALIC, wx.wxFONTWEIGHT_NORMAL, false, "")
+    PickEditorFont("")
 end
 
 -- ----------------------------------------------------------------------------
@@ -378,6 +386,9 @@ function CreateEditor(name)
     editor:SetTabWidth(4)
     editor:SetIndent(4)
     editor:SetIndentationGuides(true)
+
+    local wrapmode = app.setting.editor.wrapmode or 1
+    editor:SetWrapMode(tonumber(wrapmode))
 
     editor:SetVisiblePolicy(wxstc.wxSTC_VISIBLE_SLOP, 3)
     --editor:SetXCaretPolicy(wxstc.wxSTC_CARET_SLOP, 10)
