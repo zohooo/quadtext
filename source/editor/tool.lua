@@ -17,7 +17,7 @@ menuBar:Append(toolMenu, "&Tool")
 
 toolMenu:Check(ID_CLEAROUTPUT, true)
 
-dofile(source .. sep .. "setting" .. sep .. "command.lua")
+dofile(source .. sep .. "setting" .. sep .. "setting-command.lua")
 
 function SetAllEditorsReadOnly(enable)
     for id, document in pairs(openDocuments) do
