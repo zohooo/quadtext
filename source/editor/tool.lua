@@ -136,7 +136,7 @@ function ExecCommand(cmd, dir)
         streamIn = proc and proc:GetInputStream()
         streamErr = proc and proc:GetErrorStream()
         streamOut = proc and proc:GetOutputStream()
-        execTimer:Start(500);
+        execTimer:Start(200);
     end
 end
 
