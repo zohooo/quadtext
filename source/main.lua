@@ -1,10 +1,24 @@
 
-package.path = package.path .. ";?.lua;?/?.lua;"
-package.cpath = package.cpath..";./?.dll;./?.so;../lib/?.so;../lib/vc_dll/?.dll;"
+app = { version = "0.0.4" }
 
-require("wx")
+local ext = package.cpath:match("%?%.(%a+);")
+
+if ext == "dll" then
+    app.osname = "windows"
+elseif ext == "so" then
+    app.osname = "linux"
+elseif ext == "dylib" then
+    app.osname = "macosx"
+else
+    print("Failed to detect os name!")
+    return
+end
 
 sep = package.config:sub(1,1) -- path separator
+
+package.cpath = "binary" .. sep .. "?." .. ext .. ";" .. package.cpath
+
+require("wx")
 
 local maindir, mainlua = "source", "main.lua"
 local tail = maindir..sep..mainlua
@@ -22,13 +36,9 @@ else
     return
 end
 
-app = {
-    version = "0.0.4",
-    setting = {
-        editor = {},
-        command = {},
-    },
-    plugin = {},
+app.setting = {
+    editor = {},
+    command = {},
 }
 
 -- ---------------------------------------------------------------------------
@@ -102,6 +112,8 @@ end
 
 -- ----------------------------------------------------------------------------
 -- Plugins
+
+app.plugin = {}
 
 local function LoadLuaFile(path)
     local f, err = loadfile(path)
