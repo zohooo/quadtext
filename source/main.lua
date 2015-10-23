@@ -1,20 +1,20 @@
 
 app = { version = "0.0.4" }
 
-local ext = package.cpath:match("%?%.(%a+);")
-
-if ext == "dll" then
-    app.osname = "windows"
-elseif ext == "so" then
-    app.osname = "linux"
-elseif ext == "dylib" then
-    app.osname = "macosx"
-else
-    print("Failed to detect os name!")
-    return
-end
-
 sep = package.config:sub(1,1) -- path separator
+
+local ext = ""
+
+if sep == "\\" then
+    app.osname = "windows"
+    ext = "dll"
+elseif io.popen("uname -s"):read("*l") == "Darwin" then
+    app.osname = "macosx"
+    ext = "dylib"
+else
+    app.osname = "linux"
+    ext = "so"
+end
 
 package.cpath = "binary" .. sep .. "?." .. ext .. ";" .. package.cpath
 
