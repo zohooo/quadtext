@@ -96,7 +96,7 @@ end
 
 local singleton = wx.wxSingleInstanceChecker()
 
-if singleton:Create("QuadText") and singleton:IsAnotherRunning() then
+if singleton:Create(".QuadText-Lock") and singleton:IsAnotherRunning() then
     config = GetConfig()
     config:DeleteGroup("/SingleInstance")
     config:SetPath("/SingleInstance")
