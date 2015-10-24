@@ -1,8 +1,4 @@
 
--- Load the wxLua module, does nothing if running from wxLua, wxLuaFreeze, or wxLuaEdit
-package.cpath = package.cpath..";./?.dll;./?.so;../lib/?.so;../lib/vc_dll/?.dll;../lib/bcc_dll/?.dll;../lib/mingw_dll/?.dll;"
-require("wx")
-
 -- Equivalent to C's "cond ? a : b", all terms will be evaluated
 function iff(cond, a, b) if cond then return a else return b end end
 
