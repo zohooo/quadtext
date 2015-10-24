@@ -92,7 +92,7 @@ end
 -- ----------------------------------------------------------------------------
 -- Create the wxFrame
 -- ----------------------------------------------------------------------------
-frame = wx.wxFrame(wx.NULL, wx.wxID_ANY, "QuadText")
+frame = wx.wxFrame(wx.NULL, wx.wxID_ANY, "QuadText", wx.wxDefaultPosition, wx.wxSize(640, 480))
 
 statusBar = frame:CreateStatusBar( 4 )
 local status_txt_width = statusBar:GetTextExtent("OVRW")
