@@ -28,6 +28,14 @@ function DisplayAbout(event)
             </td>
           </tr>
           <tr>
+            <td>
+              <b>Inspired by ZeroBrane Studio</b><br>
+              Copyright &copy; 2011-2015 ZeroBrane LLC<br>
+              Paul Kulchenko<br>
+              Licensed under the MIT License.
+            </td>
+          </tr>
+          <tr>
             <td><b>Build with ]]..wx.wxVERSION_STRING..[[ and ]]..wxlua.wxLUA_VERSION_STRING..[[</b></td>
           </tr>
         </table>
@@ -38,7 +46,7 @@ function DisplayAbout(event)
     local dlg = wx.wxDialog(frame, wx.wxID_ANY, "About QuadText")
 
     local html = wx.wxLuaHtmlWindow(dlg, wx.wxID_ANY,
-                                    wx.wxDefaultPosition, wx.wxSize(360, 150),
+                                    wx.wxDefaultPosition, wx.wxSize(400, 300),
                                     wx.wxHW_SCROLLBAR_NEVER)
     local line = wx.wxStaticLine(dlg, wx.wxID_ANY)
     local button = wx.wxButton(dlg, wx.wxID_OK, "OK")
