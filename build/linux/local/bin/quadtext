@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+
+MAIN_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && cd ../share/quadtext && pwd )"
+
+(cd "$MAIN_DIR"; "$MAIN_DIR/binary/lua" "$MAIN_DIR/source/main.lua" "$@") &

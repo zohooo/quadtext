@@ -1,0 +1,9 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Terminal=false
+Exec=quadtext
+Name=QuadText
+Comment=QuadText Editor
+Icon=QuadText
+Categories=GTK;Office;WordProcessor;Utility;TextEditor;
