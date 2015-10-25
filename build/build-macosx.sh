@@ -2,11 +2,14 @@
 
 ## this file is modified from build-macosx.sh of ZeroBrane Studio
 
-# main binary directory
-BIN_DIR="$(dirname "$PWD")/binary"
+# setup some directories
+MAIN_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && cd .. && pwd )"
 
-# temporary installation directory for dependencies
-INSTALL_DIR="$PWD/local"
+BIN_DIR="$MAIN_DIR/binary"
+BUILD_DIR="$MAIN_DIR/build"
+TEMP_DIR="$MAIN_DIR/temp"
+
+INSTALL_DIR="$TEMP_DIR/local"
 
 # Mac OS X global settings
 MACOSX_ARCH="i386"
@@ -104,6 +107,10 @@ function prepare_source {
     fi
 }
 
+# create the temporary directory
+mkdir -p "$TEMP_DIR" || { echo "Error: cannot create directory $TEMP_DIR"; exit 1; }
+cd $TEMP_DIR
+
 # create the installation directory
 mkdir -p "$INSTALL_DIR" || { echo "Error: cannot create directory $INSTALL_DIR"; exit 1; }
 
@@ -154,7 +161,6 @@ if [ $BUILD_WXLUA ]; then
     # otherwise wxwidgets could not be successfully compiled
     sed -i "" 's/\(#define wxLUA_USE_wxPopupWindow\)/\/\/\1/' modules/wxbind/setup/wxluasetup.h
     sed -i "" 's/\(#define wxLUA_USE_wxPopupTransientWindow\)/\/\/\1/' modules/wxbind/setup/wxluasetup.h
-    exit
     cmake -G "Unix Makefiles" -DCMAKE_INSTALL_PREFIX="$INSTALL_DIR" \
         -DCMAKE_BUILD_TYPE=$WXLUABUILD -DBUILD_SHARED_LIBS=FALSE \
         -DCMAKE_OSX_ARCHITECTURES=$MACOSX_ARCH -DCMAKE_OSX_DEPLOYMENT_TARGET=$MACOSX_VERSION \

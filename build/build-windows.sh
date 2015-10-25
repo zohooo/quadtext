@@ -2,11 +2,14 @@
 
 ## this file is modified from build-win32.bat of ZeroBrane Studio
 
-# main binary directory
-BIN_DIR="$(dirname "$PWD")/binary"
+# setup some directories
+MAIN_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && cd .. && pwd )"
 
-# temporary installation directory for dependencies
-INSTALL_DIR="$PWD/local"
+BIN_DIR="$MAIN_DIR/binary"
+BUILD_DIR="$MAIN_DIR/build"
+TEMP_DIR="$MAIN_DIR/temp"
+
+INSTALL_DIR="$TEMP_DIR/local"
 
 # number of parallel jobs used for building
 MAKEFLAGS="-j1" # some make may hang on Windows with j4 or j7
@@ -98,6 +101,10 @@ function prepare_source {
         tar -xzf "$2"
     fi
 }
+
+# create the temporary directory
+mkdir -p "$TEMP_DIR" || { echo "Error: cannot create directory $TEMP_DIR"; exit 1; }
+cd $TEMP_DIR
 
 # create the installation directory
 mkdir -p "$INSTALL_DIR" || { echo "Error: cannot create directory $INSTALL_DIR"; exit 1; }
