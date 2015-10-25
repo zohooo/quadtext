@@ -1,0 +1,9 @@
+#!/bin/bash
+
+if [ ! $MAIN_DIR ]; then
+    MAIN_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && cd .. && pwd )"
+fi
+
+export DYLD_LIBRARY_PATH="$MAIN_DIR/binary:${DYLD_LIBRARY_PATH}"
+
+(cd "$MAIN_DIR"; $MAIN_DIR/binary/lua $MAIN_DIR/source/main.lua "$@")
