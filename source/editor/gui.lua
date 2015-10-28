@@ -79,11 +79,8 @@ local function PickEditorFont(faceName)
                            wx.wxFONTWEIGHT_NORMAL, false, faceName)
 end
 
-if wx.__WXMSW__ then
-    PickEditorFont("Andale Mono")
-else
-    PickEditorFont("")
-end
+local fontname = app.setting.editor.fontname or "Courier New"
+PickEditorFont(tostring(fontname))
 
 -- ----------------------------------------------------------------------------
 -- Create the wxFrame
