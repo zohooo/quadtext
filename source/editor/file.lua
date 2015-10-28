@@ -29,7 +29,7 @@ fileMenu = wx.wxMenu({
 menuBar:Append(fileMenu, "&File")
 
 toolBar:AddTool(ID_NEW, "New",
-                wx.wxArtProvider.GetBitmap(wx.wxART_NORMAL_FILE, wx.wxART_MENU, toolBmpSize),
+                wx.wxArtProvider.GetBitmap(wx.wxART_NEW, wx.wxART_MENU, toolBmpSize),
                 "Create an empty document")
 toolBar:AddTool(ID_OPEN, "Open",
                 wx.wxArtProvider.GetBitmap(wx.wxART_FILE_OPEN, wx.wxART_MENU, toolBmpSize),
@@ -37,9 +37,9 @@ toolBar:AddTool(ID_OPEN, "Open",
 toolBar:AddTool(ID_SAVE, "Save",
                 wx.wxArtProvider.GetBitmap(wx.wxART_FILE_SAVE, wx.wxART_MENU, toolBmpSize),
                 "Save the current document")
-toolBar:AddTool(ID_SAVEALL, "Save All",
-                wx.wxArtProvider.GetBitmap(wx.wxART_NEW_DIR, wx.wxART_MENU, toolBmpSize),
-                "Save all documents")
+toolBar:AddTool(ID_SAVEAS, "Save As",
+                wx.wxArtProvider.GetBitmap(wx.wxART_FILE_SAVE_AS, wx.wxART_MENU, toolBmpSize),
+                "Save current document with a new name")
 
 function NewFile(event)
     local editor = CreateEditor("untitled.tex")
