@@ -1,5 +1,26 @@
 
-local lexer = {extensions = {"tex", "sty", "cls"}, keywords = {}}
+local lexer = {extensions = {"tex", "sty", "cls"}, styles = {}, keywords = {}}
+
+-- http://www.scintilla.org/ScintillaDoc.html#StyleDefinition
+lexer.styles.common = {
+    default     = {fg = {224, 192, 224}},
+    linenumber  = {fg = {  0,   0,   0}, bg = {192, 192, 192}},
+    bracelight  = {fg = {  0,   0, 255}, bold = true},
+    bracebad    = {fg = {255,   0,   0}, bold = true},
+    controlchar = {fg = {128, 128, 128}},
+    indentguide = {fg = {192, 192, 192}, bg = {255, 255, 255}},
+    calltip     = {fg = {128, 128, 128}},
+}
+
+-- http://sourceforge.net/p/scintilla/code/ci/default/tree/include/SciLexer.h
+lexer.styles.current = {
+    default = {fg = {128, 128, 128}}, -- comments
+    special = {fg = {  0, 128,   0}}, -- [ ] () <> # = "
+    group   = {fg = {  0, 128,   0}}, -- { } $
+    symbol  = {fg = { 64,  64,  64}}, -- % & ^ _ + - / | ~ `
+    command = {fg = {  0, 128, 128}}, -- commands
+    text    = {fg = {  0,   0,   0}}, -- text
+}
 
 lexer.keywords[1] = [[
     alpha active appendix approx arabic arccos arcsin arctan

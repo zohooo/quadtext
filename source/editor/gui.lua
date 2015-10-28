@@ -324,60 +324,6 @@ function CreateEditor(name)
         editor:StyleSetFont(i, font)
     end
 
-    editor:StyleSetForeground(0,  wx.wxColour(128, 128, 128)) -- White space
-    editor:StyleSetForeground(1,  wx.wxColour(0,   127, 0))   -- Block Comment
-    ----editor:StyleSetFont(1, fontItalic)
-    --editor:StyleSetUnderline(1, false)
-    editor:StyleSetForeground(2,  wx.wxColour(0,   127, 0))   -- Line Comment
-    ----editor:StyleSetFont(2, fontItalic)                        -- Doc. Comment
-    --editor:StyleSetUnderline(2, false)
-    editor:StyleSetForeground(3,  wx.wxColour(127, 127, 127)) -- Number
-    editor:StyleSetForeground(4,  wx.wxColour(0,   127, 127)) -- Keyword
-    ----editor:StyleSetForeground(5,  wx.wxColour(0,   0,   127)) -- Double quoted string
-    ----editor:StyleSetBold(5,  true)
-    --editor:StyleSetUnderline(5, false)
-    editor:StyleSetForeground(6,  wx.wxColour(127, 0,   127)) -- Single quoted string
-    editor:StyleSetForeground(7,  wx.wxColour(127, 0,   127)) -- not used
-    editor:StyleSetForeground(8,  wx.wxColour(0,   127, 127)) -- Literal strings
-    editor:StyleSetForeground(9,  wx.wxColour(127, 127, 0))  -- Preprocessor
-    editor:StyleSetForeground(10, wx.wxColour(0,   0,   0))   -- Operators
-    --editor:StyleSetBold(10, true)
-    editor:StyleSetForeground(11, wx.wxColour(0,   0,   0))   -- Identifiers
-    editor:StyleSetForeground(12, wx.wxColour(0,   0,   0))   -- Unterminated strings
-    editor:StyleSetBackground(12, wx.wxColour(224, 192, 224))
-    editor:StyleSetBold(12, true)
-    editor:StyleSetEOLFilled(12, true)
-
-    editor:StyleSetForeground(13, wx.wxColour(0,   0,  95))   -- Keyword 2 highlighting styles
-    editor:StyleSetForeground(14, wx.wxColour(0,   95, 0))    -- Keyword 3
-    editor:StyleSetForeground(15, wx.wxColour(127, 0,  0))    -- Keyword 4
-    editor:StyleSetForeground(16, wx.wxColour(127, 0,  95))   -- Keyword 5
-    editor:StyleSetForeground(17, wx.wxColour(35,  95, 175))  -- Keyword 6
-    editor:StyleSetForeground(18, wx.wxColour(0,   127, 127)) -- Keyword 7
-    editor:StyleSetBackground(18, wx.wxColour(240, 255, 255)) -- Keyword 8
-
-    editor:StyleSetForeground(19, wx.wxColour(0,   127, 127))
-    editor:StyleSetBackground(19, wx.wxColour(224, 255, 255))
-    editor:StyleSetForeground(20, wx.wxColour(0,   127, 127))
-    editor:StyleSetBackground(20, wx.wxColour(192, 255, 255))
-    editor:StyleSetForeground(21, wx.wxColour(0,   127, 127))
-    editor:StyleSetBackground(21, wx.wxColour(176, 255, 255))
-    editor:StyleSetForeground(22, wx.wxColour(0,   127, 127))
-    editor:StyleSetBackground(22, wx.wxColour(160, 255, 255))
-    editor:StyleSetForeground(23, wx.wxColour(0,   127, 127))
-    editor:StyleSetBackground(23, wx.wxColour(144, 255, 255))
-    editor:StyleSetForeground(24, wx.wxColour(0,   127, 127))
-    editor:StyleSetBackground(24, wx.wxColour(128, 155, 255))
-
-    editor:StyleSetForeground(32, wx.wxColour(224, 192, 224))  -- Line number
-    editor:StyleSetBackground(33, wx.wxColour(192, 192, 192))  -- Brace highlight
-    editor:StyleSetForeground(34, wx.wxColour(0,   0,   255))
-    editor:StyleSetBold(34, true)                              -- Brace incomplete highlight
-    editor:StyleSetForeground(35, wx.wxColour(255, 0,   0))
-    editor:StyleSetBold(35, true)                              -- Indentation guides
-    editor:StyleSetForeground(37, wx.wxColour(192, 192, 192))
-    editor:StyleSetBackground(37, wx.wxColour(255, 255, 255))
-
     editor:SetUseTabs(false)
     editor:SetTabWidth(4)
     editor:SetIndent(4)
@@ -591,7 +537,7 @@ end
 
 if notebook:GetPageCount() == 0 then
     local editor = CreateEditor("untitled.tex")
-    SetupKeywords(editor, "tex")
+    SetupStyles(editor, "tex")
 end
 
 -- ---------------------------------------------------------------------------

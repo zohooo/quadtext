@@ -12,8 +12,7 @@ for _, name in ipairs(all_lexers) do
     end
 end
 
-function SetupKeywords(editor, ext)
-    local name = app.filetype[ext]
+local function DoSetupKeywords(editor, name)
     if name == nil then
         editor:SetLexer(wxstc.wxSTC_LEX_NULL)
         editor:SetKeyWords(0, "")
@@ -24,5 +23,35 @@ function SetupKeywords(editor, ext)
             editor:SetKeyWords(k-1, v)
         end
     end
+end
+
+local function DoSetupStyles(editor, n, style)
+    for k, v in pairs(style) do
+        if k == "fg" then
+            editor:StyleSetForeground(n, wx.wxColour(v[1], v[2], v[3]))
+        elseif k == "bg" then
+            editor:StyleSetBackground(n, wx.wxColour(v[1], v[2], v[3]))
+        elseif k == "bold" then
+            editor:StyleSetBold(n,v)
+        elseif k == "fill" then
+            editor:StyleSetEOLFilled(n, v)
+        end
+    end
+end
+
+function SetupStyles(editor, ext)
+    local name = app.filetype[ext]
+    if name ~= nil then
+        local lexer = app.lexers[name]
+        for key, style in pairs(lexer.styles.common) do
+            local n = wxstc["wxSTC_STYLE_" .. key:upper()]
+            DoSetupStyles(editor, n, style)
+        end
+        for key, style in pairs(lexer.styles.current) do
+            local n = wxstc["wxSTC_" .. name:upper() .. "_" .. key:upper()]
+            DoSetupStyles(editor, n, style)
+        end
+    end
+    DoSetupKeywords(editor, name)
     editor:Colourise(0, -1)
 end

@@ -43,7 +43,7 @@ toolBar:AddTool(ID_SAVEALL, "Save All",
 
 function NewFile(event)
     local editor = CreateEditor("untitled.tex")
-    SetupKeywords(editor, "tex")
+    SetupStyles(editor, "tex")
 end
 
 frame:Connect(ID_NEW, wx.wxEVT_COMMAND_MENU_SELECTED, NewFile)
@@ -109,8 +109,7 @@ function LoadFile(fullpath, editor, file_must_exist)
     openDocuments[id].suffix = fp:GetExt()
     openDocuments[id].modTime = GetFileModTime(fullpath)
     SetDocumentModified(id, false)
-    SetupKeywords(editor, fp:GetExt())
-    editor:Colourise(0, -1)
+    SetupStyles(editor, fp:GetExt())
 
     return editor
 end
@@ -209,7 +208,7 @@ function SaveFileAs(editor)
         end
 
         if save_file and SaveFile(editor, fullpath) then
-            SetupKeywords(editor, wx.wxFileName(fullpath):GetExt())
+            SetupStyles(editor, wx.wxFileName(fullpath):GetExt())
             saved = true
         end
     end
