@@ -333,6 +333,9 @@ function CreateEditor(name)
     --editor:SetXCaretPolicy(wxstc.wxSTC_CARET_SLOP, 10)
     --editor:SetYCaretPolicy(wxstc.wxSTC_CARET_SLOP, 3)
 
+    editor:SetCaretLineVisible(true)
+    editor:SetCaretLineBackground(wx.wxColour(244, 244, 222))
+
     editor:SetMarginWidth(0, editor:TextWidth(32, "99999_")) -- line # margin
 
     editor:SetMarginWidth(1, 16) -- marker margin
