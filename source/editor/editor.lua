@@ -3,6 +3,24 @@ local editorID = 100 -- window id to create editor pages with, incremented for n
 
 local myEditor = {} -- extending the editor class
 
+function myEditor:SwitchComment()
+    local editor = self
+    local buf = {}
+    if editor:GetSelectionStart() == editor:GetSelectionEnd() then
+        local lineNumber = editor:GetCurrentLine()
+        editor:SetSelection(editor:PositionFromLine(lineNumber), editor:GetLineEndPosition(lineNumber))
+    end
+    for line in string.gmatch(editor:GetSelectedText()..'\n', "(.-)\r?\n") do
+        if string.sub(line,1,2) == '--' then
+            line = string.sub(line,3)
+        else
+            line = '--'..line
+        end
+        table.insert(buf, line)
+    end
+    editor:ReplaceSelection(table.concat(buf,"\n"))
+end
+
 function myEditor:SwitchFold()
     local editor = self
     editor:Colourise(0, -1)       -- update doc's folding info
@@ -58,6 +76,7 @@ function app:CreateEditor(parent, ...)
 
     -- We could not write the following line, since editor is not a table
     -- setmetatable(editor, {__index = myEditor})
+    editor.SwitchComment = myEditor.SwitchComment
     editor.SwitchFold = myEditor.SwitchFold
 
     editor:SetBufferedDraw(true)

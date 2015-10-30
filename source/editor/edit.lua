@@ -127,20 +127,7 @@ frame:Connect(ID_AUTOCOMPLETE_ENABLE, wx.wxEVT_COMMAND_MENU_SELECTED,
 frame:Connect(ID_COMMENT, wx.wxEVT_COMMAND_MENU_SELECTED,
         function (event)
             local editor = GetEditor()
-            local buf = {}
-            if editor:GetSelectionStart() == editor:GetSelectionEnd() then
-                local lineNumber = editor:GetCurrentLine()
-                editor:SetSelection(editor:PositionFromLine(lineNumber), editor:GetLineEndPosition(lineNumber))
-            end
-            for line in string.gmatch(editor:GetSelectedText()..'\n', "(.-)\r?\n") do
-                if string.sub(line,1,2) == '--' then
-                    line = string.sub(line,3)
-                else
-                    line = '--'..line
-                end
-                table.insert(buf, line)
-            end
-            editor:ReplaceSelection(table.concat(buf,"\n"))
+            editor:SwitchComment()
         end)
 frame:Connect(ID_COMMENT, wx.wxEVT_UPDATE_UI, OnUpdateUIEditMenu)
 
