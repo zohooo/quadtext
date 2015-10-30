@@ -27,6 +27,7 @@ end
 dofile(source .. sep .. "editor" .. sep .. "id.lua")
 
 -- Markers for editor marker margin
+ERROR_MARKER = 1
 CURRENT_LINE_MARKER       = 2
 CURRENT_LINE_MARKER_VALUE = 4 -- = 2^CURRENT_LINE_MARKER
 

@@ -8,6 +8,8 @@ console:StyleClearAll()
 
 console:SetMarginWidth(1, 16) -- marker margin
 console:SetMarginType(1, wxstc.wxSTC_MARGIN_SYMBOL);
+
+console:MarkerDefine(ERROR_MARKER, wxstc.wxSTC_MARK_CIRCLE, wx.wxBLACK, wx.wxRED)
 console:MarkerDefine(CURRENT_LINE_MARKER, wxstc.wxSTC_MARK_ARROWS, wx.wxBLACK, wx.wxWHITE)
 
 console:SetReadOnly(true)
@@ -55,6 +57,31 @@ local function WriteStream(s)
     if streamOut then streamOut:Write(s, #s) end
 end
 
+local pattern = "^l%.(%d+)"
+
+local function LocateErrors()
+    local cnt = console:GetLineCount()
+    for i = 0, cnt - 1 do
+        local line = console:GetLine(i)
+        if string.match(line, pattern) then
+            console:MarkerAdd(i, ERROR_MARKER)
+        end
+    end
+end
+
+local function GotoEditor()
+    local i = console:GetCurrentLine()
+    local line = console:GetLine(i)
+    local s = string.match(line, pattern)
+    if s then
+        local n = tonumber(s)
+        local editor = GetEditor()
+        editor:GotoLine(n-1)
+        editor:EnsureVisibleEnforcePolicy(n-1)
+        editor:SetFocus()
+    end
+end
+
 local execTimer = wx.wxTimer(console, ID.TIMER_EXECUTION)
 
 function console:ExecCommand(cmd, dir)
@@ -65,6 +92,7 @@ function console:ExecCommand(cmd, dir)
             execTimer:Stop();
             ReadStream()
             proc = nil
+            LocateErrors()
         end)
 
     if menuBar:IsChecked(ID.CLEAROUTPUT) then
@@ -99,3 +127,5 @@ console:Connect(wx.wxEVT_KEY_DOWN,
         end
         event:Skip()
     end)
+
+console:Connect(wxstc.wxEVT_STC_DOUBLECLICK, GotoEditor)
