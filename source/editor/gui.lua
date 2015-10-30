@@ -59,7 +59,6 @@ openDocuments    = {}     -- open notebook editor documents[winId] = {
                           --   modTime    = wxDateTime of disk file or nil,
                           --   isModified = bool is the document modified? }
 ignoredFilesList = {}
-editorID         = 100    -- window id to create editor pages with, incremented for new editors
 exitingProgram   = false  -- are we currently exiting, ID_EXIT
 autoCompleteEnable = true -- value of ID_AUTOCOMPLETE_ENABLE menu item
 wxkeywords       = nil    -- a string of the keywords for scintilla of wxLua's wx.XXX items
@@ -308,11 +307,8 @@ dofile(source .. sep .. "editor" .. sep .. "editor.lua")
 -- ----------------------------------------------------------------------------
 -- Create an editor and add it to the notebook
 function CreateEditor(name)
-    local editor = app:CreateEditor(notebook, editorID,
-                                          wx.wxDefaultPosition, wx.wxDefaultSize,
-                                          wx.wxSUNKEN_BORDER)
-
-    editorID = editorID + 1 -- increment so they're always unique
+    local editor = app:CreateEditor(notebook, wx.wxDefaultPosition,
+                                    wx.wxDefaultSize, wx.wxSUNKEN_BORDER)
 
     if notebook:AddPage(editor, name, true) then
         local id            = editor:GetId()

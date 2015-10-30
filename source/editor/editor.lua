@@ -1,6 +1,9 @@
 
-function app:CreateEditor(...)
-    local editor = wxstc.wxStyledTextCtrl(...)
+local editorID = 100 -- window id to create editor pages with, incremented for new editors
+
+function app:CreateEditor(parent, ...)
+    local editor = wxstc.wxStyledTextCtrl(parent, editorID, ...)
+    editorID = editorID + 1 -- increment so they're always unique
 
     editor:SetBufferedDraw(true)
     editor:StyleClearAll()
