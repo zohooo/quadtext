@@ -86,10 +86,6 @@ local status_txt_width = statusBar:GetTextExtent("OVRW")
 frame:SetStatusWidths({-1, status_txt_width, status_txt_width, status_txt_width*5})
 frame:SetStatusText("Welcome to QuadText")
 
-toolBar = frame:CreateToolBar(wx.wxNO_BORDER + wx.wxTB_FLAT + wx.wxTB_DOCKABLE)
--- note: Ususally the bmp size isn't necessary, but the HELP icon is not the right size in MSW
-toolBmpSize = toolBar:GetToolBitmapSize()
-
 -- ----------------------------------------------------------------------------
 -- Add the child windows to the frame
 
@@ -381,7 +377,8 @@ frame:Connect(wx.wxEVT_CLOSE_WINDOW, CloseWindow)
 -- Finish creating the frame and show it
 
 frame:SetMenuBar(menuBar)
-toolBar:Realize()
+dofile(source .. sep .. "editor" .. sep .. "toolbar.lua")
+
 ConfigRestoreFramePosition(frame, "MainFrame")
 
 RunPlugins("onLoad")

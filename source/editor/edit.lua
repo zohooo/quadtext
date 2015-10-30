@@ -20,24 +20,6 @@ menuBar:Append(editMenu, "&Edit")
 
 editMenu:Check(ID.AUTOCOMPLETE_ENABLE, autoCompleteEnable)
 
-toolBar:AddSeparator()
-toolBar:AddTool(ID.CUT, "Cut",
-                wx.wxArtProvider.GetBitmap(wx.wxART_CUT, wx.wxART_MENU, toolBmpSize),
-                "Cut the selection")
-toolBar:AddTool(ID.COPY, "Copy",
-                wx.wxArtProvider.GetBitmap(wx.wxART_COPY, wx.wxART_MENU, toolBmpSize),
-                "Copy the selection")
-toolBar:AddTool(ID.PASTE, "Paste",
-                wx.wxArtProvider.GetBitmap(wx.wxART_PASTE, wx.wxART_MENU, toolBmpSize),
-                "Paste text from the clipboard")
-toolBar:AddSeparator()
-toolBar:AddTool(ID.UNDO, "Undo",
-                wx.wxArtProvider.GetBitmap(wx.wxART_UNDO, wx.wxART_MENU, toolBmpSize),
-                "Undo last edit")
-toolBar:AddTool(ID.REDO, "Redo",
-                wx.wxArtProvider.GetBitmap(wx.wxART_REDO, wx.wxART_MENU, toolBmpSize),
-                "Redo last undo")
-
 function OnUpdateUIEditMenu(event) -- enable if there is a valid focused editor
     local editor = GetEditor()
     event:Enable(editor ~= nil)

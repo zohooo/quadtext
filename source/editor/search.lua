@@ -32,14 +32,6 @@ findMenu = wx.wxMenu{
         { ID.SORT,       "&Sort",                    "Sort selected lines"}}
 menuBar:Append(findMenu, "&Search")
 
-toolBar:AddSeparator()
-toolBar:AddTool(ID.FIND, "Find",
-                wx.wxArtProvider.GetBitmap(wx.wxART_FIND, wx.wxART_MENU, toolBmpSize),
-                "Find text")
-toolBar:AddTool(ID.REPLACE, "Replace",
-                wx.wxArtProvider.GetBitmap(wx.wxART_FIND_AND_REPLACE, wx.wxART_MENU, toolBmpSize),
-                "Find and replace text")
-
 function EnsureRangeVisible(posStart, posEnd)
     local editor = GetEditor()
     if posStart > posEnd then
