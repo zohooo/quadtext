@@ -1,9 +1,64 @@
 
 local editorID = 100 -- window id to create editor pages with, incremented for new editors
 
+local myEditor = {} -- extending the editor class
+
+function myEditor:SwitchFold()
+    local editor = self
+    editor:Colourise(0, -1)       -- update doc's folding info
+    local visible, baseFound, expanded, folded
+    for ln = 2, editor.LineCount - 1 do
+        local foldRaw = editor:GetFoldLevel(ln)
+        local foldLvl = foldRaw % 4096
+        local foldHdr = (math.floor(foldRaw / 8192) % 2) == 1
+        if not baseFound and (foldLvl ==  wxstc.wxSTC_FOLDLEVELBASE) then
+            baseFound = true
+            visible = editor:GetLineVisible(ln)
+        end
+        if foldHdr then
+            if editor:GetFoldExpanded(ln) then
+                expanded = true
+            else
+                folded = true
+            end
+        end
+        if expanded and folded and baseFound then break end
+    end
+    local show = not visible or (not baseFound and expanded) or (expanded and folded)
+    local hide = visible and folded
+
+    if show then
+        editor:ShowLines(1, editor.LineCount-1)
+    end
+
+    for ln = 1, editor.LineCount - 1 do
+        local foldRaw = editor:GetFoldLevel(ln)
+        local foldLvl = foldRaw % 4096
+        local foldHdr = (math.floor(foldRaw / 8192) % 2) == 1
+        if show then
+            if foldHdr then
+                if not editor:GetFoldExpanded(ln) then editor:ToggleFold(ln) end
+            end
+        elseif hide and (foldLvl == wxstc.wxSTC_FOLDLEVELBASE) then
+            if not foldHdr then
+                editor:HideLines(ln, ln)
+            end
+        elseif foldHdr then
+            if editor:GetFoldExpanded(ln) then
+                editor:ToggleFold(ln)
+            end
+        end
+    end
+    editor:EnsureCaretVisible()
+end
+
 function app:CreateEditor(parent, ...)
     local editor = wxstc.wxStyledTextCtrl(parent, editorID, ...)
     editorID = editorID + 1 -- increment so they're always unique
+
+    -- We could not write the following line, since editor is not a table
+    -- setmetatable(editor, {__index = myEditor})
+    editor.SwitchFold = myEditor.SwitchFold
 
     editor:SetBufferedDraw(true)
     editor:StyleClearAll()

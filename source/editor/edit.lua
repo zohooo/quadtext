@@ -144,57 +144,9 @@ frame:Connect(ID_COMMENT, wx.wxEVT_COMMAND_MENU_SELECTED,
         end)
 frame:Connect(ID_COMMENT, wx.wxEVT_UPDATE_UI, OnUpdateUIEditMenu)
 
-function FoldSome()
-    local editor = GetEditor()
-    editor:Colourise(0, -1)       -- update doc's folding info
-    local visible, baseFound, expanded, folded
-    for ln = 2, editor.LineCount - 1 do
-        local foldRaw = editor:GetFoldLevel(ln)
-        local foldLvl = foldRaw % 4096
-        local foldHdr = (math.floor(foldRaw / 8192) % 2) == 1
-        if not baseFound and (foldLvl ==  wxstc.wxSTC_FOLDLEVELBASE) then
-            baseFound = true
-            visible = editor:GetLineVisible(ln)
-        end
-        if foldHdr then
-            if editor:GetFoldExpanded(ln) then
-                expanded = true
-            else
-                folded = true
-            end
-        end
-        if expanded and folded and baseFound then break end
-    end
-    local show = not visible or (not baseFound and expanded) or (expanded and folded)
-    local hide = visible and folded
-
-    if show then
-        editor:ShowLines(1, editor.LineCount-1)
-    end
-
-    for ln = 1, editor.LineCount - 1 do
-        local foldRaw = editor:GetFoldLevel(ln)
-        local foldLvl = foldRaw % 4096
-        local foldHdr = (math.floor(foldRaw / 8192) % 2) == 1
-        if show then
-            if foldHdr then
-                if not editor:GetFoldExpanded(ln) then editor:ToggleFold(ln) end
-            end
-        elseif hide and (foldLvl == wxstc.wxSTC_FOLDLEVELBASE) then
-            if not foldHdr then
-                editor:HideLines(ln, ln)
-            end
-        elseif foldHdr then
-            if editor:GetFoldExpanded(ln) then
-                editor:ToggleFold(ln)
-            end
-        end
-    end
-    editor:EnsureCaretVisible()
-end
-
 frame:Connect(ID_FOLD, wx.wxEVT_COMMAND_MENU_SELECTED,
         function (event)
-            FoldSome()
+            local editor = GetEditor()
+            editor:SwitchFold()
         end)
 frame:Connect(ID_FOLD, wx.wxEVT_UPDATE_UI, OnUpdateUIEditMenu)
