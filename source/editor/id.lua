@@ -54,4 +54,5 @@ ID.SETTING_COMMAND     = NewID()
 ID.ABOUT               = wx.wxID_ABOUT
 
 -- Others
-ID.SINGLETON           = NewID()
+ID.TIMER_EXECUTION     = NewID()
+ID.TIMER_SINGLETON     = NewID()

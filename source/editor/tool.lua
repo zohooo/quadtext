@@ -15,24 +15,6 @@ function MakeFileName(editor, fullpath)
     return fullpath
 end
 
-local consoleLength = 0
-
-function DisplayOutput(message, dont_add_marker)
-    if splitter:IsSplit() == false then
-        local w, h = frame:GetClientSizeWH()
-        splitter:SplitHorizontally(notebook, console, (2 * h) / 3)
-    end
-    if not dont_add_marker then
-        console:MarkerAdd(console:GetLineCount()-1, CURRENT_LINE_MARKER)
-    end
-    console:SetReadOnly(false)
-    console:AppendText(message)
-    console:SetReadOnly(true)
-    local n = console:GetLength()
-    console:GotoPos(n)
-    consoleLength = n
-end
-
 function SaveIfModified(editor)
     local id = editor:GetId()
     if openDocuments[id].isModified then
@@ -57,29 +39,6 @@ function SaveIfModified(editor)
     return true -- saved
 end
 
-local proc, streamOut, streamErr, streamIn
-
-function ReadStream()
-    local function doRead(stream)
-        if stream and stream:CanRead() then
-            local str = stream:Read(4096)
-            DisplayOutput(str)
-        else
-            console:SetReadOnly(false)
-        end
-    end
-    doRead(streamIn)
-    doRead(streamErr)
-end
-
-function WriteStream(s)
-    if streamOut then streamOut:Write(s, #s) end
-end
-
-local execTimer = wx.wxTimer(frame)
-
-frame:Connect(wx.wxEVT_TIMER, ReadStream)
-
 function ExpandCommand(cmd, doc)
     cmd = cmd:gsub("#%a+", {
         ["#program"]   = app.programName .. ' ' .. app.scriptName,
@@ -91,47 +50,6 @@ function ExpandCommand(cmd, doc)
     })
     return cmd
 end
-
-function ExecCommand(cmd, dir)
-    proc = wx.wxProcess()
-    proc:Redirect()
-    proc:Connect(wx.wxEVT_END_PROCESS,
-        function(event)
-            execTimer:Stop();
-            ReadStream()
-            proc = nil
-        end)
-
-    if menuBar:IsChecked(ID.CLEAROUTPUT) then
-        ClearOutput()
-        consoleLength = 0
-    end
-    DisplayOutput("Running program: "..cmd.."\n")
-    local cwd = wx.wxGetCwd()
-    wx.wxSetWorkingDirectory(dir)
-    local pid = wx.wxExecute(cmd, wx.wxEXEC_ASYNC, proc)
-    wx.wxSetWorkingDirectory(cwd)
-
-    if pid == -1 then
-        DisplayOutput("Unknown ERROR Running program!\n", true)
-    else
-        streamIn = proc and proc:GetInputStream()
-        streamErr = proc and proc:GetErrorStream()
-        streamOut = proc and proc:GetOutputStream()
-        execTimer:Start(200);
-    end
-end
-
-console:Connect(wx.wxEVT_KEY_DOWN,
-    function (event)
-        local key = event:GetKeyCode()
-        if key == wx.WXK_RETURN or key == wx.WXK_NUMPAD_ENTER then
-            local n = console:GetLength()
-            local s = console:GetTextRange(consoleLength, n)
-            WriteStream(s .. "\n")
-        end
-        event:Skip()
-    end)
 
 frame:Connect(ID.COMPILE, wx.wxEVT_COMMAND_MENU_SELECTED,
         function (event)
@@ -178,9 +96,3 @@ frame:Connect(ID.SHOWHIDEWINDOW, wx.wxEVT_COMMAND_MENU_SELECTED,
                 splitter:SplitHorizontally(notebook, console, (2 * h) / 3)
             end
         end)
-
-function ClearOutput()
-    console:SetReadOnly(false)
-    console:ClearAll()
-    console:SetReadOnly(true)
-end

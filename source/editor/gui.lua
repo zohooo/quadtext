@@ -40,7 +40,6 @@ local char_Sp  = string.byte(" ")
 frame            = nil    -- wxFrame the main top level window
 splitter         = nil    -- wxSplitterWindow for the notebook and console
 notebook         = nil    -- wxNotebook of editors
-console          = nil    -- wxStyledTextCtrl log window for messages
 
 in_evt_focus     = false  -- true when in editor focus event to avoid recursion
 openDocuments    = {}     -- open notebook editor documents[winId] = {
@@ -114,15 +113,7 @@ notebook:Connect(wx.wxEVT_COMMAND_NOTEBOOK_PAGE_CHANGED,
             event:Skip() -- skip to let page change
         end)
 
-console = wxstc.wxStyledTextCtrl(splitter, wx.wxID_ANY)
-console:Show(false)
-console:SetFont(font)
-console:StyleSetFont(wxstc.wxSTC_STYLE_DEFAULT, font)
-console:StyleClearAll()
-console:SetMarginWidth(1, 16) -- marker margin
-console:SetMarginType(1, wxstc.wxSTC_MARGIN_SYMBOL);
-console:MarkerDefine(CURRENT_LINE_MARKER, wxstc.wxSTC_MARK_ARROWS, wx.wxBLACK, wx.wxWHITE)
-console:SetReadOnly(true)
+dofile(source .. sep .. "editor" .. sep .. "console.lua")
 
 splitter:Initialize(notebook) -- split later to show console
 
@@ -401,7 +392,7 @@ end
 -- ---------------------------------------------------------------------------
 -- Check if there is some file from another instance to open
 
-local singletonTimer = wx.wxTimer(frame, ID.SINGLETON)
+local singletonTimer = wx.wxTimer(frame, ID.TIMER_SINGLETON)
 
 local function LoadSingletonFile()
     local config = GetConfig()
@@ -422,7 +413,7 @@ local function LoadSingletonFile()
     config:delete()
 end
 
-frame:Connect(ID.SINGLETON, wx.wxEVT_TIMER, LoadSingletonFile)
+frame:Connect(ID.TIMER_SINGLETON, wx.wxEVT_TIMER, LoadSingletonFile)
 
 singletonTimer:Start(250);
 
