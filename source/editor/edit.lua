@@ -150,8 +150,8 @@ function FoldSome()
     local visible, baseFound, expanded, folded
     for ln = 2, editor.LineCount - 1 do
         local foldRaw = editor:GetFoldLevel(ln)
-        local foldLvl = math.mod(foldRaw, 4096)
-        local foldHdr = math.mod(math.floor(foldRaw / 8192), 2) == 1
+        local foldLvl = foldRaw % 4096
+        local foldHdr = (math.floor(foldRaw / 8192) % 2) == 1
         if not baseFound and (foldLvl ==  wxstc.wxSTC_FOLDLEVELBASE) then
             baseFound = true
             visible = editor:GetLineVisible(ln)
@@ -174,8 +174,8 @@ function FoldSome()
 
     for ln = 1, editor.LineCount - 1 do
         local foldRaw = editor:GetFoldLevel(ln)
-        local foldLvl = math.mod(foldRaw, 4096)
-        local foldHdr = math.mod(math.floor(foldRaw / 8192), 2) == 1
+        local foldLvl = foldRaw % 4096
+        local foldHdr = (math.floor(foldRaw / 8192) % 2) == 1
         if show then
             if foldHdr then
                 if not editor:GetFoldExpanded(ln) then editor:ToggleFold(ln) end
