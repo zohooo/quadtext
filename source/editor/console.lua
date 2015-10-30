@@ -14,7 +14,7 @@ console:SetReadOnly(true)
 
 local consoleLength = 0
 
-function DisplayOutput(message, dont_add_marker)
+function console:DisplayOutput(message, dont_add_marker)
     if splitter:IsSplit() == false then
         local w, h = frame:GetClientSizeWH()
         splitter:SplitHorizontally(notebook, console, (2 * h) / 3)
@@ -30,7 +30,7 @@ function DisplayOutput(message, dont_add_marker)
     consoleLength = n
 end
 
-function ClearOutput()
+function console:ClearOutput()
     console:SetReadOnly(false)
     console:ClearAll()
     console:SetReadOnly(true)
@@ -38,11 +38,11 @@ end
 
 local proc, streamOut, streamErr, streamIn
 
-function ReadStream()
+local function ReadStream()
     local function doRead(stream)
         if stream and stream:CanRead() then
             local str = stream:Read(4096)
-            DisplayOutput(str)
+            console:DisplayOutput(str)
         else
             console:SetReadOnly(false)
         end
@@ -51,13 +51,13 @@ function ReadStream()
     doRead(streamErr)
 end
 
-function WriteStream(s)
+local function WriteStream(s)
     if streamOut then streamOut:Write(s, #s) end
 end
 
 local execTimer = wx.wxTimer(console, ID.TIMER_EXECUTION)
 
-function ExecCommand(cmd, dir)
+function console:ExecCommand(cmd, dir)
     proc = wx.wxProcess()
     proc:Redirect()
     proc:Connect(wx.wxEVT_END_PROCESS,
@@ -68,17 +68,17 @@ function ExecCommand(cmd, dir)
         end)
 
     if menuBar:IsChecked(ID.CLEAROUTPUT) then
-        ClearOutput()
+        console:ClearOutput()
         consoleLength = 0
     end
-    DisplayOutput("Running program: "..cmd.."\n")
+    console:DisplayOutput("Running program: "..cmd.."\n")
     local cwd = wx.wxGetCwd()
     wx.wxSetWorkingDirectory(dir)
     local pid = wx.wxExecute(cmd, wx.wxEXEC_ASYNC, proc)
     wx.wxSetWorkingDirectory(cwd)
 
     if pid == -1 then
-        DisplayOutput("Unknown ERROR Running program!\n", true)
+        console:DisplayOutput("Unknown ERROR Running program!\n", true)
     else
         streamIn = proc and proc:GetInputStream()
         streamErr = proc and proc:GetErrorStream()

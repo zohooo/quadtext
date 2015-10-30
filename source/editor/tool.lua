@@ -62,7 +62,7 @@ frame:Connect(ID.COMPILE, wx.wxEVT_COMMAND_MENU_SELECTED,
             local cmd = app.setting.command.compile
             if cmd then
                 cmd = ExpandCommand(cmd, openDocuments[id])
-                ExecCommand(cmd, openDocuments[id].directory)
+                console:ExecCommand(cmd, openDocuments[id].directory)
             end
         end)
 frame:Connect(ID.COMPILE, wx.wxEVT_UPDATE_UI,
@@ -78,7 +78,7 @@ frame:Connect(ID.PREVIEW, wx.wxEVT_COMMAND_MENU_SELECTED,
             local cmd = app.setting.command.preview
             if cmd then
                 cmd = ExpandCommand(cmd, openDocuments[id])
-                ExecCommand(cmd, openDocuments[id].directory)
+                console:ExecCommand(cmd, openDocuments[id].directory)
             end
         end)
 frame:Connect(ID.PREVIEW, wx.wxEVT_UPDATE_UI,
