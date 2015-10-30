@@ -172,7 +172,7 @@ function app:CreateEditor(parent, ...)
                         local range = editor:GetTextRange(start_pos-3, start_pos)
                         if range == "wx." then
                             local commandEvent = wx.wxCommandEvent(wx.wxEVT_COMMAND_MENU_SELECTED,
-                                                                   ID_AUTOCOMPLETE)
+                                                                   ID.AUTOCOMPLETE)
                             wx.wxPostEvent(frame, commandEvent)
                         end
                     end

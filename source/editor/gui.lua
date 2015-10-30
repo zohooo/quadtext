@@ -24,12 +24,7 @@ function HasBit(value, num)
     return true
 end
 
--- Generate a unique new wxWindowID
-local ID_IDCOUNTER = wx.wxID_HIGHEST + 1
-function NewID()
-    ID_IDCOUNTER = ID_IDCOUNTER + 1
-    return ID_IDCOUNTER
-end
+dofile(source .. sep .. "editor" .. sep .. "id.lua")
 
 -- Markers for editor marker margin
 CURRENT_LINE_MARKER       = 2
@@ -59,8 +54,8 @@ openDocuments    = {}     -- open notebook editor documents[winId] = {
                           --   modTime    = wxDateTime of disk file or nil,
                           --   isModified = bool is the document modified? }
 ignoredFilesList = {}
-exitingProgram   = false  -- are we currently exiting, ID_EXIT
-autoCompleteEnable = true -- value of ID_AUTOCOMPLETE_ENABLE menu item
+exitingProgram   = false  -- are we currently exiting, ID.EXIT
+autoCompleteEnable = true -- value of ID.AUTOCOMPLETE_ENABLE menu item
 wxkeywords       = nil    -- a string of the keywords for scintilla of wxLua's wx.XXX items
 font             = nil    -- fonts to use for the editor
 fontItalic       = nil
@@ -409,8 +404,7 @@ end
 -- ---------------------------------------------------------------------------
 -- Check if there is some file from another instance to open
 
-local ID_SINGLETON = NewID()
-local singletonTimer = wx.wxTimer(frame, ID_SINGLETON)
+local singletonTimer = wx.wxTimer(frame, ID.SINGLETON)
 
 local function LoadSingletonFile()
     local config = GetConfig()
@@ -431,7 +425,7 @@ local function LoadSingletonFile()
     config:delete()
 end
 
-frame:Connect(ID_SINGLETON, wx.wxEVT_TIMER, LoadSingletonFile)
+frame:Connect(ID.SINGLETON, wx.wxEVT_TIMER, LoadSingletonFile)
 
 singletonTimer:Start(250);
 

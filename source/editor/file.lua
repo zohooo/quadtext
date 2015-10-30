@@ -1,43 +1,32 @@
 -- ---------------------------------------------------------------------------
 -- Create the File menu and attach the callback functions
 
-local ID_NEW              = wx.wxID_NEW
-local ID_OPEN             = wx.wxID_OPEN
-local ID_CLOSE            = NewID()
-local ID_SAVE             = wx.wxID_SAVE
-local ID_SAVEAS           = wx.wxID_SAVEAS
-local ID_SAVEALL          = NewID()
-local ID_EXIT             = wx.wxID_EXIT
-local ID_PRINT            = wx.wxID_PRINT
-local ID_PRINT_PREVIEW    = NewID()
-local ID_PAGE_SETUP       = wx.wxID_PAGE_SETUP
-
 fileMenu = wx.wxMenu({
-        { ID_NEW,     "&New\tCtrl-N",        "Create an empty document" },
-        { ID_OPEN,    "&Open...\tCtrl-O",    "Open an existing document" },
-        { ID_CLOSE,   "&Close page\tCtrl+W", "Close the current editor window" },
+        { ID.NEW,     "&New\tCtrl-N",        "Create an empty document" },
+        { ID.OPEN,    "&Open...\tCtrl-O",    "Open an existing document" },
+        { ID.CLOSE,   "&Close page\tCtrl+W", "Close the current editor window" },
         { },
-        { ID_SAVE,    "&Save\tCtrl-S",       "Save the current document" },
-        { ID_SAVEAS,  "Save &As...\tAlt-S",  "Save the current document to a file with a new name" },
-        { ID_SAVEALL, "Save A&ll...\tCtrl-Shift-S", "Save all open documents" },
+        { ID.SAVE,    "&Save\tCtrl-S",       "Save the current document" },
+        { ID.SAVEAS,  "Save &As...\tAlt-S",  "Save the current document to a file with a new name" },
+        { ID.SAVEALL, "Save A&ll...\tCtrl-Shift-S", "Save all open documents" },
         { },
-        { ID_PRINT,         "&Print... \tCtrl-p",               "Print document"},
-        { ID_PRINT_PREVIEW, "&Print Preview... \tShift-Ctrl-p", "Print preview"},
-        { ID_PAGE_SETUP,    "Page S&etup...",                   "Set up printing"},
+        { ID.PRINT,         "&Print... \tCtrl-p",               "Print document"},
+        { ID.PRINT_PREVIEW, "&Print Preview... \tShift-Ctrl-p", "Print preview"},
+        { ID.PAGE_SETUP,    "Page S&etup...",                   "Set up printing"},
         { },
-        { ID_EXIT,    "E&xit\tAlt-X",        "Exit Program" }})
+        { ID.EXIT,    "E&xit\tAlt-X",        "Exit Program" }})
 menuBar:Append(fileMenu, "&File")
 
-toolBar:AddTool(ID_NEW, "New",
+toolBar:AddTool(ID.NEW, "New",
                 wx.wxArtProvider.GetBitmap(wx.wxART_NEW, wx.wxART_MENU, toolBmpSize),
                 "Create an empty document")
-toolBar:AddTool(ID_OPEN, "Open",
+toolBar:AddTool(ID.OPEN, "Open",
                 wx.wxArtProvider.GetBitmap(wx.wxART_FILE_OPEN, wx.wxART_MENU, toolBmpSize),
                 "Open an existing document")
-toolBar:AddTool(ID_SAVE, "Save",
+toolBar:AddTool(ID.SAVE, "Save",
                 wx.wxArtProvider.GetBitmap(wx.wxART_FILE_SAVE, wx.wxART_MENU, toolBmpSize),
                 "Save the current document")
-toolBar:AddTool(ID_SAVEAS, "Save As",
+toolBar:AddTool(ID.SAVEAS, "Save As",
                 wx.wxArtProvider.GetBitmap(wx.wxART_FILE_SAVE_AS, wx.wxART_MENU, toolBmpSize),
                 "Save current document with a new name")
 
@@ -46,7 +35,7 @@ function NewFile(event)
     SetupStyles(editor, "tex")
 end
 
-frame:Connect(ID_NEW, wx.wxEVT_COMMAND_MENU_SELECTED, NewFile)
+frame:Connect(ID.NEW, wx.wxEVT_COMMAND_MENU_SELECTED, NewFile)
 
 -- Find an editor page that hasn't been used at all, eg. an untouched NewFile()
 function FindDocumentToReuse()
@@ -129,7 +118,7 @@ function OpenFile(event)
     end
     fileDialog:Destroy()
 end
-frame:Connect(ID_OPEN, wx.wxEVT_COMMAND_MENU_SELECTED, OpenFile)
+frame:Connect(ID.OPEN, wx.wxEVT_COMMAND_MENU_SELECTED, OpenFile)
 
 -- save the file to fullpath or if fullpath is nil then call SaveFileAs
 function SaveFile(editor, fullpath)
@@ -166,7 +155,7 @@ function SaveFile(editor, fullpath)
     return false
 end
 
-frame:Connect(ID_SAVE, wx.wxEVT_COMMAND_MENU_SELECTED,
+frame:Connect(ID.SAVE, wx.wxEVT_COMMAND_MENU_SELECTED,
         function (event)
             local editor   = GetEditor()
             local id       = editor:GetId()
@@ -174,7 +163,7 @@ frame:Connect(ID_SAVE, wx.wxEVT_COMMAND_MENU_SELECTED,
             SaveFile(editor, fullpath)
         end)
 
-frame:Connect(ID_SAVE, wx.wxEVT_UPDATE_UI,
+frame:Connect(ID.SAVE, wx.wxEVT_UPDATE_UI,
         function (event)
             local editor = GetEditor()
             if editor then
@@ -217,12 +206,12 @@ function SaveFileAs(editor)
     return saved
 end
 
-frame:Connect(ID_SAVEAS, wx.wxEVT_COMMAND_MENU_SELECTED,
+frame:Connect(ID.SAVEAS, wx.wxEVT_COMMAND_MENU_SELECTED,
         function (event)
             local editor = GetEditor()
             SaveFileAs(editor)
         end)
-frame:Connect(ID_SAVEAS, wx.wxEVT_UPDATE_UI,
+frame:Connect(ID.SAVEAS, wx.wxEVT_UPDATE_UI,
         function (event)
             local editor = GetEditor()
             event:Enable(editor ~= nil)
@@ -239,12 +228,12 @@ function SaveAll()
     end
 end
 
-frame:Connect(ID_SAVEALL, wx.wxEVT_COMMAND_MENU_SELECTED,
+frame:Connect(ID.SAVEALL, wx.wxEVT_COMMAND_MENU_SELECTED,
         function (event)
             SaveAll()
         end)
 
-frame:Connect(ID_SAVEALL, wx.wxEVT_UPDATE_UI,
+frame:Connect(ID.SAVEALL, wx.wxEVT_UPDATE_UI,
         function (event)
             local atLeastOneModifiedDocument = false
             for id, document in pairs(openDocuments) do
@@ -417,14 +406,14 @@ function PrintPreview()
     end
 end
 
-frame:Connect(ID_PAGE_SETUP, wx.wxEVT_COMMAND_MENU_SELECTED,
+frame:Connect(ID.PAGE_SETUP, wx.wxEVT_COMMAND_MENU_SELECTED,
     function (event)
         local pageSetupDialog = wx.wxPageSetupDialog(frame, printInfo.pageSetupDialogData)
         pageSetupDialog:ShowModal()
         printInfo.pageSetupDialogData = pageSetupDialog:GetPageSetupDialogData()
     end)
 
-frame:Connect(ID_PRINT, wx.wxEVT_COMMAND_MENU_SELECTED,
+frame:Connect(ID.PRINT, wx.wxEVT_COMMAND_MENU_SELECTED,
     function (event)
         local editor = GetEditor()
         -- The default size is too large, this gets ~80 rows for a 12 pt font
@@ -442,7 +431,7 @@ frame:Connect(ID_PRINT, wx.wxEVT_COMMAND_MENU_SELECTED,
         end
     end)
 
-frame:Connect(ID_PRINT_PREVIEW, wx.wxEVT_COMMAND_MENU_SELECTED,
+frame:Connect(ID.PRINT_PREVIEW, wx.wxEVT_COMMAND_MENU_SELECTED,
     function (event)
         local editor = GetEditor()
         -- The default size is too large, this gets ~80 rows for a 12 pt font
@@ -513,7 +502,7 @@ function SaveModifiedDialog(editor, allow_cancel)
     return result
 end
 
-frame:Connect(ID_CLOSE, wx.wxEVT_COMMAND_MENU_SELECTED,
+frame:Connect(ID.CLOSE, wx.wxEVT_COMMAND_MENU_SELECTED,
         function (event)
             local editor = GetEditor()
             local id     = editor:GetId()
@@ -522,7 +511,7 @@ frame:Connect(ID_CLOSE, wx.wxEVT_COMMAND_MENU_SELECTED,
             end
         end)
 
-frame:Connect(ID_CLOSE, wx.wxEVT_UPDATE_UI,
+frame:Connect(ID.CLOSE, wx.wxEVT_UPDATE_UI,
         function (event)
             event:Enable(GetEditor() ~= nil)
         end)
@@ -539,7 +528,7 @@ function SaveOnExit(allow_cancel)
     return true
 end
 
-frame:Connect( ID_EXIT, wx.wxEVT_COMMAND_MENU_SELECTED,
+frame:Connect( ID.EXIT, wx.wxEVT_COMMAND_MENU_SELECTED,
         function (event)
             if not SaveOnExit(true) then return end
             frame:Close() -- will handle wxEVT_CLOSE_WINDOW

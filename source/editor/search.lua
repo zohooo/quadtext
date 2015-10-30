@@ -21,29 +21,22 @@ findReplace = {
     -- Show(replace)             create the dialog
 }
 
-local ID_FIND             = wx.wxID_FIND
-local ID_FINDNEXT         = NewID()
-local ID_FINDPREV         = NewID()
-local ID_REPLACE          = NewID()
-local ID_GOTOLINE         = NewID()
-local ID_SORT             = NewID()
-
 findMenu = wx.wxMenu{
-        { ID_FIND,       "&Find\tCtrl-F",            "Find the specified text" },
-        { ID_FINDNEXT,   "Find &Next\tF3",           "Find the next occurrence of the specified text" },
-        { ID_FINDPREV,   "Find &Previous\tShift-F3", "Repeat the search backwards in the file" },
-        { ID_REPLACE,    "&Replace\tCtrl-H",         "Replaces the specified text with different text" },
+        { ID.FIND,       "&Find\tCtrl-F",            "Find the specified text" },
+        { ID.FINDNEXT,   "Find &Next\tF3",           "Find the next occurrence of the specified text" },
+        { ID.FINDPREV,   "Find &Previous\tShift-F3", "Repeat the search backwards in the file" },
+        { ID.REPLACE,    "&Replace\tCtrl-H",         "Replaces the specified text with different text" },
         { },
-        { ID_GOTOLINE,   "&Goto line\tCtrl-G",       "Go to a selected line" },
+        { ID.GOTOLINE,   "&Goto line\tCtrl-G",       "Go to a selected line" },
         { },
-        { ID_SORT,       "&Sort",                    "Sort selected lines"}}
+        { ID.SORT,       "&Sort",                    "Sort selected lines"}}
 menuBar:Append(findMenu, "&Search")
 
 toolBar:AddSeparator()
-toolBar:AddTool(ID_FIND, "Find",
+toolBar:AddTool(ID.FIND, "Find",
                 wx.wxArtProvider.GetBitmap(wx.wxART_FIND, wx.wxART_MENU, toolBmpSize),
                 "Find text")
-toolBar:AddTool(ID_REPLACE, "Replace",
+toolBar:AddTool(ID.REPLACE, "Replace",
                 wx.wxArtProvider.GetBitmap(wx.wxART_FIND_AND_REPLACE, wx.wxART_MENU, toolBmpSize),
                 "Find and replace text")
 
@@ -322,29 +315,29 @@ function findReplace:Show(replace)
     self.dialog:Show(true)
 end
 
-frame:Connect(ID_FIND, wx.wxEVT_COMMAND_MENU_SELECTED,
+frame:Connect(ID.FIND, wx.wxEVT_COMMAND_MENU_SELECTED,
         function (event)
             findReplace:GetSelectedString()
             findReplace:Show(false)
         end)
-frame:Connect(ID_FIND, wx.wxEVT_UPDATE_UI, OnUpdateUIEditMenu)
+frame:Connect(ID.FIND, wx.wxEVT_UPDATE_UI, OnUpdateUIEditMenu)
 
-frame:Connect(ID_REPLACE, wx.wxEVT_COMMAND_MENU_SELECTED,
+frame:Connect(ID.REPLACE, wx.wxEVT_COMMAND_MENU_SELECTED,
         function (event)
             findReplace:GetSelectedString()
             findReplace:Show(true)
         end)
-frame:Connect(ID_REPLACE, wx.wxEVT_UPDATE_UI, OnUpdateUIEditMenu)
+frame:Connect(ID.REPLACE, wx.wxEVT_UPDATE_UI, OnUpdateUIEditMenu)
 
-frame:Connect(ID_FINDNEXT, wx.wxEVT_COMMAND_MENU_SELECTED, function (event) findReplace:FindString() end)
-frame:Connect(ID_FINDNEXT, wx.wxEVT_UPDATE_UI, function (event) findReplace:HasText() end)
+frame:Connect(ID.FINDNEXT, wx.wxEVT_COMMAND_MENU_SELECTED, function (event) findReplace:FindString() end)
+frame:Connect(ID.FINDNEXT, wx.wxEVT_UPDATE_UI, function (event) findReplace:HasText() end)
 
-frame:Connect(ID_FINDPREV, wx.wxEVT_COMMAND_MENU_SELECTED, function (event) findReplace:FindString(true) end)
-frame:Connect(ID_FINDPREV, wx.wxEVT_UPDATE_UI, function (event) findReplace:HasText() end)
+frame:Connect(ID.FINDPREV, wx.wxEVT_COMMAND_MENU_SELECTED, function (event) findReplace:FindString(true) end)
+frame:Connect(ID.FINDPREV, wx.wxEVT_UPDATE_UI, function (event) findReplace:HasText() end)
 
 -------------------- Find replace end
 
-frame:Connect(ID_GOTOLINE, wx.wxEVT_COMMAND_MENU_SELECTED,
+frame:Connect(ID.GOTOLINE, wx.wxEVT_COMMAND_MENU_SELECTED,
         function (event)
             local editor = GetEditor()
             local linecur = editor:LineFromPosition(editor:GetCurrentPos())
@@ -358,9 +351,9 @@ frame:Connect(ID_GOTOLINE, wx.wxEVT_COMMAND_MENU_SELECTED,
                 editor:GotoLine(linenum-1)
             end
         end)
-frame:Connect(ID_GOTOLINE, wx.wxEVT_UPDATE_UI, OnUpdateUIEditMenu)
+frame:Connect(ID.GOTOLINE, wx.wxEVT_UPDATE_UI, OnUpdateUIEditMenu)
 
-frame:Connect(ID_SORT, wx.wxEVT_COMMAND_MENU_SELECTED,
+frame:Connect(ID.SORT, wx.wxEVT_COMMAND_MENU_SELECTED,
         function (event)
             local editor = GetEditor()
             local buf = {}
@@ -372,4 +365,4 @@ frame:Connect(ID_SORT, wx.wxEVT_COMMAND_MENU_SELECTED,
                 editor:ReplaceSelection(table.concat(buf,"\n"))
             end
         end)
-frame:Connect(ID_SORT, wx.wxEVT_UPDATE_UI, OnUpdateUIEditMenu)
+frame:Connect(ID.SORT, wx.wxEVT_UPDATE_UI, OnUpdateUIEditMenu)

@@ -1,21 +1,16 @@
 -- ---------------------------------------------------------------------------
 -- Create the Tool menu and attach the callback functions
 
-local ID_COMPILE          = NewID()
-local ID_PREVIEW          = NewID()
-local ID_SHOWHIDEWINDOW   = NewID()
-local ID_CLEAROUTPUT      = NewID()
-
 toolMenu = wx.wxMenu{
-        { ID_COMPILE,          "&Compile\tF5",          "Compile current file" },
-        { ID_PREVIEW,          "&Preview\tF6",          "Preview output file" },
+        { ID.COMPILE,          "&Compile\tF5",          "Compile current file" },
+        { ID.PREVIEW,          "&Preview\tF6",          "Preview output file" },
         { },
-        { ID_SHOWHIDEWINDOW,   "View &Output Window\tF8", "View or Hide the output window" },
-        { ID_CLEAROUTPUT,      "C&lear Output Window",    "Clear the output window before compiling", wx.wxITEM_CHECK },
+        { ID.SHOWHIDEWINDOW,   "View &Output Window\tF8", "View or Hide the output window" },
+        { ID.CLEAROUTPUT,      "C&lear Output Window",    "Clear the output window before compiling", wx.wxITEM_CHECK },
         }
 menuBar:Append(toolMenu, "&Tool")
 
-toolMenu:Check(ID_CLEAROUTPUT, true)
+toolMenu:Check(ID.CLEAROUTPUT, true)
 
 dofile(source .. sep .. "setting" .. sep .. "setting-command.lua")
 
@@ -120,7 +115,7 @@ function ExecCommand(cmd, dir)
             proc = nil
         end)
 
-    if menuBar:IsChecked(ID_CLEAROUTPUT) then
+    if menuBar:IsChecked(ID.CLEAROUTPUT) then
         ClearOutput()
         consoleLength = 0
     end
@@ -151,7 +146,7 @@ console:Connect(wx.wxEVT_KEY_DOWN,
         event:Skip()
     end)
 
-frame:Connect(ID_COMPILE, wx.wxEVT_COMMAND_MENU_SELECTED,
+frame:Connect(ID.COMPILE, wx.wxEVT_COMMAND_MENU_SELECTED,
         function (event)
             local editor = GetEditor();
             if not SaveIfModified(editor) then
@@ -165,13 +160,13 @@ frame:Connect(ID_COMPILE, wx.wxEVT_COMMAND_MENU_SELECTED,
                 ExecCommand(cmd, openDocuments[id].directory)
             end
         end)
-frame:Connect(ID_COMPILE, wx.wxEVT_UPDATE_UI,
+frame:Connect(ID.COMPILE, wx.wxEVT_UPDATE_UI,
         function (event)
             local editor = GetEditor()
             event:Enable(editor ~= nil)
         end)
 
-frame:Connect(ID_PREVIEW, wx.wxEVT_COMMAND_MENU_SELECTED,
+frame:Connect(ID.PREVIEW, wx.wxEVT_COMMAND_MENU_SELECTED,
         function (event)
             local editor = GetEditor();
             local id = editor:GetId();
@@ -181,13 +176,13 @@ frame:Connect(ID_PREVIEW, wx.wxEVT_COMMAND_MENU_SELECTED,
                 ExecCommand(cmd, openDocuments[id].directory)
             end
         end)
-frame:Connect(ID_PREVIEW, wx.wxEVT_UPDATE_UI,
+frame:Connect(ID.PREVIEW, wx.wxEVT_UPDATE_UI,
         function (event)
             local editor = GetEditor()
             event:Enable(editor ~= nil)
         end)
 
-frame:Connect(ID_SHOWHIDEWINDOW, wx.wxEVT_COMMAND_MENU_SELECTED,
+frame:Connect(ID.SHOWHIDEWINDOW, wx.wxEVT_COMMAND_MENU_SELECTED,
         function (event)
             if splitter:IsSplit() then
                 splitter:Unsplit()

@@ -1,10 +1,8 @@
 -- ---------------------------------------------------------------------------
 -- Create the Help menu and attach the callback functions
 
-local ID_ABOUT            = wx.wxID_ABOUT
-
 helpMenu = wx.wxMenu{
-        { ID_ABOUT,      "&About\tF1",       "About QuadText" }}
+        { ID.ABOUT,      "&About\tF1",       "About QuadText" }}
 menuBar:Append(helpMenu, "&Help")
 
 function DisplayAbout(event)
@@ -71,4 +69,4 @@ function DisplayAbout(event)
     dlg:Destroy()
 end
 
-frame:Connect(ID_ABOUT, wx.wxEVT_COMMAND_MENU_SELECTED, DisplayAbout)
+frame:Connect(ID.ABOUT, wx.wxEVT_COMMAND_MENU_SELECTED, DisplayAbout)
