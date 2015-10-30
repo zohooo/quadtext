@@ -1,11 +1,3 @@
--- ---------------------------------------------------------------------------
--- Create the Option menu and attach the callback functions
-
-optionMenu = wx.wxMenu{
-    { ID.SETTING_EDITOR, "Setting &Editor", "Setting Editor" },
-    { ID.SETTING_COMMAND, "Setting &Commands", "Setting Commands" },
-}
-menuBar:Append(optionMenu, "&Option")
 
 function OpenSettingFile(event)
     local id = event:GetId()

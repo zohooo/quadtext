@@ -1,16 +1,3 @@
--- ---------------------------------------------------------------------------
--- Create the Tool menu and attach the callback functions
-
-toolMenu = wx.wxMenu{
-        { ID.COMPILE,          "&Compile\tF5",          "Compile current file" },
-        { ID.PREVIEW,          "&Preview\tF6",          "Preview output file" },
-        { },
-        { ID.SHOWHIDEWINDOW,   "View &Output Window\tF8", "View or Hide the output window" },
-        { ID.CLEAROUTPUT,      "C&lear Output Window",    "Clear the output window before compiling", wx.wxITEM_CHECK },
-        }
-menuBar:Append(toolMenu, "&Tool")
-
-toolMenu:Check(ID.CLEAROUTPUT, true)
 
 dofile(source .. sep .. "setting" .. sep .. "setting-command.lua")
 

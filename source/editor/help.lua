@@ -1,9 +1,3 @@
--- ---------------------------------------------------------------------------
--- Create the Help menu and attach the callback functions
-
-helpMenu = wx.wxMenu{
-        { ID.ABOUT,      "&About\tF1",       "About QuadText" }}
-menuBar:Append(helpMenu, "&Help")
 
 function DisplayAbout(event)
     local page = [[

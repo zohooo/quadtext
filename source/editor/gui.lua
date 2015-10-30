@@ -344,7 +344,7 @@ function UpdateUIMenuItems()
     end
 end
 
-menuBar = wx.wxMenuBar()
+dofile(source .. sep .. "editor" .. sep .. "menu.lua")
 
 dofile(source .. sep .. "editor" .. sep .. "file.lua")
 dofile(source .. sep .. "editor" .. sep .. "edit.lua")

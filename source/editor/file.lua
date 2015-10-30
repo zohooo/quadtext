@@ -1,21 +1,3 @@
--- ---------------------------------------------------------------------------
--- Create the File menu and attach the callback functions
-
-fileMenu = wx.wxMenu({
-        { ID.NEW,     "&New\tCtrl-N",        "Create an empty document" },
-        { ID.OPEN,    "&Open...\tCtrl-O",    "Open an existing document" },
-        { ID.CLOSE,   "&Close page\tCtrl+W", "Close the current editor window" },
-        { },
-        { ID.SAVE,    "&Save\tCtrl-S",       "Save the current document" },
-        { ID.SAVEAS,  "Save &As...\tAlt-S",  "Save the current document to a file with a new name" },
-        { ID.SAVEALL, "Save A&ll...\tCtrl-Shift-S", "Save all open documents" },
-        { },
-        { ID.PRINT,         "&Print... \tCtrl-p",               "Print document"},
-        { ID.PRINT_PREVIEW, "&Print Preview... \tShift-Ctrl-p", "Print preview"},
-        { ID.PAGE_SETUP,    "Page S&etup...",                   "Set up printing"},
-        { },
-        { ID.EXIT,    "E&xit\tAlt-X",        "Exit Program" }})
-menuBar:Append(fileMenu, "&File")
 
 function NewFile(event)
     local editor = CreateEditor("untitled.tex")

@@ -1,5 +1,3 @@
--- ---------------------------------------------------------------------------
--- Create the Search menu and attach the callback functions
 
 findReplace = {
     dialog           = nil,   -- the wxDialog for find/replace
@@ -20,17 +18,6 @@ findReplace = {
     -- FindString(reverse)       find the findText string
     -- Show(replace)             create the dialog
 }
-
-findMenu = wx.wxMenu{
-        { ID.FIND,       "&Find\tCtrl-F",            "Find the specified text" },
-        { ID.FINDNEXT,   "Find &Next\tF3",           "Find the next occurrence of the specified text" },
-        { ID.FINDPREV,   "Find &Previous\tShift-F3", "Repeat the search backwards in the file" },
-        { ID.REPLACE,    "&Replace\tCtrl-H",         "Replaces the specified text with different text" },
-        { },
-        { ID.GOTOLINE,   "&Goto line\tCtrl-G",       "Go to a selected line" },
-        { },
-        { ID.SORT,       "&Sort",                    "Sort selected lines"}}
-menuBar:Append(findMenu, "&Search")
 
 function EnsureRangeVisible(posStart, posEnd)
     local editor = GetEditor()

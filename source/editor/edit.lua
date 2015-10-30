@@ -1,24 +1,3 @@
--- ---------------------------------------------------------------------------
--- Create the Edit menu and attach the callback functions
-
-editMenu = wx.wxMenu{
-        { ID.CUT,       "Cu&t\tCtrl-X",        "Cut selected text to clipboard" },
-        { ID.COPY,      "&Copy\tCtrl-C",       "Copy selected text to the clipboard" },
-        { ID.PASTE,     "&Paste\tCtrl-V",      "Insert clipboard text at cursor" },
-        { ID.SELECTALL, "Select A&ll\tCtrl-A", "Select all text in the editor" },
-        { },
-        { ID.UNDO,      "&Undo\tCtrl-Z",       "Undo the last action" },
-        { ID.REDO,      "&Redo\tCtrl-Y",       "Redo the last action undone" },
-        { },
-        { ID.AUTOCOMPLETE,        "Complete &Identifier\tCtrl+K", "Complete the current identifier" },
-        { ID.AUTOCOMPLETE_ENABLE, "Auto complete Identifiers",    "Auto complete while typing", wx.wxITEM_CHECK },
-        { },
-        { ID.COMMENT, "C&omment/Uncomment\tCtrl-Q", "Comment or uncomment current or selected lines"},
-        { },
-        { ID.FOLD,    "&Fold/Unfold all\tF12", "Fold or unfold all code folds"} }
-menuBar:Append(editMenu, "&Edit")
-
-editMenu:Check(ID.AUTOCOMPLETE_ENABLE, autoCompleteEnable)
 
 function OnUpdateUIEditMenu(event) -- enable if there is a valid focused editor
     local editor = GetEditor()
