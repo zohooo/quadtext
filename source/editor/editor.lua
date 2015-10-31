@@ -139,7 +139,7 @@ function app:CreateEditor(parent, ...)
                 local margin = event:GetMargin()
                 if margin == 2 then
                     if wx.wxGetKeyState(wx.WXK_SHIFT) and wx.wxGetKeyState(wx.WXK_CONTROL) then
-                        FoldSome()
+                        editor:SwitchFold()
                     else
                         local level = editor:GetFoldLevel(line)
                         if HasBit(level, wxstc.wxSTC_FOLDLEVELHEADERFLAG) then
