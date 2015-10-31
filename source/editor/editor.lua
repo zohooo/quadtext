@@ -3,6 +3,42 @@ local editorID = 100 -- window id to create editor pages with, incremented for n
 
 local myEditor = {} -- extending the editor class
 
+function myEditor:UpdateKeywords(words, prefix)
+    self.keywords = words
+    self.keywordPrefix = prefix or ""
+end
+
+function myEditor:CheckAutoCompletion()
+    local prefix = self.keywordPrefix
+    local pos = self:GetCurrentPos()
+    local start_pos = self:WordStartPosition(pos, true)
+    local prefix_pos = start_pos - #prefix
+    if (pos - start_pos > 1) and (start_pos > 1) then
+        local range = self:GetTextRange(prefix_pos, start_pos)
+        if range == prefix then
+            local key = self:GetTextRange(start_pos, pos)
+            local userList = self:CreateAutoCompList(key)
+            if userList and string.len(userList) > 0 then
+                self:UserListShow(1, userList)
+            end
+        end
+    end
+end
+
+function myEditor:CreateAutoCompList(key_)
+    local keywords = self.keywords
+    local key_list = ""
+    local key = " " .. key_
+    local a, b = string.find(keywords, key, 1, 1)
+    while a do
+        local c, d = string.find(keywords, " ", b, 1)
+        key_list = key_list .. string.sub(keywords, a, c or -1)
+        --print(key_list)
+        a, b = string.find(keywords, key, d, 1)
+    end
+    return key_list
+end
+
 function myEditor:SwitchComment()
     local editor = self
     local buf = {}
@@ -76,6 +112,9 @@ function app:CreateEditor(parent, ...)
 
     -- We could not write the following line, since editor is not a table
     -- setmetatable(editor, {__index = myEditor})
+    editor.UpdateKeywords = myEditor.UpdateKeywords
+    editor.CheckAutoCompletion = myEditor.CheckAutoCompletion
+    editor.CreateAutoCompList = myEditor.CreateAutoCompList
     editor.SwitchComment = myEditor.SwitchComment
     editor.SwitchFold = myEditor.SwitchFold
 
@@ -165,17 +204,9 @@ function app:CreateEditor(parent, ...)
                         end
                     end
                 elseif autoCompleteEnable then -- code completion prompt
-                    local pos = editor:GetCurrentPos()
-                    local start_pos = editor:WordStartPosition(pos, true)
-                    -- must have "wx.X" otherwise too many items
-                    if (pos - start_pos > 0) and (start_pos > 2) then
-                        local range = editor:GetTextRange(start_pos-3, start_pos)
-                        if range == "wx." then
-                            local commandEvent = wx.wxCommandEvent(wx.wxEVT_COMMAND_MENU_SELECTED,
-                                                                   ID.AUTOCOMPLETE)
-                            wx.wxPostEvent(frame, commandEvent)
-                        end
-                    end
+                    local commandEvent = wx.wxCommandEvent(wx.wxEVT_COMMAND_MENU_SELECTED,
+                                                           ID.AUTOCOMPLETE)
+                    wx.wxPostEvent(frame, commandEvent)
                 end
             end)
 

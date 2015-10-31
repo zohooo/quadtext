@@ -56,7 +56,6 @@ openDocuments    = {}     -- open notebook editor documents[winId] = {
 ignoredFilesList = {}
 exitingProgram   = false  -- are we currently exiting, ID.EXIT
 autoCompleteEnable = true -- value of ID.AUTOCOMPLETE_ENABLE menu item
-wxkeywords       = nil    -- a string of the keywords for scintilla of wxLua's wx.XXX items
 font             = nil    -- fonts to use for the editor
 fontItalic       = nil
 
@@ -311,20 +310,6 @@ end
 function IsLuaFile(fullpath)
     return fullpath and (string.len(fullpath) > 4) and
            (string.lower(string.sub(fullpath, -4)) == ".lua")
-end
-
-function CreateAutoCompList(key_) -- much faster than iterating the wx. table
-    local key = "wx."..key_;
-    local a, b = string.find(wxkeywords, key, 1, 1)
-    local key_list = ""
-
-    while a do
-        local c, d = string.find(wxkeywords, " ", b, 1)
-        key_list = key_list..string.sub(wxkeywords, a+3, c or -1)
-        a, b = string.find(wxkeywords, key, d, 1)
-    end
-
-    return key_list
 end
 
 -- force all the wxEVT_UPDATE_UI handlers to be called

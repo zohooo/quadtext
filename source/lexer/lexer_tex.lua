@@ -1,6 +1,8 @@
 
 local lexer = {extensions = {"tex", "sty", "cls"}, styles = {}, keywords = {}}
 
+lexer.keywordPrefix = "\\"
+
 -- http://www.scintilla.org/ScintillaDoc.html#StyleDefinition
 lexer.styles.common = {
     default     = {fg = {224, 192, 224}},

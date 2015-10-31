@@ -22,6 +22,11 @@ local function DoSetupKeywords(editor, name)
         for k, v in ipairs(lexer.keywords) do
             editor:SetKeyWords(k-1, v)
         end
+        -- for auto completion
+        local wordlist = table.concat(lexer.keywords, " ")
+        local prefix = lexer.keywordPrefix or ""
+        wordlist = " " .. string.gsub(wordlist, "%s+", " ")
+        editor:UpdateKeywords(wordlist, prefix)
     end
 end
 

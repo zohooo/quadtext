@@ -52,20 +52,7 @@ frame:Connect(ID.REDO, wx.wxEVT_UPDATE_UI,
 frame:Connect(ID.AUTOCOMPLETE, wx.wxEVT_COMMAND_MENU_SELECTED,
         function (event)
             local editor = GetEditor()
-            if (editor == nil) then return end
-            local pos = editor:GetCurrentPos()
-            local start_pos = editor:WordStartPosition(pos, true)
-            -- must have "wx.XX" otherwise too many items
-            if (pos - start_pos > 2) and (start_pos > 2) then
-                local range = editor:GetTextRange(start_pos-3, start_pos)
-                if range == "wx." then
-                    local key = editor:GetTextRange(start_pos, pos)
-                    local userList = CreateAutoCompList(key)
-                    if userList and string.len(userList) > 0 then
-                        editor:UserListShow(1, userList)
-                    end
-                end
-            end
+            if editor then editor:CheckAutoCompletion() end
         end)
 frame:Connect(ID.AUTOCOMPLETE, wx.wxEVT_UPDATE_UI, OnUpdateUIEditMenu)
 
