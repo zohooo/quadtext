@@ -1,6 +1,7 @@
 
 local lexer = {extensions = {"tex", "sty", "cls"}, styles = {}, keywords = {}}
 
+lexer.comment = "%"
 lexer.keywordPrefix = "\\"
 
 -- http://www.scintilla.org/ScintillaDoc.html#StyleDefinition

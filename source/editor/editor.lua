@@ -40,21 +40,25 @@ function myEditor:CreateAutoCompList(key_)
 end
 
 function myEditor:SwitchComment()
-    local editor = self
+    local lexer = self.lexer
+    local comment = nil
+    if lexer and lexer.comment then
+        comment = lexer.comment
+    else return end
     local buf = {}
-    if editor:GetSelectionStart() == editor:GetSelectionEnd() then
-        local lineNumber = editor:GetCurrentLine()
-        editor:SetSelection(editor:PositionFromLine(lineNumber), editor:GetLineEndPosition(lineNumber))
+    if self:GetSelectionStart() == self:GetSelectionEnd() then
+        local lineNumber = self:GetCurrentLine()
+        self:SetSelection(self:PositionFromLine(lineNumber), self:GetLineEndPosition(lineNumber))
     end
-    for line in string.gmatch(editor:GetSelectedText()..'\n', "(.-)\r?\n") do
-        if string.sub(line,1,2) == '--' then
-            line = string.sub(line,3)
+    for line in string.gmatch(self:GetSelectedText() .. '\n', "(.-)\r?\n") do
+        if string.sub(line, 1, #comment) == comment then
+            line = string.sub(line, #comment+1)
         else
-            line = '--'..line
+            line = comment .. line
         end
         table.insert(buf, line)
     end
-    editor:ReplaceSelection(table.concat(buf,"\n"))
+    self:ReplaceSelection(table.concat(buf, "\n"))
 end
 
 function myEditor:SwitchFold()

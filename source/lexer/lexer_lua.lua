@@ -1,6 +1,8 @@
 
 local lexer = {extensions = {"lua"}, styles = {}, keywords = {}}
 
+lexer.comment = "--"
+
 -- http://www.scintilla.org/ScintillaDoc.html#StyleDefinition
 lexer.styles.common = {
     default     = {fg = {224, 192, 224}},

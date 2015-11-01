@@ -56,6 +56,7 @@ function SetupStyles(editor, ext)
             local n = wxstc["wxSTC_" .. name:upper() .. "_" .. key:upper()]
             DoSetupStyles(editor, n, style)
         end
+        editor.lexer = lexer
     end
     DoSetupKeywords(editor, name)
     editor:Colourise(0, -1)
