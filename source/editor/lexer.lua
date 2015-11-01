@@ -44,15 +44,15 @@ local function DoSetupStyles(editor, n, style)
     end
 end
 
-function SetupStyles(editor, ext)
+function SetupEditor(editor, ext)
     local name = app.filetype[ext]
     if name ~= nil then
         local lexer = app.lexers[name]
-        for key, style in pairs(lexer.styles.common) do
+        for key, style in pairs(app.theme.styles.common) do
             local n = wxstc["wxSTC_STYLE_" .. key:upper()]
             DoSetupStyles(editor, n, style)
         end
-        for key, style in pairs(lexer.styles.current) do
+        for key, style in pairs(app.theme.styles[name]) do
             local n = wxstc["wxSTC_" .. name:upper() .. "_" .. key:upper()]
             DoSetupStyles(editor, n, style)
         end

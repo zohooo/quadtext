@@ -162,4 +162,9 @@ source = mainpath .. sep .. maindir
 LoadPlugins(source .. sep .. "plugin")
 
 dofile(source .. sep .. "setting" .. sep .. "setting-editor.lua")
+
+local theme = tostring(app.setting.editor.theme or "light")
+if theme == "" then theme = "light" end
+app.theme = dofile(source .. sep .. "theme" .. sep .. theme .. ".lua")
+
 dofile(source .. sep .. "editor" .. sep .. "gui.lua")

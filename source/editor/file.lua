@@ -1,7 +1,7 @@
 
 function NewFile(event)
     local editor = CreateEditor("untitled.tex")
-    SetupStyles(editor, "tex")
+    SetupEditor(editor, "tex")
 end
 
 frame:Connect(ID.NEW, wx.wxEVT_COMMAND_MENU_SELECTED, NewFile)
@@ -67,7 +67,7 @@ function LoadFile(fullpath, editor, file_must_exist)
     openDocuments[id].suffix = fp:GetExt()
     openDocuments[id].modTime = GetFileModTime(fullpath)
     SetDocumentModified(id, false)
-    SetupStyles(editor, fp:GetExt())
+    SetupEditor(editor, fp:GetExt())
 
     return editor
 end
@@ -166,7 +166,7 @@ function SaveFileAs(editor)
         end
 
         if save_file and SaveFile(editor, fullpath) then
-            SetupStyles(editor, wx.wxFileName(fullpath):GetExt())
+            SetupEditor(editor, wx.wxFileName(fullpath):GetExt())
             saved = true
         end
     end
