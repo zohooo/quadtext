@@ -83,5 +83,8 @@ menuBar:Append(optionMenu, "&Option")
 -- Create the Help menu
 
 helpMenu = wx.wxMenu{
-        { ID.ABOUT,      "&About\tF1",       "About QuadText" }}
+    { ID.ABOUT,        "&About\tF1", "About QuadText" },
+    { ID.HELP_PROJECT, "&Project Page", "Open Project Page" },
+    { ID.HELP_SUPPORT, "&Support", "Open Project Wiki" },
+}
 menuBar:Append(helpMenu, "&Help")

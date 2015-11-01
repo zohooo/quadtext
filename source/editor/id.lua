@@ -52,6 +52,8 @@ ID.SETTING_COMMAND     = NewID()
 
 -- Help menu
 ID.ABOUT               = wx.wxID_ABOUT
+ID.HELP_PROJECT        = NewID()
+ID.HELP_SUPPORT        = NewID()
 
 -- Others
 ID.TIMER_EXECUTION     = NewID()

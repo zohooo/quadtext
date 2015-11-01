@@ -64,3 +64,13 @@ function DisplayAbout(event)
 end
 
 frame:Connect(ID.ABOUT, wx.wxEVT_COMMAND_MENU_SELECTED, DisplayAbout)
+
+frame:Connect(ID.HELP_PROJECT, wx.wxEVT_COMMAND_MENU_SELECTED,
+    function()
+        wx.wxLaunchDefaultBrowser("http://zohooo.github.io/quadtext", 0)
+    end)
+
+frame:Connect(ID.HELP_SUPPORT, wx.wxEVT_COMMAND_MENU_SELECTED,
+    function()
+        wx.wxLaunchDefaultBrowser("https://github.com/zohooo/quadtext/wiki", 0)
+    end)
