@@ -1,5 +1,7 @@
 
-function DisplayAbout(event)
+help = {}
+
+function help:DisplayAbout()
     local page = [[
         <html>
         <body bgcolor = "#FFFFFF">
@@ -63,14 +65,12 @@ function DisplayAbout(event)
     dlg:Destroy()
 end
 
-frame:Connect(ID.ABOUT, wx.wxEVT_COMMAND_MENU_SELECTED, DisplayAbout)
-
-frame:Connect(ID.HELP_PROJECT, wx.wxEVT_COMMAND_MENU_SELECTED,
-    function()
-        wx.wxLaunchDefaultBrowser("http://zohooo.github.io/quadtext", 0)
-    end)
-
-frame:Connect(ID.HELP_SUPPORT, wx.wxEVT_COMMAND_MENU_SELECTED,
-    function()
-        wx.wxLaunchDefaultBrowser("https://github.com/zohooo/quadtext/wiki", 0)
-    end)
+function help:OpenHelpPage(id)
+    local url
+    if id == ID.HELP_PROJECT then
+        url = "http://zohooo.github.io/quadtext"
+    elseif id == ID.HELP_SUPPORT then
+        url = "https://github.com/zohooo/quadtext/wiki"
+    end
+    wx.wxLaunchDefaultBrowser(url, 0)
+end

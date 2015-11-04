@@ -283,3 +283,21 @@ frame:Connect(ID.SHOWHIDEWINDOW, wx.wxEVT_COMMAND_MENU_SELECTED,
 frame:Connect(ID.SETTING_EDITOR, wx.wxEVT_COMMAND_MENU_SELECTED, OpenSettingFile)
 
 frame:Connect(ID.SETTING_COMMAND, wx.wxEVT_COMMAND_MENU_SELECTED, OpenSettingFile)
+
+-- ---------------------------------------------------------------------------
+-- Attach callback functions to Help menu
+
+frame:Connect(ID.ABOUT, wx.wxEVT_COMMAND_MENU_SELECTED,
+    function (event)
+        help:DisplayAbout()
+    end)
+
+frame:Connect(ID.HELP_PROJECT, wx.wxEVT_COMMAND_MENU_SELECTED,
+    function(event)
+        help:OpenHelpPage(event:GetId())
+    end)
+
+frame:Connect(ID.HELP_SUPPORT, wx.wxEVT_COMMAND_MENU_SELECTED,
+    function(event)
+        help:OpenHelpPage(event:GetId())
+    end)
