@@ -226,3 +226,53 @@ frame:Connect(ID.SORT, wx.wxEVT_COMMAND_MENU_SELECTED,
         end)
 
 frame:Connect(ID.SORT, wx.wxEVT_UPDATE_UI, OnUpdateUIEditMenu)
+
+-- ---------------------------------------------------------------------------
+-- Attach callback functions to Tool menu
+
+frame:Connect(ID.COMPILE, wx.wxEVT_COMMAND_MENU_SELECTED,
+        function (event)
+            local editor = GetEditor();
+            if not SaveIfModified(editor) then
+                return
+            end
+            local id = editor:GetId();
+            local cmd = app.setting.command.compile
+            if cmd then
+                cmd = ExpandCommand(cmd, openDocuments[id])
+                console:ExecCommand(cmd, openDocuments[id].directory)
+            end
+        end)
+
+frame:Connect(ID.COMPILE, wx.wxEVT_UPDATE_UI,
+        function (event)
+            local editor = GetEditor()
+            event:Enable(editor ~= nil)
+        end)
+
+frame:Connect(ID.PREVIEW, wx.wxEVT_COMMAND_MENU_SELECTED,
+        function (event)
+            local editor = GetEditor();
+            local id = editor:GetId();
+            local cmd = app.setting.command.preview
+            if cmd then
+                cmd = ExpandCommand(cmd, openDocuments[id])
+                console:ExecCommand(cmd, openDocuments[id].directory)
+            end
+        end)
+
+frame:Connect(ID.PREVIEW, wx.wxEVT_UPDATE_UI,
+        function (event)
+            local editor = GetEditor()
+            event:Enable(editor ~= nil)
+        end)
+
+frame:Connect(ID.SHOWHIDEWINDOW, wx.wxEVT_COMMAND_MENU_SELECTED,
+        function (event)
+            if splitter:IsSplit() then
+                splitter:Unsplit()
+            else
+                local w, h = frame:GetClientSizeWH()
+                splitter:SplitHorizontally(notebook, console, (2 * h) / 3)
+            end
+        end)
