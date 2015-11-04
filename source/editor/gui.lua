@@ -327,6 +327,8 @@ dofile(source .. sep .. "editor" .. sep .. "option.lua")
 dofile(source .. sep .. "editor" .. sep .. "help.lua")
 dofile(source .. sep .. "editor" .. sep .. "lexer.lua")
 
+dofile(source .. sep .. "editor" .. sep .. "frame.lua")
+
 -- ---------------------------------------------------------------------------
 -- Attach the handler for closing the frame
 

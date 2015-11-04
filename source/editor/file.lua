@@ -4,8 +4,6 @@ function NewFile(event)
     SetupEditor(editor, "tex")
 end
 
-frame:Connect(ID.NEW, wx.wxEVT_COMMAND_MENU_SELECTED, NewFile)
-
 -- Find an editor page that hasn't been used at all, eg. an untouched NewFile()
 function FindDocumentToReuse()
     local editor = nil
@@ -87,7 +85,6 @@ function OpenFile(event)
     end
     fileDialog:Destroy()
 end
-frame:Connect(ID.OPEN, wx.wxEVT_COMMAND_MENU_SELECTED, OpenFile)
 
 -- save the file to fullpath or if fullpath is nil then call SaveFileAs
 function SaveFile(editor, fullpath)
@@ -124,25 +121,6 @@ function SaveFile(editor, fullpath)
     return false
 end
 
-frame:Connect(ID.SAVE, wx.wxEVT_COMMAND_MENU_SELECTED,
-        function (event)
-            local editor   = GetEditor()
-            local id       = editor:GetId()
-            local fullpath = openDocuments[id].fullpath
-            SaveFile(editor, fullpath)
-        end)
-
-frame:Connect(ID.SAVE, wx.wxEVT_UPDATE_UI,
-        function (event)
-            local editor = GetEditor()
-            if editor then
-                local id = editor:GetId()
-                if openDocuments[id] then
-                    event:Enable(openDocuments[id].isModified)
-                end
-            end
-        end)
-
 function SaveFileAs(editor)
     local id       = editor:GetId()
     local saved    = false
@@ -175,17 +153,6 @@ function SaveFileAs(editor)
     return saved
 end
 
-frame:Connect(ID.SAVEAS, wx.wxEVT_COMMAND_MENU_SELECTED,
-        function (event)
-            local editor = GetEditor()
-            SaveFileAs(editor)
-        end)
-frame:Connect(ID.SAVEAS, wx.wxEVT_UPDATE_UI,
-        function (event)
-            local editor = GetEditor()
-            event:Enable(editor ~= nil)
-        end)
-
 function SaveAll()
     for id, document in pairs(openDocuments) do
         local editor   = document.editor
@@ -196,23 +163,6 @@ function SaveAll()
         end
     end
 end
-
-frame:Connect(ID.SAVEALL, wx.wxEVT_COMMAND_MENU_SELECTED,
-        function (event)
-            SaveAll()
-        end)
-
-frame:Connect(ID.SAVEALL, wx.wxEVT_UPDATE_UI,
-        function (event)
-            local atLeastOneModifiedDocument = false
-            for id, document in pairs(openDocuments) do
-                if document.isModified then
-                    atLeastOneModifiedDocument = true
-                    break
-                end
-            end
-            event:Enable(atLeastOneModifiedDocument)
-        end)
 
 function RemovePage(index)
     local  prevIndex = nil
@@ -276,20 +226,6 @@ function SaveModifiedDialog(editor, allow_cancel)
     return result
 end
 
-frame:Connect(ID.CLOSE, wx.wxEVT_COMMAND_MENU_SELECTED,
-        function (event)
-            local editor = GetEditor()
-            local id     = editor:GetId()
-            if SaveModifiedDialog(editor, true) ~= wx.wxID_CANCEL then
-                RemovePage(openDocuments[id].index)
-            end
-        end)
-
-frame:Connect(ID.CLOSE, wx.wxEVT_UPDATE_UI,
-        function (event)
-            event:Enable(GetEditor() ~= nil)
-        end)
-
 function SaveOnExit(allow_cancel)
     for id, document in pairs(openDocuments) do
         if (SaveModifiedDialog(document.editor, allow_cancel) == wx.wxID_CANCEL) then
@@ -301,9 +237,3 @@ function SaveOnExit(allow_cancel)
 
     return true
 end
-
-frame:Connect( ID.EXIT, wx.wxEVT_COMMAND_MENU_SELECTED,
-        function (event)
-            if not SaveOnExit(true) then return end
-            frame:Close() -- will handle wxEVT_CLOSE_WINDOW
-        end)
