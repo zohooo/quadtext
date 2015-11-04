@@ -1,11 +1,13 @@
 
-function NewFile(event)
+filer = {}
+
+function filer:NewFile(event)
     local editor = CreateEditor("untitled.tex")
     SetupEditor(editor, "tex")
 end
 
 -- Find an editor page that hasn't been used at all, eg. an untouched NewFile()
-function FindDocumentToReuse()
+local function FindDocumentToReuse()
     local editor = nil
     for id, document in pairs(openDocuments) do
         if (document.editor:GetLength() == 0) and
@@ -18,14 +20,14 @@ function FindDocumentToReuse()
     return editor
 end
 
-function FindDocumentOpened(path)
+local function FindDocumentOpened(path)
     for _, doc in pairs(openDocuments) do
         if doc.fullpath == path then return doc end
     end
     return nil
 end
 
-function LoadFile(fullpath, editor, file_must_exist)
+function filer:LoadFile(fullpath, editor, file_must_exist)
     -- If this file has been opened
     if not editor then
         local doc = FindDocumentOpened(fullpath)
@@ -70,14 +72,14 @@ function LoadFile(fullpath, editor, file_must_exist)
     return editor
 end
 
-function OpenFile(event)
+function filer:OpenFile(event)
     local fileDialog = wx.wxFileDialog(frame, "Open file",
                                        "",
                                        "",
                                        "TeX files (*.tex)|*.tex|Lua files (*.lua)|*.lua|All files (*)|*",
                                        wx.wxFD_OPEN + wx.wxFD_FILE_MUST_EXIST)
     if fileDialog:ShowModal() == wx.wxID_OK then
-        if not LoadFile(fileDialog:GetPath(), nil, true) then
+        if not filer:LoadFile(fileDialog:GetPath(), nil, true) then
             wx.wxMessageBox("Unable to load file '"..fileDialog:GetPath().."'.",
                             "wxLua Error",
                             wx.wxOK + wx.wxCENTRE, frame)
@@ -87,9 +89,9 @@ function OpenFile(event)
 end
 
 -- save the file to fullpath or if fullpath is nil then call SaveFileAs
-function SaveFile(editor, fullpath)
+function filer:SaveFile(editor, fullpath)
     if not fullpath then
-        return SaveFileAs(editor)
+        return filer:SaveFileAs(editor)
     else
         local backPath = fullpath..".bak"
         os.remove(backPath)
@@ -121,7 +123,7 @@ function SaveFile(editor, fullpath)
     return false
 end
 
-function SaveFileAs(editor)
+function filer:SaveFileAs(editor)
     local id       = editor:GetId()
     local saved    = false
     local fn       = wx.wxFileName(openDocuments[id].fullpath or "")
@@ -143,7 +145,7 @@ function SaveFileAs(editor)
                                                      wx.wxYES_NO + wx.wxICON_QUESTION, frame))
         end
 
-        if save_file and SaveFile(editor, fullpath) then
+        if save_file and filer:SaveFile(editor, fullpath) then
             SetupEditor(editor, wx.wxFileName(fullpath):GetExt())
             saved = true
         end
@@ -153,18 +155,18 @@ function SaveFileAs(editor)
     return saved
 end
 
-function SaveAll()
+function filer:SaveAll()
     for id, document in pairs(openDocuments) do
         local editor   = document.editor
         local fullpath = document.fullpath
 
         if document.isModified then
-            SaveFile(editor, fullpath) -- will call SaveFileAs if necessary
+            filer:SaveFile(editor, fullpath) -- will call SaveFileAs if necessary
         end
     end
 end
 
-function RemovePage(index)
+function filer:RemovePage(index)
     local  prevIndex = nil
     local  nextIndex = nil
     local newOpenDocuments = {}
@@ -198,7 +200,7 @@ end
 
 -- Show a dialog to save a file before closing editor.
 --   returns wxID_YES, wxID_NO, or wxID_CANCEL if allow_cancel
-function SaveModifiedDialog(editor, allow_cancel)
+function filer:SaveModifiedDialog(editor, allow_cancel)
     local result   = wx.wxID_NO
     local id       = editor:GetId()
     local document = openDocuments[id]
@@ -219,21 +221,19 @@ function SaveModifiedDialog(editor, allow_cancel)
         result = dialog:ShowModal()
         dialog:Destroy()
         if result == wx.wxID_YES then
-            SaveFile(editor, fullpath)
+            filer:SaveFile(editor, fullpath)
         end
     end
 
     return result
 end
 
-function SaveOnExit(allow_cancel)
+function filer:SaveOnExit(allow_cancel)
     for id, document in pairs(openDocuments) do
-        if (SaveModifiedDialog(document.editor, allow_cancel) == wx.wxID_CANCEL) then
+        if (filer:SaveModifiedDialog(document.editor, allow_cancel) == wx.wxID_CANCEL) then
             return false
         end
-
         document.isModified = false
     end
-
     return true
 end

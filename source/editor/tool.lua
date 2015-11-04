@@ -16,10 +16,10 @@ function SaveIfModified(editor)
             local ret = wx.wxMessageBox("You must save the program before running it.\nPress cancel to abort running.",
                                          "Save file?",  wx.wxOK + wx.wxCANCEL + wx.wxCENTRE, frame)
             if ret == wx.wxOK then
-                saved = SaveFileAs(editor)
+                saved = filer:SaveFileAs(editor)
             end
         else
-            saved = SaveFile(editor, openDocuments[id].fullpath)
+            saved = filer:SaveFile(editor, openDocuments[id].fullpath)
         end
 
         if saved then

@@ -2,9 +2,9 @@
 function OpenSettingFile(event)
     local id = event:GetId()
     if id == ID.SETTING_EDITOR then
-        LoadFile(source .. sep .. "setting" .. sep .. "setting-editor.lua")
+        filer:LoadFile(source .. sep .. "setting" .. sep .. "setting-editor.lua")
     elseif id == ID.SETTING_COMMAND then
-        LoadFile(source .. sep .. "setting" .. sep .. "setting-command.lua")
+        filer:LoadFile(source .. sep .. "setting" .. sep .. "setting-command.lua")
     end
 end
 

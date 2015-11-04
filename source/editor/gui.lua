@@ -99,7 +99,7 @@ notebook = wx.wxNotebook(splitter, wx.wxID_ANY,
 notebookFileDropTarget = wx.wxLuaFileDropTarget();
 notebookFileDropTarget.OnDropFiles = function(self, x, y, filenames)
                                         for i = 1, #filenames do
-                                            LoadFile(filenames[i], nil, true)
+                                            filer:LoadFile(filenames[i], nil, true)
                                         end
                                         return true
                                      end
@@ -264,7 +264,7 @@ function IsFileAlteredOnDisk(editor)
                 local ret = wx.wxMessageBox(fullname.." has been modified on disk.\nDo you want to reload it?",
                                             "wxLua Message",
                                             wx.wxYES_NO + wx.wxCENTRE, frame)
-                if ret ~= wx.wxYES or LoadFile(fullpath, editor, true) then
+                if ret ~= wx.wxYES or filer:LoadFile(fullpath, editor, true) then
                     openDocuments[id].modTime = nil
                 end
             end
@@ -335,7 +335,7 @@ dofile(source .. sep .. "editor" .. sep .. "frame.lua")
 function CloseWindow(event)
     exitingProgram = true -- don't handle focus events
 
-    if not SaveOnExit(event:CanVeto()) then
+    if not filer:SaveOnExit(event:CanVeto()) then
         event:Veto()
         exitingProgram = false
         return
@@ -362,7 +362,7 @@ RunPlugins("onLoad")
 -- Load files specified in command line arguments
 
 for _, option in ipairs(app.openFiles) do
-    local editor = LoadFile(option.name, nil, true)
+    local editor = filer:LoadFile(option.name, nil, true)
     if editor and option.line then
         editor:GotoLine(tonumber(option.line) - 1)
     end
@@ -385,7 +385,7 @@ local function LoadSingletonFile()
     local _, name = config:Read("name","")
     if name and name ~= "" then
         local _, line = config:Read("line", "")
-        local editor = LoadFile(name, nil, true)
+        local editor = filer:LoadFile(name, nil, true)
         frame:Show(false)
         frame:Iconize(true)  -- hack to make it work
         frame:Iconize(false)
