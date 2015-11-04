@@ -8,13 +8,6 @@ function SetAllEditorsReadOnly(enable)
     end
 end
 
-function MakeFileName(editor, fullpath)
-    if not fullpath then
-        fullpath = "file"..tostring(editor)
-    end
-    return fullpath
-end
-
 function SaveIfModified(editor)
     local id = editor:GetId()
     if openDocuments[id].isModified then

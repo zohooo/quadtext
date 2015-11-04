@@ -307,11 +307,6 @@ function CreateEditor(name)
     return editor
 end
 
-function IsLuaFile(fullpath)
-    return fullpath and (string.len(fullpath) > 4) and
-           (string.lower(string.sub(fullpath, -4)) == ".lua")
-end
-
 -- force all the wxEVT_UPDATE_UI handlers to be called
 function UpdateUIMenuItems()
     if frame and frame:GetMenuBar() then
