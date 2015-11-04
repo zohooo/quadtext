@@ -319,6 +319,7 @@ end
 dofile(source .. sep .. "editor" .. sep .. "menu.lua")
 
 dofile(source .. sep .. "editor" .. sep .. "file.lua")
+dofile(source .. sep .. "editor" .. sep .. "print.lua")
 dofile(source .. sep .. "editor" .. sep .. "edit.lua")
 dofile(source .. sep .. "editor" .. sep .. "search.lua")
 dofile(source .. sep .. "editor" .. sep .. "tool.lua")
