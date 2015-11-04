@@ -276,3 +276,10 @@ frame:Connect(ID.SHOWHIDEWINDOW, wx.wxEVT_COMMAND_MENU_SELECTED,
                 splitter:SplitHorizontally(notebook, console, (2 * h) / 3)
             end
         end)
+
+-- ---------------------------------------------------------------------------
+-- Attach callback functions to Option menu
+
+frame:Connect(ID.SETTING_EDITOR, wx.wxEVT_COMMAND_MENU_SELECTED, OpenSettingFile)
+
+frame:Connect(ID.SETTING_COMMAND, wx.wxEVT_COMMAND_MENU_SELECTED, OpenSettingFile)

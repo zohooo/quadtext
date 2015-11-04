@@ -7,6 +7,3 @@ function OpenSettingFile(event)
         filer:LoadFile(source .. sep .. "setting" .. sep .. "setting-command.lua")
     end
 end
-
-frame:Connect(ID.SETTING_EDITOR, wx.wxEVT_COMMAND_MENU_SELECTED, OpenSettingFile)
-frame:Connect(ID.SETTING_COMMAND, wx.wxEVT_COMMAND_MENU_SELECTED, OpenSettingFile)
