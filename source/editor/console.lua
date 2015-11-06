@@ -115,6 +115,16 @@ function console:ExecCommand(cmd, dir)
     end
 end
 
+function console:RunProgram(cmd, dir)
+    local cwd = wx.wxGetCwd()
+    wx.wxSetWorkingDirectory(dir)
+    local pid = wx.wxExecute(cmd, wx.wxEXEC_ASYNC)
+    wx.wxSetWorkingDirectory(cwd)
+    if not pid or pid == -1 then -- pid = 0 will cause an error dialog
+        wx.wxMessageBox("Failed to execute the following command:\n" ..cmd.. "\n")
+   end
+end
+
 console:Connect(ID.TIMER_EXECUTION, wx.wxEVT_TIMER, ReadStream)
 
 console:Connect(wx.wxEVT_KEY_DOWN,

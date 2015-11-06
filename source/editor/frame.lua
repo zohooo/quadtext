@@ -257,7 +257,7 @@ frame:Connect(ID.PREVIEW, wx.wxEVT_COMMAND_MENU_SELECTED,
             local cmd = app.setting.command.preview
             if cmd then
                 cmd = ExpandCommand(cmd, openDocuments[id])
-                console:ExecCommand(cmd, openDocuments[id].directory)
+                console:RunProgram(cmd, openDocuments[id].directory)
             end
         end)
 

@@ -36,6 +36,9 @@ else
     return
 end
 
+local _, path = wx.wxGetEnv("PATH")
+wx.wxSetEnv("PATH", mainpath .. sep .. "viewer;" .. path)
+
 app.setting = {
     editor = {},
     command = {},
