@@ -233,15 +233,7 @@ frame:Connect(ID.SORT, wx.wxEVT_UPDATE_UI, OnUpdateUIEditMenu)
 frame:Connect(ID.COMPILE, wx.wxEVT_COMMAND_MENU_SELECTED,
         function (event)
             local editor = GetEditor();
-            if not SaveIfModified(editor) then
-                return
-            end
-            local id = editor:GetId();
-            local cmd = app.setting.command.compile
-            if cmd then
-                cmd = ExpandCommand(cmd, openDocuments[id])
-                console:ExecCommand(cmd, openDocuments[id].directory)
-            end
+            tool:Compile(editor)
         end)
 
 frame:Connect(ID.COMPILE, wx.wxEVT_UPDATE_UI,
@@ -253,12 +245,7 @@ frame:Connect(ID.COMPILE, wx.wxEVT_UPDATE_UI,
 frame:Connect(ID.PREVIEW, wx.wxEVT_COMMAND_MENU_SELECTED,
         function (event)
             local editor = GetEditor();
-            local id = editor:GetId();
-            local cmd = app.setting.command.preview
-            if cmd then
-                cmd = ExpandCommand(cmd, openDocuments[id])
-                console:RunProgram(cmd, openDocuments[id].directory)
-            end
+            tool:Preview(editor)
         end)
 
 frame:Connect(ID.PREVIEW, wx.wxEVT_UPDATE_UI,
