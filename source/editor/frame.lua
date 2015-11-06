@@ -269,12 +269,7 @@ frame:Connect(ID.PREVIEW, wx.wxEVT_UPDATE_UI,
 
 frame:Connect(ID.SHOWHIDEWINDOW, wx.wxEVT_COMMAND_MENU_SELECTED,
         function (event)
-            if splitter:IsSplit() then
-                splitter:Unsplit()
-            else
-                local w, h = frame:GetClientSizeWH()
-                splitter:SplitHorizontally(notebook, console, (2 * h) / 3)
-            end
+            console:SplitShow(event:IsChecked())
         end)
 
 -- ---------------------------------------------------------------------------

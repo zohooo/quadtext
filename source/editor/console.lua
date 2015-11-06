@@ -16,11 +16,19 @@ console:SetReadOnly(true)
 
 local consoleLength = 0
 
-function console:DisplayOutput(message, dont_add_marker)
-    if splitter:IsSplit() == false then
-        local w, h = frame:GetClientSizeWH()
-        splitter:SplitHorizontally(notebook, console, (2 * h) / 3)
+function console:SplitShow(isShow)
+    if isShow then
+        if not splitter:IsSplit() then
+            local w, h = frame:GetClientSizeWH()
+            splitter:SplitHorizontally(notebook, console, (2 * h) / 3)
+        end
+    else
+        splitter:Unsplit()
     end
+end
+
+function console:DisplayOutput(message, dont_add_marker)
+    console:SplitShow(true)
     if not dont_add_marker then
         console:MarkerAdd(console:GetLineCount()-1, CURRENT_LINE_MARKER)
     end
@@ -61,11 +69,16 @@ local pattern = "^l%.(%d+)"
 
 local function LocateErrors()
     local cnt = console:GetLineCount()
+    local hasError = false
     for i = 0, cnt - 1 do
         local line = console:GetLine(i)
         if string.match(line, pattern) then
             console:MarkerAdd(i, ERROR_MARKER)
+            hasError = true
         end
+    end
+    if not hasError then
+        console:SplitShow(false)
     end
 end
 
