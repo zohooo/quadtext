@@ -272,6 +272,11 @@ frame:Connect(ID.SHOWHIDEWINDOW, wx.wxEVT_COMMAND_MENU_SELECTED,
             console:SplitShow(event:IsChecked())
         end)
 
+frame:Connect(ID.CLEAROUTPUT, wx.wxEVT_COMMAND_MENU_SELECTED,
+        function (event)
+            console:ClearOutput()
+        end)
+
 -- ---------------------------------------------------------------------------
 -- Attach callback functions to Option menu
 

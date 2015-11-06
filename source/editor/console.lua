@@ -108,10 +108,9 @@ function console:ExecCommand(cmd, dir)
             LocateErrors()
         end)
 
-    if menuBar:IsChecked(ID.CLEAROUTPUT) then
-        console:ClearOutput()
-        consoleLength = 0
-    end
+    console:ClearOutput()
+    consoleLength = 0
+
     console:DisplayOutput("Running program: "..cmd.."\n")
     local cwd = wx.wxGetCwd()
     wx.wxSetWorkingDirectory(dir)

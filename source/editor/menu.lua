@@ -64,11 +64,9 @@ toolMenu = wx.wxMenu{
         { ID.PREVIEW,          "&Preview\tF6",          "Preview output file" },
         { },
         { ID.SHOWHIDEWINDOW,   "View &Output Window\tF8", "View or Hide the output window", wx.wxITEM_CHECK },
-        { ID.CLEAROUTPUT,      "C&lear Output Window",    "Clear the output window before compiling", wx.wxITEM_CHECK },
+        { ID.CLEAROUTPUT,      "C&lear Output Window",    "Clear the output window"},
         }
 menuBar:Append(toolMenu, "&Tool")
-
-toolMenu:Check(ID.CLEAROUTPUT, true)
 
 -- ---------------------------------------------------------------------------
 -- Create the Option menu
