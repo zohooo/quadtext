@@ -7,7 +7,7 @@ MAIN_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && cd .. && pwd )"
 
 BIN_DIR="$MAIN_DIR/binary"
 BUILD_DIR="$MAIN_DIR/build"
-TEMP_DIR="$MAIN_DIR/temp"
+TEMP_DIR="$MAIN_DIR/release"
 
 INSTALL_DIR="$TEMP_DIR/local"
 
@@ -60,6 +60,8 @@ for ARG in "$@"; do
         WXLUASTRIP=""
         WXWIDGETSDEBUG="--enable-debug=max --enable-debug_gdb"
         WXLUABUILD="Debug"
+        TEMP_DIR="$MAIN_DIR/debug"
+        INSTALL_DIR="$TEMP_DIR/local"
         ;;
     all)
         BUILD_WXWIDGETS=true
