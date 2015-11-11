@@ -46,6 +46,10 @@ function filer:LoadFile(fullpath, editor, file_must_exist)
         return nil
     end
 
+    -- detect text encoding and convert its encoding to utf-8
+    local enc, text = encoding:Detect(file_text)
+    if not enc then return end
+
     if not editor then
         editor = FindDocumentToReuse()
     end
@@ -56,10 +60,11 @@ function filer:LoadFile(fullpath, editor, file_must_exist)
     editor:Clear()
     editor:ClearAll()
     editor:MarkerDeleteAll(CURRENT_LINE_MARKER)
-    editor:AppendText(file_text)
+    editor:AppendText(text)
     editor:EmptyUndoBuffer()
     local id = editor:GetId()
     local fp = wx.wxFileName(fullpath)
+    openDocuments[id].encoding = enc
     openDocuments[id].fullpath = fullpath
     openDocuments[id].fullname = fp:GetFullName()
     openDocuments[id].directory = fp:GetPath(wx.wxPATH_GET_VOLUME)
@@ -97,13 +102,23 @@ function filer:SaveFile(editor, fullpath)
         os.remove(backPath)
         os.rename(fullpath, backPath)
 
+        local text = editor:GetText()
+        local id = editor:GetId()
+        local enc = openDocuments[id].encoding
+        if enc then
+            text = encoding:Convert(text, "UTF-8", enc)
+            if not text then
+                wx.wxMessageBox("Unable to convert file encoding!",
+                        "Error Saving", wx.wxOK + wx.wxCENTRE, frame)
+                return false
+            end
+        end
+
         local handle = wx.wxFile(fullpath, wx.wxFile.write)
         if handle:IsOpened() then
-            local st = editor:GetText()
-            handle:Write(st, #st)
+            handle:Write(text, #text)
             handle:Close()
             editor:EmptyUndoBuffer()
-            local id = editor:GetId()
             local fp = wx.wxFileName(fullpath)
             openDocuments[id].fullpath = fullpath
             openDocuments[id].fullname = fp:GetFullName()
