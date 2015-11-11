@@ -183,6 +183,7 @@ if [ $BUILD_ICONV ]; then
     ./configure --prefix="$INSTALL_DIR" --disable-shared --enable-static --disable-nls
     make $MAKEFLAGS || { echo "Error: failed to build iconv"; exit 1; }
     make install
+    cd ..
 fi
 
 if [ $BUILD_LUAICONV ]; then
@@ -192,6 +193,7 @@ if [ $BUILD_LUAICONV ]; then
     gcc -o iconv.dll $BUILD_FLAGS iconv.lo $INSTALL_DIR/lib/lua$LUAS.dll -liconv
     cp iconv.dll "$INSTALL_DIR/bin"
     [ -f "$INSTALL_DIR/bin/iconv.dll" ] || { echo "Error: iconv.dll isn't found"; exit 1; }
+    cd ..
 fi
 
 # now copy the compiled dependencies to binary directory
