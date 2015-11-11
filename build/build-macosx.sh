@@ -39,6 +39,15 @@ WXLUA_BASENAME="wxLua-2.8.12.3-src"
 WXLUA_FILENAME="$WXLUA_BASENAME.tar.gz"
 WXLUA_URL="$SOURCEFORGE/wxlua/wxlua/2.8.12.3/$WXLUA_FILENAME"
 
+
+ICONV_BASENAME="libiconv-1.14"
+ICONV_FILENAME="$ICONV_BASENAME.tar.gz"
+ICONV_URL="http://ftp.gnu.org/pub/gnu/libiconv/$ICONV_FILENAME"
+
+LUAICONV_BASENAME="lua-iconv-master"
+LUAICONV_FILENAME="$LUAICONV_BASENAME.tar.gz"
+LUAICONV_URL="https://github.com/ittner/lua-iconv/archive/master.tar.gz"
+
 # exit if the command line is empty
 if [ $# -eq 0 ]; then
     echo "Usage: $0 LIBRARY..."
@@ -61,6 +70,10 @@ for ARG in "$@"; do
     wxlua)
         BUILD_WXLUA=true
         ;;
+    luaiconv)
+        BUILD_ICONV=true
+        BUILD_LUAICONV=true
+        ;;
     debug)
         WXLUASTRIP=""
         WXWIDGETSDEBUG="--enable-debug=max"
@@ -72,6 +85,8 @@ for ARG in "$@"; do
         BUILD_WXWIDGETS=true
         BUILD_LUA=true
         BUILD_WXLUA=true
+        BUILD_ICONV=true
+        BUILD_LUAICONV=true
         ;;
     *)
         echo "Error: invalid argument $ARG"
@@ -103,7 +118,7 @@ function prepare_source {
     # $1 = basename, $2 = filename, $3 = url
     if [ ! -d $1 ]; then
         if [ ! -f $2 ]; then
-            wget -c "$3" -O "$2" || { echo "Error: failed to download $2"; exit 1; }
+            wget --no-check-certificate -c "$3" -O "$2" || { echo "Error: failed to download $2"; exit 1; }
         fi
         tar -xzf "$2"
     fi
@@ -181,6 +196,25 @@ if [ $BUILD_WXLUA ]; then
     cd ..
 fi
 
+if [ $BUILD_ICONV ]; then
+    prepare_source $ICONV_BASENAME $ICONV_FILENAME $ICONV_URL
+    cd "$ICONV_BASENAME"
+    ./configure --prefix="$INSTALL_DIR" --disable-shared --enable-static --disable-nls
+    make $MAKEFLAGS || { echo "Error: failed to build iconv"; exit 1; }
+    make install
+    cd ..
+fi
+
+if [ $BUILD_LUAICONV ]; then
+    prepare_source $LUAICONV_BASENAME $LUAICONV_FILENAME $LUAICONV_URL
+    cd "$LUAICONV_BASENAME"
+    gcc -c -o iconv.lo $BUILD_FLAGS luaiconv.c
+    gcc -o iconv.dylib -shared iconv.lo $INSTALL_DIR/lib/liblua$LUAS.dylib -liconv
+    cp iconv.dylib "$INSTALL_DIR/bin"
+    [ -f "$INSTALL_DIR/bin/iconv.dylib" ] || { echo "Error: iconv.dylib isn't found"; exit 1; }
+    cd ..
+fi
+
 # now copy the compiled dependencies to binary directory
 if [ ! -d $BIN_DIR ]; then
     mkdir -p "$BIN_DIR" || { echo "Error: cannot create directory $BIN_DIR"; exit 1; }
@@ -188,6 +222,7 @@ fi
 
 [ $BUILD_LUA ] && cp "$INSTALL_DIR/bin/lua" "$INSTALL_DIR/lib/liblua$LUAS.dylib" "$BIN_DIR"
 [ $BUILD_WXLUA ] && cp "$INSTALL_DIR/lib/libwx.dylib" "$BIN_DIR/wx.dylib"
+[ $BUILD_LUAICONV ] && cp "$INSTALL_DIR/bin/iconv.dylib" "$BIN_DIR/iconv.dylib"
 
 echo "*** Build has been successfully completed ***"
 exit 0
