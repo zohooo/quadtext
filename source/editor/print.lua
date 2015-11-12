@@ -1,16 +1,15 @@
 
---> Printing
-local printInfo = {
+printing = {
     pageSetupDialogData = wx.wxPageSetupDialogData(),
     printDialogData     = wx.wxPrintDialogData()
 }
-printInfo.pageSetupDialogData.MarginTopLeft     = wx.wxPoint(10, 10)
-printInfo.pageSetupDialogData.MarginBottomRight = wx.wxPoint(10, 10)
-printInfo.pageSetupDialogData:EnableOrientation(false)
-printInfo.pageSetupDialogData:EnablePaper(false)
-printInfo.pageSetupDialogData:SetPaperId(wx.wxPAPER_LETTER)
+printing.pageSetupDialogData.MarginTopLeft     = wx.wxPoint(10, 10)
+printing.pageSetupDialogData.MarginBottomRight = wx.wxPoint(10, 10)
+printing.pageSetupDialogData:EnableOrientation(false)
+printing.pageSetupDialogData:EnablePaper(false)
+printing.pageSetupDialogData:SetPaperId(wx.wxPAPER_LETTER)
 
-function printInfo.PrintScaling(dc, printOut)
+function printing.PrintScaling(dc, printOut)
     -- Get the whole size of the page in mm
     local pageSizeMM_x, pageSizeMM_y = printOut:GetPageSizeMM()
 
@@ -44,8 +43,8 @@ function printInfo.PrintScaling(dc, printOut)
     local pageRect  = wx.wxRect(0, 0, page_x, page_y);
 
     -- get margins informations and convert to printer pixels
-    local topLeft     = printInfo.pageSetupDialogData.MarginTopLeft
-    local bottomRight = printInfo.pageSetupDialogData.MarginBottomRight
+    local topLeft     = printing.pageSetupDialogData.MarginTopLeft
+    local bottomRight = printing.pageSetupDialogData.MarginBottomRight
 
     local top    = math.floor(topLeft.y     * ppmm_y);
     local bottom = math.floor(bottomRight.y * ppmm_y);
@@ -58,14 +57,14 @@ function printInfo.PrintScaling(dc, printOut)
     return printRect, pageRect
 end
 
-function printInfo:ConnectPrintEvents(printOut)
+function printing:ConnectPrintEvents(printOut)
     local pages = {}
 
     function printOut:OnPrintPage(pageNum)
         local dc = self:GetDC()
         local editor = GetEditor()
 
-        local printRect, pageRect = printInfo.PrintScaling(dc, printOut)
+        local printRect, pageRect = printing.PrintScaling(dc, printOut)
 
         -- Print to an area smaller by the height of the header
         dc:SetFont(font)
@@ -126,14 +125,27 @@ function printInfo:ConnectPrintEvents(printOut)
     end
 end
 
-function PrintPreview()
+function printing:Print()
+    local printer  = wx.wxPrinter(printing.printDialogData)
+    local luaPrintout = wx.wxLuaPrintout()
+    printing:ConnectPrintEvents(luaPrintout)
+    if printer:Print(frame, luaPrintout, true) == false then
+        if printer:GetLastError() == wx.wxPRINTER_ERROR then
+            wx.wxMessageBox("There was a problem printing.\nPerhaps your current printer is not set correctly?", "wxLua", wx.wxOK)
+        --elseif err == wx.wxPRINTER_CANCELLED then
+        --    wx.wxMessageBox("You cancelled printing", "wxLua", wx.wxOK)
+        end
+    end
+end
+
+function printing:PrintPreview()
     local printerPrintout = wx.wxLuaPrintout("wxLua Printout")
-    printInfo:ConnectPrintEvents(printerPrintout)
+    printing:ConnectPrintEvents(printerPrintout)
 
     local previewPrintout = wx.wxLuaPrintout("wxLua Print Preview")
-    printInfo:ConnectPrintEvents(previewPrintout)
+    printing:ConnectPrintEvents(previewPrintout)
 
-    local preview = wx.wxPrintPreview(printerPrintout, previewPrintout, printInfo.printDialogData:GetPrintData())
+    local preview = wx.wxPrintPreview(printerPrintout, previewPrintout, printing.printDialogData:GetPrintData())
     local result = preview:Ok()
     if result == false then
         wx.wxMessageBox("There was a problem previewing.\nPerhaps your current printer is not set correctly?",
@@ -159,11 +171,15 @@ function PrintPreview()
     end
 end
 
+function printing:PageSetup()
+    local pageSetupDialog = wx.wxPageSetupDialog(frame, printing.pageSetupDialogData)
+    pageSetupDialog:ShowModal()
+    printing.pageSetupDialogData = pageSetupDialog:GetPageSetupDialogData()
+end
+
 frame:Connect(ID.PAGE_SETUP, wx.wxEVT_COMMAND_MENU_SELECTED,
     function (event)
-        local pageSetupDialog = wx.wxPageSetupDialog(frame, printInfo.pageSetupDialogData)
-        pageSetupDialog:ShowModal()
-        printInfo.pageSetupDialogData = pageSetupDialog:GetPageSetupDialogData()
+        printing:PageSetup()
     end)
 
 frame:Connect(ID.PRINT, wx.wxEVT_COMMAND_MENU_SELECTED,
@@ -171,17 +187,7 @@ frame:Connect(ID.PRINT, wx.wxEVT_COMMAND_MENU_SELECTED,
         local editor = GetEditor()
         -- The default size is too large, this gets ~80 rows for a 12 pt font
         editor:SetPrintMagnification(-2)
-
-        local printer  = wx.wxPrinter(printInfo.printDialogData)
-        local luaPrintout = wx.wxLuaPrintout()
-        printInfo:ConnectPrintEvents(luaPrintout)
-        if printer:Print(frame, luaPrintout, true) == false then
-            if printer:GetLastError() == wx.wxPRINTER_ERROR then
-                wx.wxMessageBox("There was a problem printing.\nPerhaps your current printer is not set correctly?", "wxLua", wx.wxOK)
-            --elseif err == wx.wxPRINTER_CANCELLED then
-            --    wx.wxMessageBox("You cancelled printing", "wxLua", wx.wxOK)
-            end
-        end
+        printing:Print()
     end)
 
 frame:Connect(ID.PRINT_PREVIEW, wx.wxEVT_COMMAND_MENU_SELECTED,
@@ -189,6 +195,5 @@ frame:Connect(ID.PRINT_PREVIEW, wx.wxEVT_COMMAND_MENU_SELECTED,
         local editor = GetEditor()
         -- The default size is too large, this gets ~80 rows for a 12 pt font
         editor:SetPrintMagnification(-2)
-
-        PrintPreview()
+        printing:PrintPreview()
     end)

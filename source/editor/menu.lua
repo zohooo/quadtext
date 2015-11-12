@@ -13,8 +13,8 @@ fileMenu = wx.wxMenu({
         { ID.SAVEAS,  "Save &As...\tAlt-S",  "Save the current document to a file with a new name" },
         { ID.SAVEALL, "Save A&ll...\tCtrl-Shift-S", "Save all open documents" },
         { },
-        { ID.PRINT,         "&Print... \tCtrl-p",               "Print document"},
-        { ID.PRINT_PREVIEW, "&Print Preview... \tShift-Ctrl-p", "Print preview"},
+        { ID.PRINT,         "&Print... \tCtrl-P",               "Print document"},
+        { ID.PRINT_PREVIEW, "&Print Preview... \tShift-Ctrl-P", "Print preview"},
         { ID.PAGE_SETUP,    "Page S&etup...",                   "Set up printing"},
         { },
         { ID.EXIT,    "E&xit\tAlt-X",        "Exit Program" }})
