@@ -176,24 +176,3 @@ function printing:PageSetup()
     pageSetupDialog:ShowModal()
     printing.pageSetupDialogData = pageSetupDialog:GetPageSetupDialogData()
 end
-
-frame:Connect(ID.PAGE_SETUP, wx.wxEVT_COMMAND_MENU_SELECTED,
-    function (event)
-        printing:PageSetup()
-    end)
-
-frame:Connect(ID.PRINT, wx.wxEVT_COMMAND_MENU_SELECTED,
-    function (event)
-        local editor = GetEditor()
-        -- The default size is too large, this gets ~80 rows for a 12 pt font
-        editor:SetPrintMagnification(-2)
-        printing:Print()
-    end)
-
-frame:Connect(ID.PRINT_PREVIEW, wx.wxEVT_COMMAND_MENU_SELECTED,
-    function (event)
-        local editor = GetEditor()
-        -- The default size is too large, this gets ~80 rows for a 12 pt font
-        editor:SetPrintMagnification(-2)
-        printing:PrintPreview()
-    end)
