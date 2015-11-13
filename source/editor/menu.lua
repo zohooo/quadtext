@@ -1,10 +1,10 @@
 
-menuBar = wx.wxMenuBar()
+menubar = wx.wxMenuBar()
 
 -- ---------------------------------------------------------------------------
 -- Create the File menu
 
-fileMenu = wx.wxMenu({
+local fileMenu = wx.wxMenu({
         { ID.NEW,     "&New\tCtrl-N",        "Create an empty document" },
         { ID.OPEN,    "&Open...\tCtrl-O",    "Open an existing document" },
         { ID.CLOSE,   "&Close page\tCtrl+W", "Close the current editor window" },
@@ -18,12 +18,12 @@ fileMenu = wx.wxMenu({
         { ID.PAGE_SETUP,    "Page S&etup...",                   "Set up printing"},
         { },
         { ID.EXIT,    "E&xit\tAlt-X",        "Exit Program" }})
-menuBar:Append(fileMenu, "&File")
+menubar:Append(fileMenu, "&File")
 
 -- ---------------------------------------------------------------------------
 -- Create the Edit menu
 
-editMenu = wx.wxMenu{
+local editMenu = wx.wxMenu{
         { ID.CUT,       "Cu&t\tCtrl-X",        "Cut selected text to clipboard" },
         { ID.COPY,      "&Copy\tCtrl-C",       "Copy selected text to the clipboard" },
         { ID.PASTE,     "&Paste\tCtrl-V",      "Insert clipboard text at cursor" },
@@ -38,14 +38,14 @@ editMenu = wx.wxMenu{
         { ID.COMMENT, "C&omment/Uncomment\tCtrl-Q", "Comment or uncomment current or selected lines"},
         { },
         { ID.FOLD,    "&Fold/Unfold all\tF12", "Fold or unfold all code folds"} }
-menuBar:Append(editMenu, "&Edit")
+menubar:Append(editMenu, "&Edit")
 
 editMenu:Check(ID.AUTOCOMPLETE_ENABLE, autoCompleteEnable)
 
 -- ---------------------------------------------------------------------------
 -- Create the Search menu
 
-findMenu = wx.wxMenu{
+local findMenu = wx.wxMenu{
         { ID.FIND,       "&Find\tCtrl-F",            "Find the specified text" },
         { ID.FINDNEXT,   "Find &Next\tF3",           "Find the next occurrence of the specified text" },
         { ID.FINDPREV,   "Find &Previous\tShift-F3", "Repeat the search backwards in the file" },
@@ -54,35 +54,35 @@ findMenu = wx.wxMenu{
         { ID.GOTOLINE,   "&Goto line\tCtrl-G",       "Go to a selected line" },
         { },
         { ID.SORT,       "&Sort",                    "Sort selected lines"}}
-menuBar:Append(findMenu, "&Search")
+menubar:Append(findMenu, "&Search")
 
 -- ---------------------------------------------------------------------------
 -- Create the Tool menu
 
-toolMenu = wx.wxMenu{
+local toolMenu = wx.wxMenu{
         { ID.COMPILE,          "&Compile\tF5",          "Compile current file" },
         { ID.PREVIEW,          "&Preview\tF6",          "Preview output file" },
         { },
         { ID.SHOWHIDEWINDOW,   "View &Output Window\tF8", "View or Hide the output window", wx.wxITEM_CHECK },
         { ID.CLEAROUTPUT,      "C&lear Output Window",    "Clear the output window"},
         }
-menuBar:Append(toolMenu, "&Tool")
+menubar:Append(toolMenu, "&Tool")
 
 -- ---------------------------------------------------------------------------
 -- Create the Option menu
 
-optionMenu = wx.wxMenu{
+local optionMenu = wx.wxMenu{
     { ID.SETTING_EDITOR, "Setting &Editor", "Setting Editor" },
     { ID.SETTING_COMMAND, "Setting &Commands", "Setting Commands" },
 }
-menuBar:Append(optionMenu, "&Option")
+menubar:Append(optionMenu, "&Option")
 
 -- ---------------------------------------------------------------------------
 -- Create the Help menu
 
-helpMenu = wx.wxMenu{
+local helpMenu = wx.wxMenu{
     { ID.ABOUT,        "&About\tF1", "About QuadText" },
     { ID.HELP_PROJECT, "&Project Page", "Open Project Page" },
     { ID.HELP_SUPPORT, "&Support", "Open Project Wiki" },
 }
-menuBar:Append(helpMenu, "&Help")
+menubar:Append(helpMenu, "&Help")

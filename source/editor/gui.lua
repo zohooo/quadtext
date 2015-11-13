@@ -350,7 +350,7 @@ frame:Connect(wx.wxEVT_CLOSE_WINDOW, CloseWindow)
 -- ---------------------------------------------------------------------------
 -- Finish creating the frame and show it
 
-frame:SetMenuBar(menuBar)
+frame:SetMenuBar(menubar)
 dofile(source .. sep .. "editor" .. sep .. "toolbar.lua")
 
 ConfigRestoreFramePosition(frame, "MainFrame")
