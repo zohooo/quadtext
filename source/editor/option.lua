@@ -1,6 +1,7 @@
 
-function OpenSettingFile(event)
-    local id = event:GetId()
+option = {}
+
+function option:OpenSettingFile(id)
     if id == ID.SETTING_EDITOR then
         filer:LoadFile(source .. sep .. "setting" .. sep .. "setting-editor.lua")
     elseif id == ID.SETTING_COMMAND then

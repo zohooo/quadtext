@@ -300,9 +300,17 @@ frame:Connect(ID.CLEAROUTPUT, wx.wxEVT_COMMAND_MENU_SELECTED,
 -- ---------------------------------------------------------------------------
 -- Attach callback functions to Option menu
 
-frame:Connect(ID.SETTING_EDITOR, wx.wxEVT_COMMAND_MENU_SELECTED, OpenSettingFile)
+frame:Connect(ID.SETTING_EDITOR, wx.wxEVT_COMMAND_MENU_SELECTED,
+        function (event)
+            local id = event:GetId()
+            option:OpenSettingFile(id)
+        end)
 
-frame:Connect(ID.SETTING_COMMAND, wx.wxEVT_COMMAND_MENU_SELECTED, OpenSettingFile)
+frame:Connect(ID.SETTING_COMMAND, wx.wxEVT_COMMAND_MENU_SELECTED,
+        function (event)
+            local id = event:GetId()
+            option:OpenSettingFile(id)
+        end)
 
 -- ---------------------------------------------------------------------------
 -- Attach callback functions to Help menu
