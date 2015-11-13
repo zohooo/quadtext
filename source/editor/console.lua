@@ -7,8 +7,8 @@ local ERROR_MARKER = 3
 console = wxstc.wxStyledTextCtrl(splitter, wx.wxID_ANY)
 
 console:Show(false)
-console:SetFont(font)
-console:StyleSetFont(wxstc.wxSTC_STYLE_DEFAULT, font)
+console:SetFont(app.font)
+console:StyleSetFont(wxstc.wxSTC_STYLE_DEFAULT, app.font)
 console:StyleClearAll()
 
 console:SetMarginWidth(1, 16) -- marker margin

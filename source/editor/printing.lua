@@ -67,7 +67,7 @@ function printing:ConnectPrintEvents(printOut)
         local printRect, pageRect = printing.PrintScaling(dc, printOut)
 
         -- Print to an area smaller by the height of the header
-        dc:SetFont(font)
+        dc:SetFont(app.font)
         local _, headerHeight = dc:GetTextExtent("qH")
         local textRect = wx.wxRect(printRect)
         textRect:SetY(textRect:GetY() + headerHeight*1.5)
@@ -107,7 +107,7 @@ function printing:ConnectPrintEvents(printOut)
 
             dc:SetPen(wx.wxBLACK_PEN)
             dc:SetTextForeground(wx.wxBLACK)
-            dc:SetFont(font)
+            dc:SetFont(app.font)
 
             dc:DrawText(openDocuments[editor:GetId()].fullname or "untitled.tex", printRect.X, printRect.Y)
             dc:DrawText(printOut.startTime, printRect.Width/2 - dc:GetTextExtentSize(printOut.startTime).Width/2 + printRect.Left, printRect.Y)

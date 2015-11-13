@@ -147,10 +147,10 @@ function app:CreateEditor(parent, ...)
     editor:SetBufferedDraw(true)
     editor:StyleClearAll()
 
-    editor:SetFont(font)
-    editor:StyleSetFont(wxstc.wxSTC_STYLE_DEFAULT, font)
+    editor:SetFont(app.font)
+    editor:StyleSetFont(wxstc.wxSTC_STYLE_DEFAULT, app.font)
     for i = 0, 32 do
-        editor:StyleSetFont(i, font)
+        editor:StyleSetFont(i, app.font)
     end
 
     editor:SetUseTabs(false)

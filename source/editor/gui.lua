@@ -36,19 +36,16 @@ openDocuments    = {}     -- open notebook editor documents[winId] = {
                           --   suffix     = filename extension
                           --   modTime    = wxDateTime of disk file or nil,
                           --   isModified = bool is the document modified? }
-font             = nil    -- fonts to use for the editor
-fontItalic       = nil
 
 -- ----------------------------------------------------------------------------
-
 -- Pick some reasonable fixed width fonts to use for the editor
 
 local function PickEditorFont(faceName)
     local size = tonumber(app.setting.editor.fontsize)
     if size < 10 then size = 10 end
-    font = wx.wxFont(size, wx.wxFONTFAMILY_MODERN, wx.wxFONTSTYLE_NORMAL,
+    app.font = wx.wxFont(size, wx.wxFONTFAMILY_MODERN, wx.wxFONTSTYLE_NORMAL,
                      wx.wxFONTWEIGHT_NORMAL, false, faceName)
-    fontItalic = wx.wxFont(size, wx.wxFONTFAMILY_MODERN, wx.wxFONTSTYLE_ITALIC,
+    app.fontItalic = wx.wxFont(size, wx.wxFONTFAMILY_MODERN, wx.wxFONTSTYLE_ITALIC,
                            wx.wxFONTWEIGHT_NORMAL, false, faceName)
 end
 
