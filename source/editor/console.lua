@@ -1,4 +1,9 @@
 
+-- Markers for console marker margin
+local CURRENT_LINE_MARKER = 2
+local CURRENT_LINE_MARKER_VALUE = 2^CURRENT_LINE_MARKER
+local ERROR_MARKER = 3
+
 console = wxstc.wxStyledTextCtrl(splitter, wx.wxID_ANY)
 
 console:Show(false)

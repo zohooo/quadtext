@@ -57,11 +57,7 @@ function filer:LoadFile(fullpath, editor, file_must_exist)
         editor = notebook:AddEditor(wx.wxFileName(fullpath):GetFullName() or "untitled.tex")
     end
 
-    editor:Clear()
-    editor:ClearAll()
-    editor:MarkerDeleteAll(CURRENT_LINE_MARKER)
-    editor:AppendText(text)
-    editor:EmptyUndoBuffer()
+    editor:UpdateText(text)
     local id = editor:GetId()
     local fp = wx.wxFileName(fullpath)
     openDocuments[id].encoding = enc

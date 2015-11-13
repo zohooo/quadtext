@@ -3,6 +3,19 @@ local editorID = 100 -- window id to create editor pages with, incremented for n
 
 local myEditor = {} -- extending the editor class
 
+-- Markers for editor marker margin
+local CURRENT_LINE_MARKER = 2
+local CURRENT_LINE_MARKER_VALUE = 2^CURRENT_LINE_MARKER
+local ERROR_MARKER = 3
+
+function myEditor:UpdateText(text)
+    self:Clear()
+    self:ClearAll()
+    self:MarkerDeleteAll(CURRENT_LINE_MARKER)
+    self:AppendText(text)
+    self:EmptyUndoBuffer()
+end
+
 function myEditor:UpdateKeywords(words, prefix)
     self.keywords = words
     self.keywordPrefix = prefix or ""
@@ -116,11 +129,9 @@ function app:CreateEditor(parent, ...)
 
     -- We could not write the following line, since editor is not a table
     -- setmetatable(editor, {__index = myEditor})
-    editor.UpdateKeywords = myEditor.UpdateKeywords
-    editor.CheckAutoCompletion = myEditor.CheckAutoCompletion
-    editor.CreateAutoCompList = myEditor.CreateAutoCompList
-    editor.SwitchComment = myEditor.SwitchComment
-    editor.SwitchFold = myEditor.SwitchFold
+    for k, v in pairs(myEditor) do
+        editor[k] = v
+    end
 
     editor:SetBufferedDraw(true)
     editor:StyleClearAll()
