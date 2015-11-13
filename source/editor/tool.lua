@@ -10,30 +10,6 @@ function SetAllEditorsReadOnly(enable)
     end
 end
 
-function SaveIfModified(editor)
-    local id = editor:GetId()
-    if openDocuments[id].isModified then
-        local saved = false
-        if not openDocuments[id].fullpath then
-            local ret = wx.wxMessageBox("You must save the program before running it.\nPress cancel to abort running.",
-                                         "Save file?",  wx.wxOK + wx.wxCANCEL + wx.wxCENTRE, frame)
-            if ret == wx.wxOK then
-                saved = filer:SaveFileAs(editor)
-            end
-        else
-            saved = filer:SaveFile(editor, openDocuments[id].fullpath)
-        end
-
-        if saved then
-            openDocuments[id].isModified = false
-        else
-            return false -- not saved
-        end
-    end
-
-    return true -- saved
-end
-
 function tool:ExpandCommand(cmd, doc)
     cmd = cmd:gsub("#%a+", {
         ["#program"]   = app.programName .. ' ' .. app.scriptName,
@@ -47,7 +23,7 @@ function tool:ExpandCommand(cmd, doc)
 end
 
 function tool:Compile(editor)
-    if not SaveIfModified(editor) then
+    if not filer:SaveIfModified(editor) then
         return
     end
     local id = editor:GetId();

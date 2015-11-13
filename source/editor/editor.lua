@@ -242,7 +242,7 @@ function app:CreateEditor(parent, ...)
                 event:Skip()
                 if in_evt_focus or exitingProgram then return end
                 in_evt_focus = true
-                IsFileAlteredOnDisk(editor)
+                filer:IsFileAlteredOnDisk(editor)
                 in_evt_focus = false
             end)
 

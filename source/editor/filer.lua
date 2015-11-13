@@ -70,7 +70,7 @@ function filer:LoadFile(fullpath, editor, file_must_exist)
     openDocuments[id].directory = fp:GetPath(wx.wxPATH_GET_VOLUME)
     openDocuments[id].basename = fp:GetName()
     openDocuments[id].suffix = fp:GetExt()
-    openDocuments[id].modTime = GetFileModTime(fullpath)
+    openDocuments[id].modTime = filer:GetFileModTime(fullpath)
     SetDocumentModified(id, false)
     frame:SetupEditor(editor, fp:GetExt())
 
@@ -125,7 +125,7 @@ function filer:SaveFile(editor, fullpath)
             openDocuments[id].directory = fp:GetPath(wx.wxPATH_GET_VOLUME)
             openDocuments[id].basename = fp:GetName()
             openDocuments[id].suffix = fp:GetExt()
-            openDocuments[id].modTime  = GetFileModTime(fullpath)
+            openDocuments[id].modTime  = filer:GetFileModTime(fullpath)
             SetDocumentModified(id, false)
             return true
         else
@@ -211,6 +211,72 @@ function filer:RemovePage(index)
     end
 
     SetEditorSelection(nil) -- will use notebook GetSelection to update
+end
+
+-- Get file modification time, returns a wxDateTime (check IsValid) or nil if
+--   the file doesn't exist
+function filer:GetFileModTime(fullpath)
+    if fullpath and (string.len(fullpath) > 0) then
+        local fn = wx.wxFileName(fullpath)
+        if fn:FileExists() then
+            return fn:GetModificationTime()
+        end
+    end
+
+    return nil
+end
+
+-- Check if file is altered, show dialog to reload it
+function filer:IsFileAlteredOnDisk(editor)
+    if not editor then return end
+
+    local id = editor:GetId()
+    if openDocuments[id] then
+        local fullpath   = openDocuments[id].fullpath
+        local fullname   = openDocuments[id].fullname
+        local oldModTime = openDocuments[id].modTime
+
+        if fullpath and (string.len(fullpath) > 0) and oldModTime and oldModTime:IsValid() then
+            local modTime = filer:GetFileModTime(fullpath)
+            if modTime == nil then
+                openDocuments[id].modTime = nil
+                wx.wxMessageBox(fullname.." is no longer on the disk.",
+                                "wxLua Message",
+                                wx.wxOK + wx.wxCENTRE, frame)
+            elseif modTime:IsValid() and oldModTime:IsEarlierThan(modTime) then
+                local ret = wx.wxMessageBox(fullname.." has been modified on disk.\nDo you want to reload it?",
+                                            "wxLua Message",
+                                            wx.wxYES_NO + wx.wxCENTRE, frame)
+                if ret ~= wx.wxYES or filer:LoadFile(fullpath, editor, true) then
+                    openDocuments[id].modTime = nil
+                end
+            end
+        end
+    end
+end
+
+function filer:SaveIfModified(editor)
+    local id = editor:GetId()
+    if openDocuments[id].isModified then
+        local saved = false
+        if not openDocuments[id].fullpath then
+            local ret = wx.wxMessageBox("You must save the program before running it.\nPress cancel to abort running.",
+                                         "Save file?",  wx.wxOK + wx.wxCANCEL + wx.wxCENTRE, frame)
+            if ret == wx.wxOK then
+                saved = filer:SaveFileAs(editor)
+            end
+        else
+            saved = filer:SaveFile(editor, openDocuments[id].fullpath)
+        end
+
+        if saved then
+            openDocuments[id].isModified = false
+        else
+            return false -- not saved
+        end
+    end
+
+    return true -- saved
 end
 
 -- Show a dialog to save a file before closing editor.

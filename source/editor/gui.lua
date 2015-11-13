@@ -131,54 +131,12 @@ function SetEditorSelection(selection)
     if editor then
         editor:SetFocus()
         editor:SetSTCFocus(true)
-        IsFileAlteredOnDisk(editor)
+        filer:IsFileAlteredOnDisk(editor)
     end
     statusbar:UpdateStatusText(editor) -- update even if nil
 end
 
 -- ----------------------------------------------------------------------------
--- Get file modification time, returns a wxDateTime (check IsValid) or nil if
---   the file doesn't exist
-function GetFileModTime(fullpath)
-    if fullpath and (string.len(fullpath) > 0) then
-        local fn = wx.wxFileName(fullpath)
-        if fn:FileExists() then
-            return fn:GetModificationTime()
-        end
-    end
-
-    return nil
-end
-
--- Check if file is altered, show dialog to reload it
-function IsFileAlteredOnDisk(editor)
-    if not editor then return end
-
-    local id = editor:GetId()
-    if openDocuments[id] then
-        local fullpath   = openDocuments[id].fullpath
-        local fullname   = openDocuments[id].fullname
-        local oldModTime = openDocuments[id].modTime
-
-        if fullpath and (string.len(fullpath) > 0) and oldModTime and oldModTime:IsValid() then
-            local modTime = GetFileModTime(fullpath)
-            if modTime == nil then
-                openDocuments[id].modTime = nil
-                wx.wxMessageBox(fullname.." is no longer on the disk.",
-                                "wxLua Message",
-                                wx.wxOK + wx.wxCENTRE, frame)
-            elseif modTime:IsValid() and oldModTime:IsEarlierThan(modTime) then
-                local ret = wx.wxMessageBox(fullname.." has been modified on disk.\nDo you want to reload it?",
-                                            "wxLua Message",
-                                            wx.wxYES_NO + wx.wxCENTRE, frame)
-                if ret ~= wx.wxYES or filer:LoadFile(fullpath, editor, true) then
-                    openDocuments[id].modTime = nil
-                end
-            end
-        end
-    end
-end
-
 -- Set if the document is modified and update the notebook page text
 function SetDocumentModified(id, modified)
     local pageText = openDocuments[id].fullname or "untitled.tex"
