@@ -20,7 +20,7 @@ finder = {
 }
 
 local function EnsureRangeVisible(posStart, posEnd)
-    local editor = GetEditor()
+    local editor = notebook:GetEditor()
     if posStart > posEnd then
         posStart, posEnd = posEnd, posStart
     end
@@ -65,7 +65,7 @@ function finder:HasText()
 end
 
 function finder:GetSelectedString()
-    local editor = GetEditor()
+    local editor = notebook:GetEditor()
     if editor then
         local startSel = editor:GetSelectionStart()
         local endSel   = editor:GetSelectionEnd()
@@ -78,7 +78,7 @@ end
 
 function finder:FindString(reverse)
     if finder:HasText() then
-        local editor = GetEditor()
+        local editor = notebook:GetEditor()
         local fDown = iff(reverse, not finder.fDown, finder.fDown)
         local lenFind = string.len(finder.findText)
         SetSearchFlags(editor)
@@ -105,7 +105,7 @@ end
 local function ReplaceString(fReplaceAll)
     if finder:HasText() then
         local replaceLen = string.len(finder.replaceText)
-        local editor = GetEditor()
+        local editor = notebook:GetEditor()
         local findLen = string.len(finder.findText)
         local endTarget  = SetTarget(editor, finder.fDown, fReplaceAll)
         if fReplaceAll then

@@ -40,7 +40,6 @@ local char_Sp  = string.byte(" ")
 -- wxWindow variables
 frame            = nil    -- wxFrame the main top level window
 splitter         = nil    -- wxSplitterWindow for the notebook and console
-notebook         = nil    -- wxNotebook of editors
 
 in_evt_focus     = false  -- true when in editor focus event to avoid recursion
 openDocuments    = {}     -- open notebook editor documents[winId] = {
@@ -87,54 +86,10 @@ splitter = wx.wxSplitterWindow(frame, wx.wxID_ANY,
                                wx.wxDefaultPosition, wx.wxDefaultSize,
                                wx.wxSP_3DSASH)
 
-notebook = wx.wxNotebook(splitter, wx.wxID_ANY,
-                         wx.wxDefaultPosition, wx.wxDefaultSize,
-                         wx.wxCLIP_CHILDREN)
-
-notebookFileDropTarget = wx.wxLuaFileDropTarget();
-notebookFileDropTarget.OnDropFiles = function(self, x, y, filenames)
-                                        for i = 1, #filenames do
-                                            filer:LoadFile(filenames[i], nil, true)
-                                        end
-                                        return true
-                                     end
-notebook:SetDropTarget(notebookFileDropTarget)
-
-notebook:Connect(wx.wxEVT_COMMAND_NOTEBOOK_PAGE_CHANGED,
-        function (event)
-            if not exitingProgram then
-                SetEditorSelection(event:GetSelection())
-            end
-            event:Skip() -- skip to let page change
-        end)
-
+dofile(source .. sep .. "editor" .. sep .. "notebook.lua")
 dofile(source .. sep .. "editor" .. sep .. "console.lua")
 
 splitter:Initialize(notebook) -- split later to show console
-
--- ----------------------------------------------------------------------------
--- Get/Set notebook editor page, use nil for current page, returns nil if none
-function GetEditor(selection)
-    local editor = nil
-    if selection == nil then
-        selection = notebook:GetSelection()
-    end
-    if (selection >= 0) and (selection < notebook:GetPageCount()) then
-        editor = notebook:GetPage(selection):DynamicCast("wxStyledTextCtrl")
-    end
-    return editor
-end
-
--- init new notebook page selection, use nil for current page
-function SetEditorSelection(selection)
-    local editor = GetEditor(selection)
-    if editor then
-        editor:SetFocus()
-        editor:SetSTCFocus(true)
-        filer:IsFileAlteredOnDisk(editor)
-    end
-    statusbar:UpdateStatusText(editor) -- update even if nil
-end
 
 -- ----------------------------------------------------------------------------
 -- Set if the document is modified and update the notebook page text

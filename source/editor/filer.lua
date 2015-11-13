@@ -181,38 +181,6 @@ function filer:SaveAll()
     end
 end
 
-function filer:RemovePage(index)
-    local  prevIndex = nil
-    local  nextIndex = nil
-    local newOpenDocuments = {}
-
-    for id, document in pairs(openDocuments) do
-        if document.index < index then
-            newOpenDocuments[id] = document
-            prevIndex = document.index
-        elseif document.index == index then
-            document.editor:Destroy()
-        elseif document.index > index then
-            document.index = document.index - 1
-            if nextIndex == nil then
-                nextIndex = document.index
-            end
-            newOpenDocuments[id] = document
-        end
-    end
-
-    notebook:RemovePage(index)
-    openDocuments = newOpenDocuments
-
-    if nextIndex then
-        notebook:SetSelection(nextIndex)
-    elseif prevIndex then
-        notebook:SetSelection(prevIndex)
-    end
-
-    SetEditorSelection(nil) -- will use notebook GetSelection to update
-end
-
 -- Get file modification time, returns a wxDateTime (check IsValid) or nil if
 --   the file doesn't exist
 function filer:GetFileModTime(fullpath)

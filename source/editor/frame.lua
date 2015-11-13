@@ -75,7 +75,7 @@ frame:Connect(ID.OPEN, wx.wxEVT_COMMAND_MENU_SELECTED,
 
 frame:Connect(ID.SAVE, wx.wxEVT_COMMAND_MENU_SELECTED,
         function (event)
-            local editor   = GetEditor()
+            local editor   = notebook:GetEditor()
             local id       = editor:GetId()
             local fullpath = openDocuments[id].fullpath
             filer:SaveFile(editor, fullpath)
@@ -83,7 +83,7 @@ frame:Connect(ID.SAVE, wx.wxEVT_COMMAND_MENU_SELECTED,
 
 frame:Connect(ID.SAVE, wx.wxEVT_UPDATE_UI,
         function (event)
-            local editor = GetEditor()
+            local editor = notebook:GetEditor()
             if editor then
                 local id = editor:GetId()
                 if openDocuments[id] then
@@ -94,13 +94,13 @@ frame:Connect(ID.SAVE, wx.wxEVT_UPDATE_UI,
 
 frame:Connect(ID.SAVEAS, wx.wxEVT_COMMAND_MENU_SELECTED,
         function (event)
-            local editor = GetEditor()
+            local editor = notebook:GetEditor()
             filer:SaveFileAs(editor)
         end)
 
 frame:Connect(ID.SAVEAS, wx.wxEVT_UPDATE_UI,
         function (event)
-            local editor = GetEditor()
+            local editor = notebook:GetEditor()
             event:Enable(editor ~= nil)
         end)
 
@@ -123,21 +123,21 @@ frame:Connect(ID.SAVEALL, wx.wxEVT_UPDATE_UI,
 
 frame:Connect(ID.CLOSE, wx.wxEVT_COMMAND_MENU_SELECTED,
         function (event)
-            local editor = GetEditor()
+            local editor = notebook:GetEditor()
             local id     = editor:GetId()
             if filer:SaveModifiedDialog(editor, true) ~= wx.wxID_CANCEL then
-                filer:RemovePage(openDocuments[id].index)
+                notebook:RemoveEditor(openDocuments[id].index)
             end
         end)
 
 frame:Connect(ID.CLOSE, wx.wxEVT_UPDATE_UI,
         function (event)
-            event:Enable(GetEditor() ~= nil)
+            event:Enable(notebook:GetEditor() ~= nil)
         end)
 
 frame:Connect(ID.PRINT, wx.wxEVT_COMMAND_MENU_SELECTED,
     function (event)
-        local editor = GetEditor()
+        local editor = notebook:GetEditor()
         -- The default size is too large, this gets ~80 rows for a 12 pt font
         editor:SetPrintMagnification(-2)
         printing:Print()
@@ -145,7 +145,7 @@ frame:Connect(ID.PRINT, wx.wxEVT_COMMAND_MENU_SELECTED,
 
 frame:Connect(ID.PRINT_PREVIEW, wx.wxEVT_COMMAND_MENU_SELECTED,
     function (event)
-        local editor = GetEditor()
+        local editor = notebook:GetEditor()
         -- The default size is too large, this gets ~80 rows for a 12 pt font
         editor:SetPrintMagnification(-2)
         printing:PrintPreview()
@@ -166,13 +166,13 @@ frame:Connect(ID.EXIT, wx.wxEVT_COMMAND_MENU_SELECTED,
 -- Attach callback functions to Edit menu
 
 function OnUpdateUIEditMenu(event) -- enable if there is a valid focused editor
-    local editor = GetEditor()
+    local editor = notebook:GetEditor()
     event:Enable(editor ~= nil)
 end
 
 local function OnEditMenu(event)
     local menu_id = event:GetId()
-    local editor = GetEditor()
+    local editor = notebook:GetEditor()
     if editor == nil then return end
 
     if     menu_id == ID.CUT       then editor:Cut()
@@ -196,7 +196,7 @@ frame:Connect(ID.PASTE, wx.wxEVT_COMMAND_MENU_SELECTED, OnEditMenu)
 
 frame:Connect(ID.PASTE, wx.wxEVT_UPDATE_UI,
         function (event)
-            local editor = GetEditor()
+            local editor = notebook:GetEditor()
             -- buggy GTK clipboard runs eventloop and can generate asserts
             event:Enable(editor and (wx.__WXGTK__ or editor:CanPaste()))
         end)
@@ -209,7 +209,7 @@ frame:Connect(ID.UNDO, wx.wxEVT_COMMAND_MENU_SELECTED, OnEditMenu)
 
 frame:Connect(ID.UNDO, wx.wxEVT_UPDATE_UI,
         function (event)
-            local editor = GetEditor()
+            local editor = notebook:GetEditor()
             event:Enable(editor and editor:CanUndo())
         end)
 
@@ -217,13 +217,13 @@ frame:Connect(ID.REDO, wx.wxEVT_COMMAND_MENU_SELECTED, OnEditMenu)
 
 frame:Connect(ID.REDO, wx.wxEVT_UPDATE_UI,
         function (event)
-            local editor = GetEditor()
+            local editor = notebook:GetEditor()
             event:Enable(editor and editor:CanRedo())
         end)
 
 frame:Connect(ID.AUTOCOMPLETE, wx.wxEVT_COMMAND_MENU_SELECTED,
         function (event)
-            local editor = GetEditor()
+            local editor = notebook:GetEditor()
             if editor then editor:CheckAutoCompletion() end
         end)
 
@@ -236,7 +236,7 @@ frame:Connect(ID.AUTOCOMPLETE_ENABLE, wx.wxEVT_COMMAND_MENU_SELECTED,
 
 frame:Connect(ID.COMMENT, wx.wxEVT_COMMAND_MENU_SELECTED,
         function (event)
-            local editor = GetEditor()
+            local editor = notebook:GetEditor()
             editor:SwitchComment()
         end)
 
@@ -244,7 +244,7 @@ frame:Connect(ID.COMMENT, wx.wxEVT_UPDATE_UI, OnUpdateUIEditMenu)
 
 frame:Connect(ID.FOLD, wx.wxEVT_COMMAND_MENU_SELECTED,
         function (event)
-            local editor = GetEditor()
+            local editor = notebook:GetEditor()
             editor:SwitchFold()
         end)
 
@@ -291,7 +291,7 @@ frame:Connect(ID.FINDPREV, wx.wxEVT_UPDATE_UI,
 
 frame:Connect(ID.GOTOLINE, wx.wxEVT_COMMAND_MENU_SELECTED,
         function (event)
-            local editor = GetEditor()
+            local editor = notebook:GetEditor()
             local linecur = editor:LineFromPosition(editor:GetCurrentPos())
             local linemax = editor:LineFromPosition(editor:GetLength()) + 1
             local linenum = wx.wxGetNumberFromUser( "Enter line number",
@@ -308,7 +308,7 @@ frame:Connect(ID.GOTOLINE, wx.wxEVT_UPDATE_UI, OnUpdateUIEditMenu)
 
 frame:Connect(ID.SORT, wx.wxEVT_COMMAND_MENU_SELECTED,
         function (event)
-            local editor = GetEditor()
+            local editor = notebook:GetEditor()
             local buf = {}
             for line in string.gmatch(editor:GetSelectedText()..'\n', "(.-)\r?\n") do
                 table.insert(buf, line)
@@ -326,25 +326,25 @@ frame:Connect(ID.SORT, wx.wxEVT_UPDATE_UI, OnUpdateUIEditMenu)
 
 frame:Connect(ID.COMPILE, wx.wxEVT_COMMAND_MENU_SELECTED,
         function (event)
-            local editor = GetEditor();
+            local editor = notebook:GetEditor();
             tool:Compile(editor)
         end)
 
 frame:Connect(ID.COMPILE, wx.wxEVT_UPDATE_UI,
         function (event)
-            local editor = GetEditor()
+            local editor = notebook:GetEditor()
             event:Enable(editor ~= nil)
         end)
 
 frame:Connect(ID.PREVIEW, wx.wxEVT_COMMAND_MENU_SELECTED,
         function (event)
-            local editor = GetEditor();
+            local editor = notebook:GetEditor();
             tool:Preview(editor)
         end)
 
 frame:Connect(ID.PREVIEW, wx.wxEVT_UPDATE_UI,
         function (event)
-            local editor = GetEditor()
+            local editor = notebook:GetEditor()
             event:Enable(editor ~= nil)
         end)
 

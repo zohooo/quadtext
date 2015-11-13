@@ -88,7 +88,7 @@ local function GotoEditor()
     local s = string.match(line, pattern)
     if s then
         local n = tonumber(s)
-        local editor = GetEditor()
+        local editor = notebook:GetEditor()
         editor:GotoLine(n-1)
         editor:EnsureVisibleEnforcePolicy(n-1)
         editor:SetFocus()

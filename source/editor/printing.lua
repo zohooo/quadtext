@@ -62,7 +62,7 @@ function printing:ConnectPrintEvents(printOut)
 
     function printOut:OnPrintPage(pageNum)
         local dc = self:GetDC()
-        local editor = GetEditor()
+        local editor = notebook:GetEditor()
 
         local printRect, pageRect = printing.PrintScaling(dc, printOut)
 
