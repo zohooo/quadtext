@@ -121,7 +121,7 @@ splitter:Initialize(notebook) -- split later to show console
 -- wxConfig load/save preferences functions
 
 function ConfigRestoreFramePosition(window, windowName)
-    local config = GetConfig()
+    local config = app:GetConfig()
     if not config then return end
 
     config:SetPath("/"..windowName)
@@ -151,7 +151,7 @@ function ConfigRestoreFramePosition(window, windowName)
 end
 
 function ConfigSaveFramePosition(window, windowName)
-    local config = GetConfig()
+    local config = app:GetConfig()
     if not config then return end
 
     config:SetPath("/"..windowName)
@@ -375,7 +375,7 @@ end
 local singletonTimer = wx.wxTimer(frame, ID.TIMER_SINGLETON)
 
 local function LoadSingletonFile()
-    local config = GetConfig()
+    local config = app:GetConfig()
     if not config then return end
     config:SetPath("/SingleInstance")
     local _, name = config:Read("name","")

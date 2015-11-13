@@ -2,7 +2,7 @@
 local P = { name = "remember-files" }
 
 P.onLoad = function()
-    local config = GetConfig()
+    local config = app:GetConfig()
     if not config then return end
     config:SetPath("/RememberFiles")
     local status, key, idx = config:GetFirstEntry("", 0)
@@ -18,7 +18,7 @@ P.onLoad = function()
 end
 
 P.onClose = function()
-    local config = GetConfig()
+    local config = app:GetConfig()
     if not config then return end
     for id, doc in pairs(openDocuments) do
         config:SetPath("/RememberFiles")

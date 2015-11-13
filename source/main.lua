@@ -84,7 +84,7 @@ end
 -- ----------------------------------------------------------------------------
 -- Initialize the wxConfig for loading/saving the preferences
 
-function GetConfig()
+function app:GetConfig()
     local config = wx.wxFileConfig("QuadText")
     if config then
         config:SetRecordDefaults()
@@ -100,7 +100,7 @@ end
 local singleton = wx.wxSingleInstanceChecker()
 
 if singleton:Create(".QuadText-Lock") and singleton:IsAnotherRunning() then
-    config = GetConfig()
+    config = app:GetConfig()
     config:DeleteGroup("/SingleInstance")
     config:SetPath("/SingleInstance")
     local openfile = app.openFiles[1]
