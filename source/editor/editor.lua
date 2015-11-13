@@ -5,6 +5,12 @@ local myEditor = {}
 -- window id to create editor pages with, incremented for new editors
 local editorID = 100
 
+-- ASCII values for common chars
+local char_CR  = string.byte("\r")
+local char_LF  = string.byte("\n")
+local char_Tab = string.byte("\t")
+local char_Sp  = string.byte(" ")
+
 -- true when in editor focus event to avoid recursion
 local in_evt_focus = false
 

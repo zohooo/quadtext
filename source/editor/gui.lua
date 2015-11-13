@@ -26,12 +26,6 @@ end
 
 dofile(source .. sep .. "editor" .. sep .. "id.lua")
 
--- ASCII values for common chars
-local char_CR  = string.byte("\r")
-local char_LF  = string.byte("\n")
-local char_Tab = string.byte("\t")
-local char_Sp  = string.byte(" ")
-
 openDocuments    = {}     -- open notebook editor documents[winId] = {
                           --   editor     = wxStyledTextCtrl,
                           --   index      = wxNotebook page index,
