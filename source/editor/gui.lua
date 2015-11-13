@@ -118,67 +118,6 @@ dofile(source .. sep .. "editor" .. sep .. "console.lua")
 splitter:Initialize(notebook) -- split later to show console
 
 -- ----------------------------------------------------------------------------
--- wxConfig load/save preferences functions
-
-function ConfigRestoreFramePosition(window, windowName)
-    local config = app:GetConfig()
-    if not config then return end
-
-    config:SetPath("/"..windowName)
-
-    local _, s = config:Read("s", -1)
-    local _, x = config:Read("x", 0)
-    local _, y = config:Read("y", 0)
-    local _, w = config:Read("w", 0)
-    local _, h = config:Read("h", 0)
-
-    if (s ~= -1) and (s ~= 1) and (s ~= 2) then
-        local clientX, clientY, clientWidth, clientHeight
-        clientX, clientY, clientWidth, clientHeight = wx.wxClientDisplayRect()
-
-        if x < clientX then x = clientX end
-        if y < clientY then y = clientY end
-
-        if w > clientWidth  then w = clientWidth end
-        if h > clientHeight then h = clientHeight end
-
-        window:SetSize(x, y, w, h)
-    elseif s == 1 then
-        window:Maximize(true)
-    end
-
-    config:delete() -- always delete the config
-end
-
-function ConfigSaveFramePosition(window, windowName)
-    local config = app:GetConfig()
-    if not config then return end
-
-    config:SetPath("/"..windowName)
-
-    local s    = 0
-    local w, h = window:GetSizeWH()
-    local x, y = window:GetPositionXY()
-
-    if window:IsMaximized() then
-        s = 1
-    elseif window:IsIconized() then
-        s = 2
-    end
-
-    config:Write("s", s)
-
-    if s == 0 then
-        config:Write("x", x)
-        config:Write("y", y)
-        config:Write("w", w)
-        config:Write("h", h)
-    end
-
-    config:delete() -- always delete the config
-end
-
--- ----------------------------------------------------------------------------
 -- Get/Set notebook editor page, use nil for current page, returns nil if none
 function GetEditor(selection)
     local editor = nil
@@ -342,7 +281,7 @@ function CloseWindow(event)
 
     RunPlugins("onClose")
 
-    ConfigSaveFramePosition(frame, "MainFrame")
+    frame:ConfigSaveFramePosition(frame, "MainFrame")
     event:Skip()
 end
 frame:Connect(wx.wxEVT_CLOSE_WINDOW, CloseWindow)
@@ -350,7 +289,7 @@ frame:Connect(wx.wxEVT_CLOSE_WINDOW, CloseWindow)
 -- ---------------------------------------------------------------------------
 -- Finish creating the frame and show it
 
-ConfigRestoreFramePosition(frame, "MainFrame")
+frame:ConfigRestoreFramePosition(frame, "MainFrame")
 
 RunPlugins("onLoad")
 
