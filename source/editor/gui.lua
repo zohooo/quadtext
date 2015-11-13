@@ -316,7 +316,7 @@ function UpdateUIMenuItems()
     end
 end
 
-dofile(source .. sep .. "editor" .. sep .. "menu.lua")
+dofile(source .. sep .. "editor" .. sep .. "menubar.lua")
 dofile(source .. sep .. "editor" .. sep .. "encoding.lua")
 dofile(source .. sep .. "editor" .. sep .. "filer.lua")
 dofile(source .. sep .. "editor" .. sep .. "printing.lua")
@@ -325,7 +325,6 @@ dofile(source .. sep .. "editor" .. sep .. "tool.lua")
 dofile(source .. sep .. "editor" .. sep .. "option.lua")
 dofile(source .. sep .. "editor" .. sep .. "help.lua")
 dofile(source .. sep .. "editor" .. sep .. "lexer.lua")
-
 dofile(source .. sep .. "editor" .. sep .. "frame.lua")
 
 -- ---------------------------------------------------------------------------
