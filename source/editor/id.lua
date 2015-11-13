@@ -1,12 +1,12 @@
 
 -- Generate a unique new wxWindowID
 local COUNTER = wx.wxID_HIGHEST + 1
-function NewID()
+local function NewID()
     COUNTER = COUNTER + 1
     return COUNTER
 end
 
-ID = {}
+ID = { NewID = NewID }
 
 -- File menu
 ID.NEW                 = wx.wxID_NEW
