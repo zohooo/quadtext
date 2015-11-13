@@ -317,6 +317,7 @@ function UpdateUIMenuItems()
 end
 
 dofile(source .. sep .. "editor" .. sep .. "menubar.lua")
+dofile(source .. sep .. "editor" .. sep .. "toolbar.lua")
 dofile(source .. sep .. "editor" .. sep .. "encoding.lua")
 dofile(source .. sep .. "editor" .. sep .. "filer.lua")
 dofile(source .. sep .. "editor" .. sep .. "printing.lua")
@@ -348,9 +349,6 @@ frame:Connect(wx.wxEVT_CLOSE_WINDOW, CloseWindow)
 
 -- ---------------------------------------------------------------------------
 -- Finish creating the frame and show it
-
-frame:SetMenuBar(menubar)
-dofile(source .. sep .. "editor" .. sep .. "toolbar.lua")
 
 ConfigRestoreFramePosition(frame, "MainFrame")
 

@@ -86,3 +86,8 @@ local helpMenu = wx.wxMenu{
     { ID.HELP_SUPPORT, "&Support", "Open Project Wiki" },
 }
 menubar:Append(helpMenu, "&Help")
+
+-- ---------------------------------------------------------------------------
+-- Add menubar to main frame
+
+frame:SetMenuBar(menubar)
