@@ -1,5 +1,5 @@
 
-findReplace = {
+finder = {
     dialog           = nil,   -- the wxDialog for find/replace
     replace          = false, -- is it a find or replace dialog
     fWholeWord       = false, -- match whole words
@@ -19,7 +19,7 @@ findReplace = {
     -- Show(replace)             create the dialog
 }
 
-function EnsureRangeVisible(posStart, posEnd)
+local function EnsureRangeVisible(posStart, posEnd)
     local editor = GetEditor()
     if posStart > posEnd then
         posStart, posEnd = posEnd, posStart
@@ -34,15 +34,15 @@ end
 
 -------------------- Find replace dialog
 
-function SetSearchFlags(editor)
+local function SetSearchFlags(editor)
     local flags = 0
-    if findReplace.fWholeWord   then flags = wxstc.wxSTC_FIND_WHOLEWORD end
-    if findReplace.fMatchCase   then flags = flags + wxstc.wxSTC_FIND_MATCHCASE end
-    if findReplace.fRegularExpr then flags = flags + wxstc.wxSTC_FIND_REGEXP end
+    if finder.fWholeWord   then flags = wxstc.wxSTC_FIND_WHOLEWORD end
+    if finder.fMatchCase   then flags = flags + wxstc.wxSTC_FIND_MATCHCASE end
+    if finder.fRegularExpr then flags = flags + wxstc.wxSTC_FIND_REGEXP end
     editor:SetSearchFlags(flags)
 end
 
-function SetTarget(editor, fDown, fInclude)
+local function SetTarget(editor, fDown, fInclude)
     local selStart = editor:GetSelectionStart()
     local selEnd =  editor:GetSelectionEnd()
     local len = editor:GetLength()
@@ -60,40 +60,40 @@ function SetTarget(editor, fDown, fInclude)
     return e
 end
 
-function findReplace:HasText()
-    return (findReplace.findText ~= nil) and (string.len(findReplace.findText) > 0)
+function finder:HasText()
+    return (finder.findText ~= nil) and (string.len(finder.findText) > 0)
 end
 
-function findReplace:GetSelectedString()
+function finder:GetSelectedString()
     local editor = GetEditor()
     if editor then
         local startSel = editor:GetSelectionStart()
         local endSel   = editor:GetSelectionEnd()
         if (startSel ~= endSel) and (editor:LineFromPosition(startSel) == editor:LineFromPosition(endSel)) then
-            findReplace.findText = editor:GetSelectedText()
-            findReplace.foundString = true
+            finder.findText = editor:GetSelectedText()
+            finder.foundString = true
         end
     end
 end
 
-function findReplace:FindString(reverse)
-    if findReplace:HasText() then
+function finder:FindString(reverse)
+    if finder:HasText() then
         local editor = GetEditor()
-        local fDown = iff(reverse, not findReplace.fDown, findReplace.fDown)
-        local lenFind = string.len(findReplace.findText)
+        local fDown = iff(reverse, not finder.fDown, finder.fDown)
+        local lenFind = string.len(finder.findText)
         SetSearchFlags(editor)
         SetTarget(editor, fDown)
-        local posFind = editor:SearchInTarget(findReplace.findText)
-        if (posFind == -1) and findReplace.fWrap then
+        local posFind = editor:SearchInTarget(finder.findText)
+        if (posFind == -1) and finder.fWrap then
             editor:SetTargetStart(iff(fDown, 0, editor:GetLength()))
             editor:SetTargetEnd(iff(fDown, editor:GetLength(), 0))
-            posFind = editor:SearchInTarget(findReplace.findText)
+            posFind = editor:SearchInTarget(finder.findText)
         end
         if posFind == -1 then
-            findReplace.foundString = false
+            finder.foundString = false
             frame:SetStatusText("Find text not found.")
         else
-            findReplace.foundString = true
+            finder.foundString = true
             local start  = editor:GetTargetStart()
             local finish = editor:GetTargetEnd()
             EnsureRangeVisible(start, finish)
@@ -102,43 +102,43 @@ function findReplace:FindString(reverse)
     end
 end
 
-function ReplaceString(fReplaceAll)
-    if findReplace:HasText() then
-        local replaceLen = string.len(findReplace.replaceText)
+local function ReplaceString(fReplaceAll)
+    if finder:HasText() then
+        local replaceLen = string.len(finder.replaceText)
         local editor = GetEditor()
-        local findLen = string.len(findReplace.findText)
-        local endTarget  = SetTarget(editor, findReplace.fDown, fReplaceAll)
+        local findLen = string.len(finder.findText)
+        local endTarget  = SetTarget(editor, finder.fDown, fReplaceAll)
         if fReplaceAll then
             SetSearchFlags(editor)
-            local posFind = editor:SearchInTarget(findReplace.findText)
+            local posFind = editor:SearchInTarget(finder.findText)
             if (posFind ~= -1)  then
                 editor:BeginUndoAction()
                 while posFind ~= -1 do
-                    editor:ReplaceTarget(findReplace.replaceText)
+                    editor:ReplaceTarget(finder.replaceText)
                     editor:SetTargetStart(posFind + replaceLen)
                     endTarget = endTarget + replaceLen - findLen
                     editor:SetTargetEnd(endTarget)
-                    posFind = editor:SearchInTarget(findReplace.findText)
+                    posFind = editor:SearchInTarget(finder.findText)
                 end
                 editor:EndUndoAction()
             end
         else
-            if findReplace.foundString then
+            if finder.foundString then
                 local start  = editor:GetSelectionStart()
-                editor:ReplaceSelection(findReplace.replaceText)
+                editor:ReplaceSelection(finder.replaceText)
                 editor:SetSelection(start, start + replaceLen)
-                findReplace.foundString = false
+                finder.foundString = false
             end
-            findReplace:FindString()
+            finder:FindString()
         end
     end
 end
 
-function CreateFindReplaceDialog(replace)
+local function CreateFindReplaceDialog(replace)
     local ID_FIND_NEXT   = 1
     local ID_REPLACE     = 2
     local ID_REPLACE_ALL = 3
-    findReplace.replace  = replace
+    finder.replace  = replace
 
     local findDialog = wx.wxDialog(frame, wx.wxID_ANY, "Find",  wx.wxDefaultPosition, wx.wxDefaultSize)
 
@@ -162,13 +162,13 @@ function CreateFindReplaceDialog(replace)
 
     -- Create find/replace text entry sizer
     local findStatText  = wx.wxStaticText( findDialog, wx.wxID_ANY, "Find: ")
-    local findTextCombo = wx.wxComboBox(findDialog, wx.wxID_ANY, findReplace.findText,  wx.wxDefaultPosition, wx.wxDefaultSize, findReplace.findTextArray, wx.wxCB_DROPDOWN)
+    local findTextCombo = wx.wxComboBox(findDialog, wx.wxID_ANY, finder.findText,  wx.wxDefaultPosition, wx.wxDefaultSize, finder.findTextArray, wx.wxCB_DROPDOWN)
     findTextCombo:SetFocus()
 
     local replaceStatText, replaceTextCombo
     if (replace) then
         replaceStatText  = wx.wxStaticText( findDialog, wx.wxID_ANY, "Replace: ")
-        replaceTextCombo = wx.wxComboBox(findDialog, wx.wxID_ANY, findReplace.replaceText,  wx.wxDefaultPosition, wx.wxDefaultSize,  findReplace.replaceTextArray)
+        replaceTextCombo = wx.wxComboBox(findDialog, wx.wxID_ANY, finder.replaceText,  wx.wxDefaultPosition, wx.wxDefaultSize,  finder.replaceTextArray)
     end
 
     local findReplaceSizer = wx.wxFlexGridSizer(2, 2, 0, 0)
@@ -190,10 +190,10 @@ function CreateFindReplaceDialog(replace)
     local matchCaseCheckBox  = wx.wxCheckBox(findDialog, wx.wxID_ANY, "Match &case")
     local wrapAroundCheckBox = wx.wxCheckBox(findDialog, wx.wxID_ANY, "Wrap ar&ound")
     local regexCheckBox      = wx.wxCheckBox(findDialog, wx.wxID_ANY, "Regular &expression")
-    wholeWordCheckBox:SetValue(findReplace.fWholeWord)
-    matchCaseCheckBox:SetValue(findReplace.fMatchCase)
-    wrapAroundCheckBox:SetValue(findReplace.fWrap)
-    regexCheckBox:SetValue(findReplace.fRegularExpr)
+    wholeWordCheckBox:SetValue(finder.fWholeWord)
+    matchCaseCheckBox:SetValue(finder.fMatchCase)
+    wrapAroundCheckBox:SetValue(finder.fWrap)
+    regexCheckBox:SetValue(finder.fRegularExpr)
 
     optionSizer:Add(wholeWordCheckBox,  0, wx.wxALL + wx.wxGROW + wx.wxCENTER, 3)
     optionSizer:Add(matchCaseCheckBox,  0, wx.wxALL + wx.wxGROW + wx.wxCENTER, 3)
@@ -203,7 +203,7 @@ function CreateFindReplaceDialog(replace)
 
     -- Create scope radiobox
     local scopeRadioBox = wx.wxRadioBox(findDialog, wx.wxID_ANY, "Scope", wx.wxDefaultPosition, wx.wxDefaultSize,  {"&Up", "&Down"}, 1, wx.wxRA_SPECIFY_COLS)
-    scopeRadioBox:SetSelection(iff(findReplace.fDown, 1, 0))
+    scopeRadioBox:SetSelection(iff(finder.fDown, 1, 0))
     local scopeSizer = wx.wxBoxSizer(wx.wxVERTICAL, findDialog );
     scopeSizer:Add(scopeRadioBox, 0, 0, 0)
 
@@ -235,16 +235,16 @@ function CreateFindReplaceDialog(replace)
     end
 
     local function TransferDataFromWindow()
-        findReplace.fWholeWord   = wholeWordCheckBox:GetValue()
-        findReplace.fMatchCase   = matchCaseCheckBox:GetValue()
-        findReplace.fWrap        = wrapAroundCheckBox:GetValue()
-        findReplace.fDown        = scopeRadioBox:GetSelection() == 1
-        findReplace.fRegularExpr = regexCheckBox:GetValue()
-        findReplace.findText     = findTextCombo:GetValue()
-        PrependToArray(findReplace.findTextArray, findReplace.findText)
-        if findReplace.replace then
-            findReplace.replaceText = replaceTextCombo:GetValue()
-            PrependToArray(findReplace.replaceTextArray, findReplace.replaceText)
+        finder.fWholeWord   = wholeWordCheckBox:GetValue()
+        finder.fMatchCase   = matchCaseCheckBox:GetValue()
+        finder.fWrap        = wrapAroundCheckBox:GetValue()
+        finder.fDown        = scopeRadioBox:GetSelection() == 1
+        finder.fRegularExpr = regexCheckBox:GetValue()
+        finder.findText     = findTextCombo:GetValue()
+        PrependToArray(finder.findTextArray, finder.findText)
+        if finder.replace then
+            finder.replaceText = replaceTextCombo:GetValue()
+            PrependToArray(finder.replaceTextArray, finder.replaceText)
         end
         return true
     end
@@ -252,19 +252,19 @@ function CreateFindReplaceDialog(replace)
     findDialog:Connect(ID_FIND_NEXT, wx.wxEVT_COMMAND_BUTTON_CLICKED,
         function(event)
             TransferDataFromWindow()
-            findReplace:FindString()
+            finder:FindString()
         end)
 
     findDialog:Connect(ID_REPLACE, wx.wxEVT_COMMAND_BUTTON_CLICKED,
         function(event)
             TransferDataFromWindow()
             event:Skip()
-            if findReplace.replace then
+            if finder.replace then
                 ReplaceString()
             else
-                findReplace.dialog:Destroy()
-                findReplace.dialog = CreateFindReplaceDialog(true)
-                findReplace.dialog:Show(true)
+                finder.dialog:Destroy()
+                finder.dialog = CreateFindReplaceDialog(true)
+                finder.dialog:Show(true)
             end
         end)
 
@@ -288,7 +288,7 @@ function CreateFindReplaceDialog(replace)
     return findDialog
 end
 
-function findReplace:Show(replace)
+function finder:Show(replace)
     self.dialog = nil
     self.dialog = CreateFindReplaceDialog(replace)
     self.dialog:Show(true)

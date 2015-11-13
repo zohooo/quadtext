@@ -194,27 +194,39 @@ frame:Connect(ID.FOLD, wx.wxEVT_UPDATE_UI, OnUpdateUIEditMenu)
 
 frame:Connect(ID.FIND, wx.wxEVT_COMMAND_MENU_SELECTED,
         function (event)
-            findReplace:GetSelectedString()
-            findReplace:Show(false)
+            finder:GetSelectedString()
+            finder:Show(false)
         end)
 
 frame:Connect(ID.FIND, wx.wxEVT_UPDATE_UI, OnUpdateUIEditMenu)
 
 frame:Connect(ID.REPLACE, wx.wxEVT_COMMAND_MENU_SELECTED,
         function (event)
-            findReplace:GetSelectedString()
-            findReplace:Show(true)
+            finder:GetSelectedString()
+            finder:Show(true)
         end)
 
 frame:Connect(ID.REPLACE, wx.wxEVT_UPDATE_UI, OnUpdateUIEditMenu)
 
-frame:Connect(ID.FINDNEXT, wx.wxEVT_COMMAND_MENU_SELECTED, function (event) findReplace:FindString() end)
+frame:Connect(ID.FINDNEXT, wx.wxEVT_COMMAND_MENU_SELECTED,
+        function (event)
+            finder:FindString()
+        end)
 
-frame:Connect(ID.FINDNEXT, wx.wxEVT_UPDATE_UI, function (event) findReplace:HasText() end)
+frame:Connect(ID.FINDNEXT, wx.wxEVT_UPDATE_UI,
+        function (event)
+            finder:HasText()
+        end)
 
-frame:Connect(ID.FINDPREV, wx.wxEVT_COMMAND_MENU_SELECTED, function (event) findReplace:FindString(true) end)
+frame:Connect(ID.FINDPREV, wx.wxEVT_COMMAND_MENU_SELECTED,
+        function (event)
+            finder:FindString(true)
+        end)
 
-frame:Connect(ID.FINDPREV, wx.wxEVT_UPDATE_UI, function (event) findReplace:HasText() end)
+frame:Connect(ID.FINDPREV, wx.wxEVT_UPDATE_UI,
+        function (event)
+            finder:HasText()
+        end)
 
 frame:Connect(ID.GOTOLINE, wx.wxEVT_COMMAND_MENU_SELECTED,
         function (event)
