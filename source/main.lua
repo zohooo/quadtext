@@ -39,6 +39,8 @@ end
 local _, path = wx.wxGetEnv("PATH")
 wx.wxSetEnv("PATH", mainpath .. sep .. "viewer;" .. path)
 
+app.autoCompleteEnable = true
+
 app.setting = {
     editor = {},
     command = {},
@@ -149,7 +151,7 @@ local function LoadPlugins(path)
     end
 end
 
-function RunPlugins(event)
+function app:RunPlugins(event)
     for _, p in pairs(app.plugin) do
         if type(p[event]) == 'function' then
             local ok, result = pcall(p[event])

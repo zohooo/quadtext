@@ -1,7 +1,12 @@
 
-local editorID = 100 -- window id to create editor pages with, incremented for new editors
+-- extending the editor class
+local myEditor = {}
 
-local myEditor = {} -- extending the editor class
+-- window id to create editor pages with, incremented for new editors
+local editorID = 100
+
+-- true when in editor focus event to avoid recursion
+local in_evt_focus = false
 
 -- Markers for editor marker margin
 local CURRENT_LINE_MARKER = 2
@@ -218,7 +223,7 @@ function app:CreateEditor(parent, ...)
                             editor:GotoPos(pos + indent)
                         end
                     end
-                elseif autoCompleteEnable then -- code completion prompt
+                elseif app.autoCompleteEnable then -- code completion prompt
                     local commandEvent = wx.wxCommandEvent(wx.wxEVT_COMMAND_MENU_SELECTED,
                                                            ID.AUTOCOMPLETE)
                     wx.wxPostEvent(frame, commandEvent)
@@ -251,7 +256,7 @@ function app:CreateEditor(parent, ...)
     editor:Connect(wx.wxEVT_SET_FOCUS,
             function (event)
                 event:Skip()
-                if in_evt_focus or exitingProgram then return end
+                if in_evt_focus or frame.exitingProgram then return end
                 in_evt_focus = true
                 filer:IsFileAlteredOnDisk(editor)
                 in_evt_focus = false

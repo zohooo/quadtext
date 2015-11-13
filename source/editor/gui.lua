@@ -32,11 +32,6 @@ local char_LF  = string.byte("\n")
 local char_Tab = string.byte("\t")
 local char_Sp  = string.byte(" ")
 
--- wxWindow variables
-frame            = nil    -- wxFrame the main top level window
-splitter         = nil    -- wxSplitterWindow for the notebook and console
-
-in_evt_focus     = false  -- true when in editor focus event to avoid recursion
 openDocuments    = {}     -- open notebook editor documents[winId] = {
                           --   editor     = wxStyledTextCtrl,
                           --   index      = wxNotebook page index,
@@ -47,9 +42,6 @@ openDocuments    = {}     -- open notebook editor documents[winId] = {
                           --   suffix     = filename extension
                           --   modTime    = wxDateTime of disk file or nil,
                           --   isModified = bool is the document modified? }
-ignoredFilesList = {}
-exitingProgram   = false  -- are we currently exiting, ID.EXIT
-autoCompleteEnable = true -- value of ID.AUTOCOMPLETE_ENABLE menu item
 font             = nil    -- fonts to use for the editor
 fontItalic       = nil
 
@@ -82,21 +74,10 @@ splitter = wx.wxSplitterWindow(frame, wx.wxID_ANY,
                                wx.wxSP_3DSASH)
 
 dofile(source .. sep .. "editor" .. sep .. "notebook.lua")
+dofile(source .. sep .. "editor" .. sep .. "editor.lua")
 dofile(source .. sep .. "editor" .. sep .. "console.lua")
 
 splitter:Initialize(notebook) -- split later to show console
-
-dofile(source .. sep .. "editor" .. sep .. "editor.lua")
-
--- ----------------------------------------------------------------------------
--- force all the wxEVT_UPDATE_UI handlers to be called
-function UpdateUIMenuItems()
-    if frame and frame:GetMenuBar() then
-        for n = 0, frame:GetMenuBar():GetMenuCount()-1 do
-            frame:GetMenuBar():GetMenu(n):UpdateUI()
-        end
-    end
-end
 
 dofile(source .. sep .. "editor" .. sep .. "menubar.lua")
 dofile(source .. sep .. "editor" .. sep .. "toolbar.lua")
@@ -111,31 +92,9 @@ dofile(source .. sep .. "editor" .. sep .. "help.lua")
 dofile(source .. sep .. "editor" .. sep .. "lexer.lua")
 dofile(source .. sep .. "editor" .. sep .. "frame.lua")
 
--- ---------------------------------------------------------------------------
--- Attach the handler for closing the frame
-
-function CloseWindow(event)
-    exitingProgram = true -- don't handle focus events
-
-    if not filer:SaveOnExit(event:CanVeto()) then
-        event:Veto()
-        exitingProgram = false
-        return
-    end
-
-    RunPlugins("onClose")
-
-    frame:ConfigSaveFramePosition(frame, "MainFrame")
-    event:Skip()
-end
-frame:Connect(wx.wxEVT_CLOSE_WINDOW, CloseWindow)
-
--- ---------------------------------------------------------------------------
--- Finish creating the frame and show it
-
 frame:ConfigRestoreFramePosition(frame, "MainFrame")
 
-RunPlugins("onLoad")
+app:RunPlugins("onLoad")
 
 -- ---------------------------------------------------------------------------
 -- Load files specified in command line arguments
@@ -179,6 +138,9 @@ end
 frame:Connect(ID.TIMER_SINGLETON, wx.wxEVT_TIMER, LoadSingletonFile)
 
 singletonTimer:Start(250);
+
+-- ---------------------------------------------------------------------------
+-- Finish creating the frame and show it
 
 --frame:SetIcon(wxLuaEditorIcon) --FIXME add this back
 frame:Show(true)

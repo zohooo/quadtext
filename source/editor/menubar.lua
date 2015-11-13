@@ -40,7 +40,7 @@ local editMenu = wx.wxMenu{
         { ID.FOLD,    "&Fold/Unfold all\tF12", "Fold or unfold all code folds"} }
 menubar:Append(editMenu, "&Edit")
 
-editMenu:Check(ID.AUTOCOMPLETE_ENABLE, autoCompleteEnable)
+editMenu:Check(ID.AUTOCOMPLETE_ENABLE, app.autoCompleteEnable)
 
 -- ---------------------------------------------------------------------------
 -- Create the Search menu

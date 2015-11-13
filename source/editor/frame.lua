@@ -1,4 +1,6 @@
 
+frame.exitingProgram = false  -- are we currently exiting
+
 -- ----------------------------------------------------------------------------
 -- wxConfig load/save preferences functions
 
@@ -58,6 +60,33 @@ function frame:ConfigSaveFramePosition(window, windowName)
     end
 
     config:delete() -- always delete the config
+end
+
+-- ----------------------------------------------------------------------------
+-- force all the wxEVT_UPDATE_UI handlers to be called
+function frame:UpdateUIMenuItems()
+    if frame and frame:GetMenuBar() then
+        for n = 0, frame:GetMenuBar():GetMenuCount()-1 do
+            frame:GetMenuBar():GetMenu(n):UpdateUI()
+        end
+    end
+end
+
+-- ---------------------------------------------------------------------------
+-- handler for closing the frame
+function frame:CloseWindow(event)
+    frame.exitingProgram = true -- don't handle focus events
+
+    if not filer:SaveOnExit(event:CanVeto()) then
+        event:Veto()
+        frame.exitingProgram = false
+        return
+    end
+
+    app:RunPlugins("onClose")
+
+    frame:ConfigSaveFramePosition(frame, "MainFrame")
+    event:Skip()
 end
 
 -- ---------------------------------------------------------------------------
@@ -165,7 +194,7 @@ frame:Connect(ID.EXIT, wx.wxEVT_COMMAND_MENU_SELECTED,
 -- ---------------------------------------------------------------------------
 -- Attach callback functions to Edit menu
 
-function OnUpdateUIEditMenu(event) -- enable if there is a valid focused editor
+local function OnUpdateUIEditMenu(event) -- enable if there is a valid focused editor
     local editor = notebook:GetEditor()
     event:Enable(editor ~= nil)
 end
@@ -231,7 +260,7 @@ frame:Connect(ID.AUTOCOMPLETE, wx.wxEVT_UPDATE_UI, OnUpdateUIEditMenu)
 
 frame:Connect(ID.AUTOCOMPLETE_ENABLE, wx.wxEVT_COMMAND_MENU_SELECTED,
         function (event)
-            autoCompleteEnable = event:IsChecked()
+            app.autoCompleteEnable = event:IsChecked()
         end)
 
 frame:Connect(ID.COMMENT, wx.wxEVT_COMMAND_MENU_SELECTED,
@@ -389,4 +418,12 @@ frame:Connect(ID.HELP_PROJECT, wx.wxEVT_COMMAND_MENU_SELECTED,
 frame:Connect(ID.HELP_SUPPORT, wx.wxEVT_COMMAND_MENU_SELECTED,
     function(event)
         help:OpenHelpPage(event:GetId())
+    end)
+
+-- ---------------------------------------------------------------------------
+--- Attach the handler for closing the frame
+
+frame:Connect(wx.wxEVT_CLOSE_WINDOW,
+    function (event)
+        frame:CloseWindow(event)
     end)

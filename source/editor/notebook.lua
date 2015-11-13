@@ -122,7 +122,7 @@ notebook:SetDropTarget(notebookFileDropTarget)
 
 notebook:Connect(wx.wxEVT_COMMAND_NOTEBOOK_PAGE_CHANGED,
         function (event)
-            if not exitingProgram then
+            if not frame.exitingProgram then
                 notebook:SetEditorSelection(event:GetSelection())
             end
             event:Skip() -- skip to let page change
