@@ -44,7 +44,7 @@ local function DoSetupStyles(editor, n, style)
     end
 end
 
-function SetupEditor(editor, ext)
+function frame:SetupEditor(editor, ext)
     local name = app.filetype[ext]
     if name ~= nil then
         local lexer = app.lexers[name]

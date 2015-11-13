@@ -368,7 +368,7 @@ end
 
 if notebook:GetPageCount() == 0 then
     local editor = CreateEditor("untitled.tex")
-    SetupEditor(editor, "tex")
+    frame:SetupEditor(editor, "tex")
 end
 
 -- ---------------------------------------------------------------------------

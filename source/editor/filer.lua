@@ -3,7 +3,7 @@ filer = {}
 
 function filer:NewFile(event)
     local editor = CreateEditor("untitled.tex")
-    SetupEditor(editor, "tex")
+    frame:SetupEditor(editor, "tex")
 end
 
 -- Find an editor page that hasn't been used at all, eg. an untouched NewFile()
@@ -72,7 +72,7 @@ function filer:LoadFile(fullpath, editor, file_must_exist)
     openDocuments[id].suffix = fp:GetExt()
     openDocuments[id].modTime = GetFileModTime(fullpath)
     SetDocumentModified(id, false)
-    SetupEditor(editor, fp:GetExt())
+    frame:SetupEditor(editor, fp:GetExt())
 
     return editor
 end
@@ -161,7 +161,7 @@ function filer:SaveFileAs(editor)
         end
 
         if save_file and filer:SaveFile(editor, fullpath) then
-            SetupEditor(editor, wx.wxFileName(fullpath):GetExt())
+            frame:SetupEditor(editor, wx.wxFileName(fullpath):GetExt())
             saved = true
         end
     end
