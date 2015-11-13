@@ -234,7 +234,7 @@ function app:CreateEditor(parent, ...)
 
     editor:Connect(wxstc.wxEVT_STC_UPDATEUI,
             function (event)
-                UpdateStatusText(editor)
+                statusbar:UpdateStatusText(editor)
             end)
 
     editor:Connect(wx.wxEVT_SET_FOCUS,
