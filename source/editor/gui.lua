@@ -91,42 +91,9 @@ dofile(source .. sep .. "editor" .. sep .. "console.lua")
 
 splitter:Initialize(notebook) -- split later to show console
 
--- ----------------------------------------------------------------------------
--- Set if the document is modified and update the notebook page text
-function SetDocumentModified(id, modified)
-    local pageText = openDocuments[id].fullname or "untitled.tex"
-
-    if modified then
-        pageText = "* "..pageText
-    end
-
-    openDocuments[id].isModified = modified
-    notebook:SetPageText(openDocuments[id].index, pageText)
-end
-
 dofile(source .. sep .. "editor" .. sep .. "editor.lua")
 
 -- ----------------------------------------------------------------------------
--- Create an editor and add it to the notebook
-function CreateEditor(name)
-    local editor = app:CreateEditor(notebook, wx.wxDefaultPosition,
-                                    wx.wxDefaultSize, wx.wxSUNKEN_BORDER)
-
-    if notebook:AddPage(editor, name, true) then
-        local id            = editor:GetId()
-        local document      = {}
-        document.editor     = editor
-        document.index      = notebook:GetSelection()
-        document.fullname   = nil
-        document.fullpath   = nil
-        document.modTime    = nil
-        document.isModified = false
-        openDocuments[id]   = document
-    end
-
-    return editor
-end
-
 -- force all the wxEVT_UPDATE_UI handlers to be called
 function UpdateUIMenuItems()
     if frame and frame:GetMenuBar() then
@@ -186,8 +153,8 @@ for _, option in ipairs(app.openFiles) do
 end
 
 if notebook:GetPageCount() == 0 then
-    local editor = CreateEditor("untitled.tex")
-    frame:SetupEditor(editor, "tex")
+    local editor = notebook:AddEditor("untitled.tex")
+    notebook:SetupEditor(editor, "tex")
 end
 
 -- ---------------------------------------------------------------------------

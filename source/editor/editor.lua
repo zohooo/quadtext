@@ -224,12 +224,12 @@ function app:CreateEditor(parent, ...)
 
     editor:Connect(wxstc.wxEVT_STC_SAVEPOINTREACHED,
             function (event)
-                SetDocumentModified(editor:GetId(), false)
+                notebook:SetDocumentModified(editor:GetId(), false)
             end)
 
     editor:Connect(wxstc.wxEVT_STC_SAVEPOINTLEFT,
             function (event)
-                SetDocumentModified(editor:GetId(), true)
+                notebook:SetDocumentModified(editor:GetId(), true)
             end)
 
     editor:Connect(wxstc.wxEVT_STC_UPDATEUI,

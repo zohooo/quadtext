@@ -3,13 +3,6 @@ dofile(source .. sep .. "setting" .. sep .. "setting-command.lua")
 
 tool = {}
 
-function SetAllEditorsReadOnly(enable)
-    for id, document in pairs(openDocuments) do
-        local editor = document.editor
-        editor:SetReadOnly(enable)
-    end
-end
-
 function tool:ExpandCommand(cmd, doc)
     cmd = cmd:gsub("#%a+", {
         ["#program"]   = app.programName .. ' ' .. app.scriptName,

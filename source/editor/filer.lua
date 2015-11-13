@@ -2,8 +2,8 @@
 filer = {}
 
 function filer:NewFile(event)
-    local editor = CreateEditor("untitled.tex")
-    frame:SetupEditor(editor, "tex")
+    local editor = notebook:AddEditor("untitled.tex")
+    notebook:SetupEditor(editor, "tex")
 end
 
 -- Find an editor page that hasn't been used at all, eg. an untouched NewFile()
@@ -54,7 +54,7 @@ function filer:LoadFile(fullpath, editor, file_must_exist)
         editor = FindDocumentToReuse()
     end
     if not editor then
-        editor = CreateEditor(wx.wxFileName(fullpath):GetFullName() or "untitled.tex")
+        editor = notebook:AddEditor(wx.wxFileName(fullpath):GetFullName() or "untitled.tex")
     end
 
     editor:Clear()
@@ -71,8 +71,8 @@ function filer:LoadFile(fullpath, editor, file_must_exist)
     openDocuments[id].basename = fp:GetName()
     openDocuments[id].suffix = fp:GetExt()
     openDocuments[id].modTime = filer:GetFileModTime(fullpath)
-    SetDocumentModified(id, false)
-    frame:SetupEditor(editor, fp:GetExt())
+    notebook:SetDocumentModified(id, false)
+    notebook:SetupEditor(editor, fp:GetExt())
 
     return editor
 end
@@ -126,7 +126,7 @@ function filer:SaveFile(editor, fullpath)
             openDocuments[id].basename = fp:GetName()
             openDocuments[id].suffix = fp:GetExt()
             openDocuments[id].modTime  = filer:GetFileModTime(fullpath)
-            SetDocumentModified(id, false)
+            notebook:SetDocumentModified(id, false)
             return true
         else
             wx.wxMessageBox("Unable to save file '"..fullpath.."'.",
@@ -161,7 +161,7 @@ function filer:SaveFileAs(editor)
         end
 
         if save_file and filer:SaveFile(editor, fullpath) then
-            frame:SetupEditor(editor, wx.wxFileName(fullpath):GetExt())
+            notebook:SetupEditor(editor, wx.wxFileName(fullpath):GetExt())
             saved = true
         end
     end

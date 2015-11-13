@@ -7,6 +7,26 @@ notebook = wx.wxNotebook(splitter, wx.wxID_ANY,
                          wx.wxCLIP_CHILDREN)
 
 -- ----------------------------------------------------------------------------
+-- Create an editor and add it to the notebook
+function notebook:AddEditor(name)
+    local editor = app:CreateEditor(notebook, wx.wxDefaultPosition,
+                                    wx.wxDefaultSize, wx.wxSUNKEN_BORDER)
+
+    if notebook:AddPage(editor, name, true) then
+        local id            = editor:GetId()
+        local document      = {}
+        document.editor     = editor
+        document.index      = notebook:GetSelection()
+        document.fullname   = nil
+        document.fullpath   = nil
+        document.modTime    = nil
+        document.isModified = false
+        openDocuments[id]   = document
+    end
+
+    return editor
+end
+
 -- Get/Set notebook editor page, use nil for current page, returns nil if none
 function notebook:GetEditor(selection)
     local editor = nil
@@ -61,6 +81,26 @@ function notebook:RemoveEditor(index)
     end
 
     notebook:SetEditorSelection(nil) -- will use notebook GetSelection to update
+end
+
+-- ----------------------------------------------------------------------------
+-- Set if the document is modified and update the notebook page text
+function notebook:SetDocumentModified(id, modified)
+    local pageText = openDocuments[id].fullname or "untitled.tex"
+
+    if modified then
+        pageText = "* "..pageText
+    end
+
+    openDocuments[id].isModified = modified
+    notebook:SetPageText(openDocuments[id].index, pageText)
+end
+
+function notebook:SetAllEditorsReadOnly(enable)
+    for id, document in pairs(openDocuments) do
+        local editor = document.editor
+        editor:SetReadOnly(enable)
+    end
 end
 
 -- ----------------------------------------------------------------------------
