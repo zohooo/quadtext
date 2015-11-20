@@ -68,6 +68,9 @@ for ARG in "$@"; do
         BUILD_ICONV=true
         BUILD_LUAICONV=true
         ;;
+    starter)
+        BUILD_STARTER=true
+        ;;
     debug)
         WXLUASTRIP=""
         WXWIDGETSDEBUG="--enable-debug=max --enable-debug_gdb"
@@ -81,6 +84,7 @@ for ARG in "$@"; do
         BUILD_WXLUA=true
         BUILD_ICONV=true
         BUILD_LUAICONV=true
+        BUILD_STARTER=true
         ;;
     *)
         echo "Error: invalid argument $ARG"
@@ -177,6 +181,7 @@ if [ $BUILD_WXLUA ]; then
     cd ..
 fi
 
+# build iconv
 if [ $BUILD_ICONV ]; then
     prepare_source $ICONV_BASENAME $ICONV_FILENAME $ICONV_URL
     cd "$ICONV_BASENAME"
@@ -186,6 +191,7 @@ if [ $BUILD_ICONV ]; then
     cd ..
 fi
 
+# build lua-iconv
 if [ $BUILD_LUAICONV ]; then
     prepare_source $LUAICONV_BASENAME $LUAICONV_FILENAME $LUAICONV_URL
     cd "$LUAICONV_BASENAME"
@@ -194,6 +200,14 @@ if [ $BUILD_LUAICONV ]; then
     cp iconv.dll "$INSTALL_DIR/bin"
     [ -f "$INSTALL_DIR/bin/iconv.dll" ] || { echo "Error: iconv.dll isn't found"; exit 1; }
     cd ..
+fi
+
+# build launcher
+if [ $BUILD_STARTER ]; then
+    windres $BUILD_DIR/windows/quadtext.rc quadtext.rc.o
+    gcc -O2 -s -mwindows -o ../quadtext.exe $BUILD_DIR/windows/starter.c quadtext.rc.o
+    rm quadtext.rc.o
+    [ -f ../quadtext.exe ] || { echo "Error: quadtext.exe isn't found"; exit 1; }
 fi
 
 # now copy the compiled dependencies to binary directory
