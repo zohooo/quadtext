@@ -133,7 +133,7 @@ singletonTimer:Start(250);
 -- ---------------------------------------------------------------------------
 -- Finish creating the frame and show it
 
---frame:SetIcon(wxLuaEditorIcon) --FIXME add this back
+frame:SetIcon(wx.wxIcon(app:GetPath("image", "quadtext.png"), wx.wxBITMAP_TYPE_PNG))
 frame:Show(true)
 
 -- Call wx.wxGetApp():MainLoop() last to start the wxWidgets event loop,
