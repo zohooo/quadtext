@@ -1,5 +1,5 @@
 
-dofile(source .. sep .. "setting" .. sep .. "setting-command.lua")
+dofile(app:GetPath("source", "setting", "setting-command.lua"))
 
 tool = {}
 

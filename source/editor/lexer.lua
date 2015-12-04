@@ -5,7 +5,7 @@ app.filetype = {}
 local all_lexers = {"tex", "lua"}
 
 for _, name in ipairs(all_lexers) do
-    local lexer = dofile(source .. "/lexer/lexer_" .. name .. ".lua")
+    local lexer = dofile(app:GetPath("source", "lexer", "lexer_" .. name .. ".lua"))
     app.lexers[name] = lexer
     for _, ext in ipairs(lexer.extensions) do
         app.filetype[ext] = name

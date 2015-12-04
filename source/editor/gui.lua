@@ -24,7 +24,7 @@ function HasBit(value, num)
     return true
 end
 
-dofile(source .. sep .. "editor" .. sep .. "id.lua")
+dofile(app:GetPath("source", "editor", "id.lua"))
 
 openDocuments    = {}     -- open notebook editor documents[winId] = {
                           --   editor     = wxStyledTextCtrl,
@@ -64,24 +64,24 @@ splitter = wx.wxSplitterWindow(frame, wx.wxID_ANY,
                                wx.wxDefaultPosition, wx.wxDefaultSize,
                                wx.wxSP_3DSASH)
 
-dofile(source .. sep .. "editor" .. sep .. "notebook.lua")
-dofile(source .. sep .. "editor" .. sep .. "editor.lua")
-dofile(source .. sep .. "editor" .. sep .. "console.lua")
+dofile(app:GetPath("source", "editor", "notebook.lua"))
+dofile(app:GetPath("source", "editor", "editor.lua"))
+dofile(app:GetPath("source", "editor", "console.lua"))
 
 splitter:Initialize(notebook) -- split later to show console
 
-dofile(source .. sep .. "editor" .. sep .. "menubar.lua")
-dofile(source .. sep .. "editor" .. sep .. "toolbar.lua")
-dofile(source .. sep .. "editor" .. sep .. "statusbar.lua")
-dofile(source .. sep .. "editor" .. sep .. "encoding.lua")
-dofile(source .. sep .. "editor" .. sep .. "filer.lua")
-dofile(source .. sep .. "editor" .. sep .. "printing.lua")
-dofile(source .. sep .. "editor" .. sep .. "finder.lua")
-dofile(source .. sep .. "editor" .. sep .. "tool.lua")
-dofile(source .. sep .. "editor" .. sep .. "option.lua")
-dofile(source .. sep .. "editor" .. sep .. "help.lua")
-dofile(source .. sep .. "editor" .. sep .. "lexer.lua")
-dofile(source .. sep .. "editor" .. sep .. "frame.lua")
+dofile(app:GetPath("source", "editor", "menubar.lua"))
+dofile(app:GetPath("source", "editor", "toolbar.lua"))
+dofile(app:GetPath("source", "editor", "statusbar.lua"))
+dofile(app:GetPath("source", "editor", "encoding.lua"))
+dofile(app:GetPath("source", "editor", "filer.lua"))
+dofile(app:GetPath("source", "editor", "printing.lua"))
+dofile(app:GetPath("source", "editor", "finder.lua"))
+dofile(app:GetPath("source", "editor", "tool.lua"))
+dofile(app:GetPath("source", "editor", "option.lua"))
+dofile(app:GetPath("source", "editor", "help.lua"))
+dofile(app:GetPath("source", "editor", "lexer.lua"))
+dofile(app:GetPath("source", "editor", "frame.lua"))
 
 frame:ConfigRestoreFramePosition(frame, "MainFrame")
 

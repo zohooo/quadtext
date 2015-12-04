@@ -1,7 +1,7 @@
 
 app = { version = "0.0.7" }
 
-sep = package.config:sub(1,1) -- path separator
+local sep = package.config:sub(1,1) -- path separator
 
 local ext = ""
 
@@ -23,7 +23,7 @@ require("wx")
 local maindir, mainlua = "source", "main.lua"
 local tail = maindir..sep..mainlua
 
-mainpath = arg and arg[0]
+local mainpath = arg and arg[0]
     or debug and debug.getinfo(1, "S").source:sub(2)
     or tail -- assume current working dir is the program dir
 
@@ -36,8 +36,14 @@ else
     return
 end
 
+function app:GetPath(...)
+    local list = {...}
+    table.insert(list, 1, mainpath)
+    return table.concat(list, sep)
+end
+
 local _, path = wx.wxGetEnv("PATH")
-wx.wxSetEnv("PATH", mainpath .. sep .. "viewer;" .. path)
+wx.wxSetEnv("PATH", app:GetPath("viewer") .. ";" .. path)
 
 app.autoCompleteEnable = true
 
@@ -162,14 +168,12 @@ function app:RunPlugins(event)
     end
 end
 
-source = mainpath .. sep .. maindir
+LoadPlugins(app:GetPath("source", "plugin"))
 
-LoadPlugins(source .. sep .. "plugin")
-
-dofile(source .. sep .. "setting" .. sep .. "setting-editor.lua")
+dofile(app:GetPath("source", "setting", "setting-editor.lua"))
 
 local theme = tostring(app.setting.editor.theme or "light")
 if theme == "" then theme = "light" end
-app.theme = dofile(source .. sep .. "theme" .. sep .. theme .. ".lua")
+app.theme = dofile(app:GetPath("source", "theme", theme .. ".lua"))
 
-dofile(source .. sep .. "editor" .. sep .. "gui.lua")
+dofile(app:GetPath("source", "editor", "gui.lua"))
