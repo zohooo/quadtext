@@ -20,7 +20,7 @@ end
 P.onClose = function()
     local config = app:GetConfig()
     if not config then return end
-    for id, doc in pairs(openDocuments) do
+    for id, doc in pairs(notebook.openDocuments) do
         config:SetPath("/RememberFiles")
         print(doc.fullpath)
         config:Write(tostring(id), doc.fullpath)

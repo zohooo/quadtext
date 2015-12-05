@@ -106,7 +106,7 @@ frame:Connect(ID.SAVE, wx.wxEVT_COMMAND_MENU_SELECTED,
         function (event)
             local editor   = notebook:GetEditor()
             local id       = editor:GetId()
-            local fullpath = openDocuments[id].fullpath
+            local fullpath = notebook.openDocuments[id].fullpath
             filer:SaveFile(editor, fullpath)
         end)
 
@@ -115,8 +115,8 @@ frame:Connect(ID.SAVE, wx.wxEVT_UPDATE_UI,
             local editor = notebook:GetEditor()
             if editor then
                 local id = editor:GetId()
-                if openDocuments[id] then
-                    event:Enable(openDocuments[id].isModified)
+                if notebook.openDocuments[id] then
+                    event:Enable(notebook.openDocuments[id].isModified)
                 end
             end
         end)
@@ -141,7 +141,7 @@ frame:Connect(ID.SAVEALL, wx.wxEVT_COMMAND_MENU_SELECTED,
 frame:Connect(ID.SAVEALL, wx.wxEVT_UPDATE_UI,
         function (event)
             local atLeastOneModifiedDocument = false
-            for id, document in pairs(openDocuments) do
+            for id, document in pairs(notebook.openDocuments) do
                 if document.isModified then
                     atLeastOneModifiedDocument = true
                     break
@@ -155,7 +155,7 @@ frame:Connect(ID.CLOSE, wx.wxEVT_COMMAND_MENU_SELECTED,
             local editor = notebook:GetEditor()
             local id     = editor:GetId()
             if filer:SaveModifiedDialog(editor, true) ~= wx.wxID_CANCEL then
-                notebook:RemoveEditor(openDocuments[id].index)
+                notebook:RemoveEditor(notebook.openDocuments[id].index)
             end
         end)
 

@@ -3,6 +3,8 @@ dofile(app:GetPath("source", "setting", "setting-command.lua"))
 
 tool = {}
 
+local openDocuments = notebook.openDocuments
+
 function tool:ExpandCommand(cmd, doc)
     cmd = cmd:gsub("#%a+", {
         ["#program"]   = app.programName .. ' ' .. app.scriptName,

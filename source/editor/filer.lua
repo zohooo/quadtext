@@ -1,6 +1,8 @@
 
 filer = {}
 
+local openDocuments = notebook.openDocuments
+
 function filer:NewFile(event)
     local editor = notebook:AddEditor("untitled.tex")
     notebook:SetupEditor(editor, "tex")

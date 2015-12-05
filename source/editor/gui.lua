@@ -26,17 +26,6 @@ end
 
 dofile(app:GetPath("source", "editor", "id.lua"))
 
-openDocuments    = {}     -- open notebook editor documents[winId] = {
-                          --   editor     = wxStyledTextCtrl,
-                          --   index      = wxNotebook page index,
-                          --   fullpath   = full filepath, nil if not saved,
-                          --   fullname   = full filename with extension
-                          --   directory  = filepath without filename
-                          --   basename   = filename without extension
-                          --   suffix     = filename extension
-                          --   modTime    = wxDateTime of disk file or nil,
-                          --   isModified = bool is the document modified? }
-
 -- ----------------------------------------------------------------------------
 -- Pick some reasonable fixed width fonts to use for the editor
 

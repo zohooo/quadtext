@@ -109,7 +109,7 @@ function printing:ConnectPrintEvents(printOut)
             dc:SetTextForeground(wx.wxBLACK)
             dc:SetFont(app.font)
 
-            dc:DrawText(openDocuments[editor:GetId()].fullname or "untitled.tex", printRect.X, printRect.Y)
+            dc:DrawText(notebook.openDocuments[editor:GetId()].fullname or "untitled.tex", printRect.X, printRect.Y)
             dc:DrawText(printOut.startTime, printRect.Width/2 - dc:GetTextExtentSize(printOut.startTime).Width/2 + printRect.Left, printRect.Y)
             dc:DrawText(pageNo, printRect.Width - dc:GetTextExtentSize(pageNo).Width,  printRect.Y)
             dc:DrawLine(printRect.X,     printRect.Y + headerHeight + 1,

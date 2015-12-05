@@ -6,6 +6,19 @@ notebook = wx.wxNotebook(splitter, wx.wxID_ANY,
                          wx.wxDefaultPosition, wx.wxDefaultSize,
                          wx.wxCLIP_CHILDREN)
 
+notebook.openDocuments = {}
+-- open notebook editor documents[winId] = {
+--   editor     = wxStyledTextCtrl,
+--   index      = wxNotebook page index,
+--   encoding   = file encoding,
+--   fullpath   = full filepath, nil if not saved,
+--   fullname   = full filename with extension,
+--   directory  = filepath without filename,
+--   basename   = filename without extension,
+--   suffix     = filename extension,
+--   modTime    = wxDateTime of disk file or nil,
+--   isModified = bool is the document modified? }
+
 -- ----------------------------------------------------------------------------
 -- Create an editor and add it to the notebook
 function notebook:AddEditor(name)
@@ -21,7 +34,7 @@ function notebook:AddEditor(name)
         document.fullpath   = nil
         document.modTime    = nil
         document.isModified = false
-        openDocuments[id]   = document
+        self.openDocuments[id]   = document
     end
 
     return editor
@@ -56,7 +69,7 @@ function notebook:RemoveEditor(index)
     local  nextIndex = nil
     local newOpenDocuments = {}
 
-    for id, document in pairs(openDocuments) do
+    for id, document in pairs(self.openDocuments) do
         if document.index < index then
             newOpenDocuments[id] = document
             prevIndex = document.index
@@ -72,7 +85,7 @@ function notebook:RemoveEditor(index)
     end
 
     notebook:RemovePage(index)
-    openDocuments = newOpenDocuments
+    self.openDocuments = newOpenDocuments
 
     if nextIndex then
         notebook:SetSelection(nextIndex)
@@ -86,18 +99,18 @@ end
 -- ----------------------------------------------------------------------------
 -- Set if the document is modified and update the notebook page text
 function notebook:SetDocumentModified(id, modified)
-    local pageText = openDocuments[id].fullname or "untitled.tex"
+    local pageText = self.openDocuments[id].fullname or "untitled.tex"
 
     if modified then
         pageText = "* "..pageText
     end
 
-    openDocuments[id].isModified = modified
-    notebook:SetPageText(openDocuments[id].index, pageText)
+    self.openDocuments[id].isModified = modified
+    notebook:SetPageText(self.openDocuments[id].index, pageText)
 end
 
 function notebook:SetAllEditorsReadOnly(enable)
-    for id, document in pairs(openDocuments) do
+    for id, document in pairs(self.openDocuments) do
         local editor = document.editor
         editor:SetReadOnly(enable)
     end
