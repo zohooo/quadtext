@@ -65,35 +65,27 @@ end
 
 -- remove notebook editor page
 function notebook:RemoveEditor(index)
-    local  prevIndex = nil
-    local  nextIndex = nil
-    local newOpenDocuments = {}
+    local newIndex = nil
+    local editorId = nil
 
     for id, document in pairs(self.openDocuments) do
-        if document.index < index then
-            newOpenDocuments[id] = document
-            prevIndex = document.index
-        elseif document.index == index then
+        if document.index == index then
             document.editor:Destroy()
+            editorId = id
         elseif document.index > index then
             document.index = document.index - 1
-            if nextIndex == nil then
-                nextIndex = document.index
-            end
-            newOpenDocuments[id] = document
         end
     end
 
-    notebook:RemovePage(index)
-    self.openDocuments = newOpenDocuments
+    self.openDocuments[editorId] = nil
+    self:RemovePage(index)
 
-    if nextIndex then
-        notebook:SetSelection(nextIndex)
-    elseif prevIndex then
-        notebook:SetSelection(prevIndex)
+    newIndex = iff(self:GetPageCount() > index, index, index - 1)
+    if newIndex >=0 then
+        self:SetSelection(newIndex)
     end
 
-    notebook:SetEditorSelection(nil) -- will use notebook GetSelection to update
+    self:SetEditorSelection(nil) -- will use notebook GetSelection to update
 end
 
 -- ----------------------------------------------------------------------------
