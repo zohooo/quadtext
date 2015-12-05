@@ -42,6 +42,8 @@ function app:GetPath(...)
     return table.concat(list, sep)
 end
 
+dofile(app:GetPath("source", "editor", "utility.lua"))
+
 local _, path = wx.wxGetEnv("PATH")
 wx.wxSetEnv("PATH", app:GetPath("viewer") .. ";" .. path)
 
