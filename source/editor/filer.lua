@@ -29,7 +29,7 @@ local function FindDocumentOpened(path)
     return nil
 end
 
-function filer:LoadFile(fullpath, editor, file_must_exist)
+function filer:LoadFile(fullpath, editor, mustExist, enc)
     -- If this file has been opened
     if not editor then
         local doc = FindDocumentOpened(fullpath)
@@ -39,18 +39,22 @@ function filer:LoadFile(fullpath, editor, file_must_exist)
         end
     end
 
-    local file_text, _ = ""
+    local text, _ = "", nil
     local handle = wx.wxFile(fullpath, wx.wxFile.read)
     if handle:IsOpened() then
-        _, file_text = handle:Read(wx.wxFileSize(fullpath))
+        _, text = handle:Read(wx.wxFileSize(fullpath))
         handle:Close()
-    elseif file_must_exist then
+    elseif mustExist then
         return nil
     end
 
     -- detect text encoding and convert its encoding to utf-8
-    local enc, text = encoding:Detect(file_text)
-    if not enc then return end
+    if enc then
+        text = encoding:Convert(text, enc, "UTF-8")
+    else
+        enc, text = encoding:Detect(text)
+    end
+    if not enc or not text then return end
 
     if not editor then
         editor = FindDocumentToReuse()

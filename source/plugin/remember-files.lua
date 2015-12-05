@@ -9,7 +9,12 @@ P.onLoad = function()
     while status do
         local _, value = config:Read(key, "")
         if value ~= "" then
-            filer:LoadFile(value, nil, true)
+            local i, _ = string.find(value, "|")
+            if i then
+                local enc = string.sub(value, 1, i-1)
+                local path = string.sub(value, i+1)
+                filer:LoadFile(path, nil, true, enc)
+            end
         end
         status, key, idx = config:GetNextEntry(idx)
     end
@@ -24,7 +29,7 @@ P.onClose = function()
         -- exclude untitled files
         if doc.fullpath then
             config:SetPath("/RememberFiles")
-            config:Write(tostring(id), doc.fullpath)
+            config:Write(tostring(id), doc.encoding .. "|" .. doc.fullpath)
         end
     end
     config:delete() -- the changes will be written back automatically
