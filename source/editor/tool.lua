@@ -7,7 +7,7 @@ local openDocuments = notebook.openDocuments
 
 function tool:ExpandCommand(cmd, doc)
     cmd = cmd:gsub("#%a+", {
-        ["#program"]   = app.programName .. ' ' .. app.scriptName,
+        ["#program"]   = app.starter,
         ["#fullpath"]  = doc.fullpath,
         ["#directory"] = doc.directory,
         ["#fullname"]  = doc.fullname,

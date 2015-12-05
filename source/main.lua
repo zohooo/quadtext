@@ -47,6 +47,8 @@ dofile(app:GetPath("source", "editor", "utility.lua"))
 local _, path = wx.wxGetEnv("PATH")
 wx.wxSetEnv("PATH", app:GetPath("viewer") .. ";" .. path)
 
+app.starter = app:GetPath(iff(app.osname == "windows", "quadtext.exe", "quadtext.sh"))
+
 app.autoCompleteEnable = true
 
 app.setting = {
