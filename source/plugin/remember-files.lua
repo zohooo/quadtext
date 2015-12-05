@@ -21,9 +21,11 @@ P.onClose = function()
     local config = app:GetConfig()
     if not config then return end
     for id, doc in pairs(notebook.openDocuments) do
-        config:SetPath("/RememberFiles")
-        print(doc.fullpath)
-        config:Write(tostring(id), doc.fullpath)
+        -- exclude untitled files
+        if doc.fullpath then
+            config:SetPath("/RememberFiles")
+            config:Write(tostring(id), doc.fullpath)
+        end
     end
     config:delete() -- the changes will be written back automatically
 end
