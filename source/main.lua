@@ -1,5 +1,5 @@
 
-app = { version = "0.0.7" }
+app = { version = "0.1" }
 
 local sep = package.config:sub(1,1) -- path separator
 
